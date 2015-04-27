@@ -14,6 +14,7 @@ public:
     int argc;
     char **argv;
     char **envp;
+    GtkWidget *label;
 };
 
 static void term_exited(GtkApplication* appx, gpointer _udata) {
@@ -22,6 +23,19 @@ static void term_exited(GtkApplication* appx, gpointer _udata) {
     g_application_quit(G_APPLICATION(app));
 }
 
+static gboolean keypress (GtkWidget *widget, GdkEvent *event,
+        gpointer _udata)
+{
+    if (event->type != GDK_KEY_PRESS) return 0;
+    HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
+    if (event->key.hardware_keycode == 38) {
+        gtk_widget_hide(hispixel->label);
+    }
+
+    //if (event->key.hardware_keycode == 38) return 1;
+    std::cout << "KEY " << event->key.hardware_keycode << std::endl;
+    return 0;
+}
 
 static void activate(GtkApplication* app, gpointer _udata)
 {
@@ -32,16 +46,19 @@ static void activate(GtkApplication* app, gpointer _udata)
     window = gtk_application_window_new (app);
 
     GdkColor color;
-    color.red = 0;
+    color.red = 0xffff;
     color.green = 0;
     color.blue = 0;
 
     gtk_widget_modify_bg(window, GTK_STATE_NORMAL, &color);
     gtk_window_set_title (GTK_WINDOW (window), "Window");
-    gtk_window_set_default_size (GTK_WINDOW (window), 200, 200);
+    gtk_window_set_default_size (GTK_WINDOW (window), 200, 400);
+
+
 
     GtkWidget * terminal = vte_terminal_new();
     g_signal_connect(terminal, "child-exited", G_CALLBACK(term_exited), app);
+    g_signal_connect(terminal, "key-press-event", G_CALLBACK(keypress), hispixel);
 
     GPid childpid;
 
@@ -65,9 +82,20 @@ static void activate(GtkApplication* app, gpointer _udata)
 
     ::free(argv[0]);
 
-    std::cout << ret << std::endl;
 
-    gtk_container_add (GTK_CONTAINER (window), terminal);
+    GtkWidget *label = gtk_label_new("smrt");
+    hispixel->label = label;
+
+    GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 1);
+
+
+
+    //gtk_box_set_homogeneous(GTK_BOX(box), 1);
+
+//    gtk_container_add (GTK_CONTAINER (box), label);
+    gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
+    gtk_box_pack_start(GTK_BOX(box), terminal, 1, 1, 0);
+    gtk_container_add (GTK_CONTAINER (window), box);
     gtk_widget_show_all (window);
 }
 
