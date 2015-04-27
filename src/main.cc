@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdlib.h>
 #include <gtk/gtk.h>
 #include <vte/vte.h>
 
@@ -24,41 +25,50 @@ static void term_exited(GtkApplication* appx, gpointer _udata) {
 
 static void activate(GtkApplication* app, gpointer _udata)
 {
-  std::cout << app << std::endl;
-  HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
-  GtkWidget *window;
+    std::cout << app << std::endl;
+    HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
+    GtkWidget *window;
 
-  window = gtk_application_window_new (app);
-  gtk_window_set_title (GTK_WINDOW (window), "Window");
-  gtk_window_set_default_size (GTK_WINDOW (window), 200, 200);
+    window = gtk_application_window_new (app);
 
-  GtkWidget * terminal = vte_terminal_new();
-  g_signal_connect(terminal, "child-exited", G_CALLBACK(term_exited), app);
+    GdkColor color;
+    color.red = 0;
+    color.green = 0;
+    color.blue = 0;
 
-  GPid childpid;
+    gtk_widget_modify_bg(window, GTK_STATE_NORMAL, &color);
+    gtk_window_set_title (GTK_WINDOW (window), "Window");
+    gtk_window_set_default_size (GTK_WINDOW (window), 200, 200);
 
-  const char * working_dir = 0;
+    GtkWidget * terminal = vte_terminal_new();
+    g_signal_connect(terminal, "child-exited", G_CALLBACK(term_exited), app);
 
-  char *argv[2];
-  argv[0] = strdup("/bin/bash");
-  argv[1] = 0;
+    GPid childpid;
 
-  int ret = vte_terminal_fork_command_full(VTE_TERMINAL(terminal),
-          VTE_PTY_DEFAULT, /* VtePtyFlags pty_flags */
-          working_dir, /* const char *working_directory */
-          argv, /* char **argv */
-          NULL, /* char **envv */
-          G_SPAWN_SEARCH_PATH,    /* GSpawnFlags spawn_flags */
-          NULL, /* GSpawnChildSetupFunc child_setup */
-          NULL, /* gpointer child_setup_data */
-          &childpid, /* GPid *child_pid */
-          NULL  /* GError **error */
-          );
+    const char * working_dir = 0;
 
-  std::cout << ret << std::endl;
+    char *argv[2];
+    argv[0] = strdup("/bin/bash");
+    argv[1] = 0;
 
-  gtk_container_add (GTK_CONTAINER (window), terminal);
-  gtk_widget_show_all (window);
+    int ret = vte_terminal_fork_command_full(VTE_TERMINAL(terminal),
+            VTE_PTY_DEFAULT, /* VtePtyFlags pty_flags */
+            working_dir, /* const char *working_directory */
+            argv, /* char **argv */
+            NULL, /* char **envv */
+            G_SPAWN_SEARCH_PATH,    /* GSpawnFlags spawn_flags */
+            NULL, /* GSpawnChildSetupFunc child_setup */
+            NULL, /* gpointer child_setup_data */
+            &childpid, /* GPid *child_pid */
+            NULL  /* GError **error */
+            );
+
+    ::free(argv[0]);
+
+    std::cout << ret << std::endl;
+
+    gtk_container_add (GTK_CONTAINER (window), terminal);
+    gtk_widget_show_all (window);
 }
 
 int main(int argc, char **argv, char** envp)
