@@ -8,7 +8,10 @@
 class HisPixelApp_t {
 public:
     HisPixelApp_t(int argc, char **argv, char** envp) :
-        argc(argc), argv(argv), envp(envp)
+        argc(argc),
+        argv(argv),
+        envp(envp),
+        label(0)
     {}
 
     int argc;
@@ -54,8 +57,6 @@ static void activate(GtkApplication* app, gpointer _udata)
     gtk_window_set_title (GTK_WINDOW (window), "Window");
     gtk_window_set_default_size (GTK_WINDOW (window), 200, 400);
 
-
-
     GtkWidget * terminal = vte_terminal_new();
     g_signal_connect(terminal, "child-exited", G_CALLBACK(term_exited), app);
     g_signal_connect(terminal, "key-press-event", G_CALLBACK(keypress), hispixel);
@@ -83,18 +84,16 @@ static void activate(GtkApplication* app, gpointer _udata)
     ::free(argv[0]);
 
 
+    GtkWidget * tabs = gtk_notebook_new();
     GtkWidget *label = gtk_label_new("smrt");
     hispixel->label = label;
-
     GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 1);
 
-
-
-    //gtk_box_set_homogeneous(GTK_BOX(box), 1);
-
-//    gtk_container_add (GTK_CONTAINER (box), label);
     gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
-    gtk_box_pack_start(GTK_BOX(box), terminal, 1, 1, 0);
+    gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
+    gtk_notebook_append_page(GTK_NOTEBOOK(tabs), terminal, 0);
+    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
+
     gtk_container_add (GTK_CONTAINER (window), box);
     gtk_widget_show_all (window);
 }
