@@ -5,6 +5,9 @@
 
 #include <iostream>
 
+#include "regevent.h"
+#include "keyevent.h"
+
 class HisPixelApp_t {
 public:
     HisPixelApp_t(int argc, char **argv, char** envp) :
@@ -12,15 +15,15 @@ public:
         argv(argv),
         envp(envp),
         label(0),
-        notebook(0),
         tabs(0),
         window(0),
         box(0)
     {}
 
-    void activate(GtkApplication* app);
-    
+    void activate(GtkApplication* app);    
     void open_tab();
+    void child_exited() {}
+    gboolean keypress(GtkWidget *widget, GdkEvent *event);
 
 
     int argc;
@@ -29,12 +32,22 @@ public:
 
     GtkApplication* app;
     GtkWidget *label;
-    GtkWidget *notebook;
     GtkWidget *tabs;
     GtkWidget *window;
     GtkWidget *box;
 };
 
+
+
+gboolean HisPixelApp_t::keypress(GtkWidget *widget, GdkEvent *event) {
+    if (s28::match_event("mod2 1", event)) {
+        std::cout << "hit!" << std::endl;
+    }
+
+    return FALSE;
+}
+
+/*
 static void term_exited(GtkApplication* appx, gpointer _udata) {
     HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
     //std::cout << app << std::endl;
@@ -55,7 +68,7 @@ static gboolean keypress (GtkWidget *widget, GdkEvent *event,
     std::cout << "KEY " << event->key.hardware_keycode << std::endl;
     return 0;
 }
-
+*/
 static void activate(GtkApplication* app, gpointer _udata)
 {
     HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
@@ -64,9 +77,12 @@ static void activate(GtkApplication* app, gpointer _udata)
 
 
 void HisPixelApp_t::open_tab() {
+
+    RegEvents_t<HisPixelApp_t> evts(this);
     GtkWidget * terminal = vte_terminal_new();
-    g_signal_connect(terminal, "child-exited", G_CALLBACK(term_exited), this);
-    g_signal_connect(terminal, "key-press-event", G_CALLBACK(keypress), this);
+
+    evts.reg_child_exited(terminal);
+    evts.reg_key_press_event(terminal);
 
     GPid childpid;
     char *argv[2];
@@ -87,9 +103,12 @@ void HisPixelApp_t::open_tab() {
             NULL  /* GError **error */
             );
 
+    working_dir = 0;
+
     ::free(argv[0]);
     int sel = gtk_notebook_append_page(GTK_NOTEBOOK(tabs), terminal, 0);
     std::cout << sel << std::endl;
+    gtk_widget_show(terminal);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);
     gtk_notebook_next_page (GTK_NOTEBOOK(tabs));
 
