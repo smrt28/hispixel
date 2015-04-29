@@ -66,28 +66,6 @@ void HisPixelApp_t::child_exited(VteTerminal *t, gint status) {
     }
 }
 
-/*
-static void term_exited(GtkApplication* appx, gpointer _udata) {
-    HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
-    //std::cout << app << std::endl;
-    //g_application_quit(G_APPLICATION(app));
-}
-
-static gboolean keypress (GtkWidget *widget, GdkEvent *event,
-        gpointer _udata)
-{
-    if (event->type != GDK_KEY_PRESS) return 0;
-    HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
-    if (event->key.hardware_keycode == 38) {
-        hispixel->open_tab();
-        //gtk_widget_hide(hispixel->label);
-    }
-
-    //if (event->key.hardware_keycode == 38) return 1;
-    std::cout << "KEY " << event->key.hardware_keycode << std::endl;
-    return 0;
-}
-*/
 static void activate(GtkApplication* app, gpointer _udata)
 {
     HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
@@ -167,8 +145,6 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
 
 int main(int argc, char **argv, char** envp)
 {
-
-
     HisPixelApp_t hispixel(argc, argv, envp);
     hispixel.config.init_defaults();
 
@@ -177,8 +153,6 @@ int main(int argc, char **argv, char** envp)
 
     app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
     g_signal_connect (app, "activate", G_CALLBACK (activate), &hispixel);
-
-
 
     status = g_application_run (G_APPLICATION (app), argc, argv);
     g_object_unref (app);
