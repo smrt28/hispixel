@@ -42,7 +42,7 @@ KeySym_t parse_key_sym(const std::string &descr) {
             DEF_MASK("mod5", GDK_MOD5_MASK);
         }
 
-        DEF_MASK("alt", GDK_MOD2_MASK);
+        DEF_MASK("alt", GDK_MOD1_MASK);
         DEF_MASK("ctrl", GDK_CONTROL_MASK);
         DEF_MASK("shift", GDK_SHIFT_MASK);
 
@@ -66,6 +66,7 @@ KeySym_t parse_key_sym(const std::string &descr) {
     }
     rv.key = key;
     rv.mask = mask;
+
     return rv;
 }
 
