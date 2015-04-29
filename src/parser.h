@@ -4,12 +4,13 @@
 #include <ctype.h>
 #include <string>
 
+#include "error.h"
+
 namespace s28 {
 namespace parser {
 
 class Parser_t {
 public:
-    class error_t {};
 
     Parser_t(const char *it, const char *eit) :
         it(it), eit(eit)
@@ -23,7 +24,9 @@ public:
         return std::string(it, eit);
     }
 
-    void raise() { throw error_t(); }
+    void raise() {
+        RAISE(CFG_PARSE);
+    }
     const char * begin() { return it; }
     const char * end() { return eit; }
 
@@ -111,7 +114,7 @@ inline std::string until_char_tr(Parser_t &p, char c) {
             break;
         }
         if (!isspace(*p)) eit = p.begin();
-        ++p;
+        p++;
     }
     return std::string(it, eit + 1);
 }
@@ -127,7 +130,7 @@ inline std::string until_eof_tr(Parser_t &p) {
             break;
         }
         if (!isspace(*p)) eit = p.begin();
-        ++p;
+        p++;
     }
     return std::string(it, eit + 1);
 }

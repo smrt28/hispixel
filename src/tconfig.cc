@@ -39,6 +39,7 @@ TConfig_t::Action_t action(parser::Parser_t &p) {
         return rv;
     }
 
+    RAISE(UNKNOWN_ACTION) << "probably unknown action: " << s;
 }
 
 }
@@ -55,6 +56,9 @@ int TConfig_t::parse_config_line(const std::string &line) {
         TConfig_t::Action_t action = parser::action(p);
         keybindings.push_back(KeyBinding_t(ks, action));
         return 1;
+    }
+    if (aword == "set") {
+        kv.insert(parser::eq(p));
     }
 
     return 0;
@@ -73,6 +77,7 @@ void TConfig_t::init_defaults() {
     parse_config_line("bindsym alt+9 focus 9");
     parse_config_line("bindsym alt+10 focus 10");
     parse_config_line("bindsym alt+ctrl+z opentab");
+    parse_config_line("set term_font = Terminus 8");
 }
 
 

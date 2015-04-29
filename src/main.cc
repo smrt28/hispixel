@@ -8,7 +8,7 @@
 #include "regevent.h"
 #include "keyevent.h"
 #include "tconfig.h"
-
+#include "error.h"
 class HisPixelApp_t {
 public:
     HisPixelApp_t(int argc, char **argv, char** envp) :
@@ -54,6 +54,7 @@ gboolean HisPixelApp_t::keypress(GtkWidget *widget, GdkEvent *event) {
         return TRUE;
     }
 
+    //gtk_widget_hide(GTK_WIDGET(label));
     return FALSE;
 }
 
@@ -77,6 +78,12 @@ void HisPixelApp_t::open_tab() {
 
     RegEvents_t<HisPixelApp_t> evts(this);
     GtkWidget * terminal = vte_terminal_new();
+
+    std::string font_name = config.get_value("term_font");
+
+    PangoFontDescription *description =
+        pango_font_description_from_string(font_name.c_str());
+    vte_terminal_set_font (VTE_TERMINAL(terminal), description);
 
     evts.reg_child_exited(terminal);
     evts.reg_key_press_event(terminal);
@@ -145,17 +152,21 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
 
 int main(int argc, char **argv, char** envp)
 {
-    HisPixelApp_t hispixel(argc, argv, envp);
-    hispixel.config.init_defaults();
-
-    GtkApplication *app;
     int status;
+    try {
+        HisPixelApp_t hispixel(argc, argv, envp);
+        hispixel.config.init_defaults();
 
-    app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
-    g_signal_connect (app, "activate", G_CALLBACK (activate), &hispixel);
+        GtkApplication *app;
 
-    status = g_application_run (G_APPLICATION (app), argc, argv);
-    g_object_unref (app);
+        app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+        g_signal_connect (app, "activate", G_CALLBACK (activate), &hispixel);
+
+        status = g_application_run (G_APPLICATION (app), argc, argv);
+        g_object_unref (app);
+    } catch(const s28::Error_t &e) {
+        std::cout << "err(" << e.code() << "): " << e.what() << std::endl;
+    }
 
     return status;
 }

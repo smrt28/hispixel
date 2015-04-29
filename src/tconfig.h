@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 
 #include "keyevent.h"
 
@@ -52,7 +53,16 @@ public:
 
 	void init_defaults();
 
+    std::string get_value(const std::string &key) {
+        auto it = kv.find(key);
+        if (it == kv.end()) return std::string();
+        return it->second;
+    }
+
+
+
 private:
+    std::map<std::string, std::string> kv;
 
 };
 
