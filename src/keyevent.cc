@@ -14,6 +14,7 @@ static void tolower(std::string &data) {
     std::transform(data.begin(), data.end(), data.begin(), ::tolower);
 }
 
+#define DEF_MASK(m, mm)  do { if (s == m) { mask |= mm; continue; } } while(0)
 
 KeySym_t parse_key_sym(const std::string &descr) {
     KeySym_t rv;
@@ -21,7 +22,6 @@ KeySym_t parse_key_sym(const std::string &descr) {
     boost::split(v, descr, boost::is_any_of("+"));
 
     guint mask = 0;
-
     uint32_t key = 0;
 
     for (std::string s: v) {
@@ -35,16 +35,16 @@ KeySym_t parse_key_sym(const std::string &descr) {
         tolower(s);
 
         if (s[0] == 'm') {
-            if (s == "mod1") { mask |= GDK_MOD1_MASK; continue; }
-            if (s == "mod2") { mask |= GDK_MOD2_MASK; continue; }
-            if (s == "mod3") { mask |= GDK_MOD3_MASK; continue; }
-            if (s == "mod4") { mask |= GDK_MOD4_MASK; continue; }
-            if (s == "mod5") { mask |= GDK_MOD5_MASK; continue; }
+            DEF_MASK("mod1", GDK_MOD1_MASK);
+            DEF_MASK("mod2", GDK_MOD2_MASK);
+            DEF_MASK("mod3", GDK_MOD3_MASK);
+            DEF_MASK("mod4", GDK_MOD4_MASK);
+            DEF_MASK("mod5", GDK_MOD5_MASK);
         }
 
-        if (s == "alt") { mask |= GDK_MOD2_MASK; continue; }
-        if (s == "ctrl") { mask |= GDK_CONTROL_MASK; continue; }
-        if (s == "shift") { mask |= GDK_SHIFT_MASK; continue; }
+        DEF_MASK("alt", GDK_MOD2_MASK);
+        DEF_MASK("ctrl", GDK_CONTROL_MASK);
+        DEF_MASK("shift", GDK_SHIFT_MASK);
 
         if (s[0] == 'f') {
             if (s == "f1") { key = GDK_KEY_F1; continue; }
@@ -69,7 +69,7 @@ KeySym_t parse_key_sym(const std::string &descr) {
     return rv;
 }
 
-bool match_event(GdkEvent *event, const KeySym_t &ks) {
+bool match_gtk_event(GdkEvent *event, const KeySym_t &ks) {
     if (event->type != GDK_KEY_PRESS &&
         event->type != GDK_KEY_RELEASE) return false;
 

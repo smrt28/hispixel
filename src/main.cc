@@ -36,22 +36,24 @@ public:
     GtkWidget *tabs;
     GtkWidget *window;
     GtkWidget *box;
+
+    s28::TConfig_t config;
 };
 
 gboolean HisPixelApp_t::keypress(GtkWidget *widget, GdkEvent *event) {
-    /*
-    if (s28::match_event("mod2 ctrl z", event)) {
-        std::cout << "hit 2!" << std::endl;
+
+    s28::TConfig_t::Action_t ac = config.find_action(event);
+
+    if (ac.type == s28::TConfig_t::Action_t::ACTION_OPENTAB) {
         open_tab();
         return TRUE;
-
     }
-    if (s28::match_event("mod2 1", event)) {
-        std::cout << "hit!" << std::endl;
+
+    if (ac.type == s28::TConfig_t::Action_t::ACTION_FOCUS) {
+        gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), ac.data - 1);
         return TRUE;
     }
 
-    */
     return FALSE;
 }
 
@@ -128,7 +130,7 @@ void HisPixelApp_t::open_tab() {
     gtk_widget_show(terminal);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);
     gtk_notebook_next_page (GTK_NOTEBOOK(tabs));
-    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
+    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 1);
 
 }
 
@@ -165,12 +167,10 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
 
 int main(int argc, char **argv, char** envp)
 {
-    s28::TConfig_t config;
-    config.init_defaults();
-    return 0;
 
 
     HisPixelApp_t hispixel(argc, argv, envp);
+    hispixel.config.init_defaults();
 
     GtkApplication *app;
     int status;

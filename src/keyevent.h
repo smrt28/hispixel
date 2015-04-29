@@ -15,7 +15,7 @@ public:
 };
 
 
-bool match_event(GdkEvent *event, const KeySym_t &ks);
+bool match_gtk_event(GdkEvent *event, const KeySym_t &ks);
 
 KeySym_t parse_key_sym(const std::string &descr);
 

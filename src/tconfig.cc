@@ -32,7 +32,13 @@ TConfig_t::Action_t action(parser::Parser_t &p) {
         rv.type = TConfig_t::Action_t::ACTION_FOCUS;
         rv.data = boost::lexical_cast<int>(word(p).str());
         return rv;
-    }    
+    }
+    if (s == "opentab") {
+        TConfig_t::Action_t rv;
+        rv.type = TConfig_t::Action_t::ACTION_OPENTAB;
+        return rv;
+    }
+
 }
 
 }
@@ -66,12 +72,13 @@ void TConfig_t::init_defaults() {
     parse_config_line("bindsym alt+8 focus 8");
     parse_config_line("bindsym alt+9 focus 9");
     parse_config_line("bindsym alt+10 focus 10");
+    parse_config_line("bindsym alt+ctrl+z opentab");
 }
 
 
 TConfig_t::Action_t TConfig_t::find_action(GdkEvent *event) {
     for (const KeyBinding_t &kb: keybindings) {
-        if (match_event(event, kb.keysym)) {
+        if (match_gtk_event(event, kb.keysym)) {
             return kb.action;
         }
     }

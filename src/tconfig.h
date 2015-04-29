@@ -19,7 +19,9 @@ public:
         {}
 		enum ActionType_t {
             ACTION_NONE,
-			ACTION_FOCUS
+			ACTION_FOCUS,
+            ACTION_OPENTAB
+
 		};
 
 		Action_t(ActionType_t type, int data) :
