@@ -7,6 +7,7 @@
 
 #include "regevent.h"
 #include "keyevent.h"
+#include "tconfig.h"
 
 class HisPixelApp_t {
 public:
@@ -22,7 +23,7 @@ public:
 
     void activate(GtkApplication* app);    
     void open_tab();
-    void child_exited() {}
+    void child_exited(VteTerminal *t, gint status);
     gboolean keypress(GtkWidget *widget, GdkEvent *event);
 
 
@@ -37,14 +38,30 @@ public:
     GtkWidget *box;
 };
 
-
-
 gboolean HisPixelApp_t::keypress(GtkWidget *widget, GdkEvent *event) {
+    /*
+    if (s28::match_event("mod2 ctrl z", event)) {
+        std::cout << "hit 2!" << std::endl;
+        open_tab();
+        return TRUE;
+
+    }
     if (s28::match_event("mod2 1", event)) {
         std::cout << "hit!" << std::endl;
+        return TRUE;
     }
 
+    */
     return FALSE;
+}
+
+void HisPixelApp_t::child_exited(VteTerminal *t, gint status) {
+    gint n = gtk_notebook_page_num(GTK_NOTEBOOK(tabs), GTK_WIDGET(t));
+    if (n < 0) return;
+    gtk_notebook_remove_page(GTK_NOTEBOOK(tabs), n);
+    if (gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs)) == 0) {
+        g_application_quit(G_APPLICATION(app));
+    }
 }
 
 /*
@@ -111,8 +128,7 @@ void HisPixelApp_t::open_tab() {
     gtk_widget_show(terminal);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);
     gtk_notebook_next_page (GTK_NOTEBOOK(tabs));
-
-    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 1);
+    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
 
 }
 
@@ -149,6 +165,11 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
 
 int main(int argc, char **argv, char** envp)
 {
+    s28::TConfig_t config;
+    config.init_defaults();
+    return 0;
+
+
     HisPixelApp_t hispixel(argc, argv, envp);
 
     GtkApplication *app;

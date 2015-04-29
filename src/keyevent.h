@@ -7,7 +7,17 @@
 
 namespace s28 {
 
-bool match_event(const std::string &descr, GdkEvent *event);
+class KeySym_t {
+public:
+    KeySym_t() : mask(0), key(0) {}
+    guint mask;
+    uint32_t key;
+};
+
+
+bool match_event(GdkEvent *event, const KeySym_t &ks);
+
+KeySym_t parse_key_sym(const std::string &descr);
 
 }
 

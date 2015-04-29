@@ -2,6 +2,7 @@
 #include <string>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include <ctype.h>
 
@@ -13,22 +14,18 @@ static void tolower(std::string &data) {
     std::transform(data.begin(), data.end(), data.begin(), ::tolower);
 }
 
-static guint MOD_MASK = GDK_MOD1_MASK /*| GDK_MOD2_MASK*/ | GDK_MOD3_MASK
-    | GDK_MOD4_MASK | GDK_MOD5_MASK | GDK_CONTROL_MASK | GDK_SHIFT_MASK;
 
-bool match_event(const std::string &descr, GdkEvent *event) {
-    if (event->type != GDK_KEY_PRESS &&
-        event->type != GDK_KEY_RELEASE) return false;
-
-
+KeySym_t parse_key_sym(const std::string &descr) {
+    KeySym_t rv;
     std::vector<std::string> v;
-    boost::split(v, descr, boost::is_any_of(" "));
+    boost::split(v, descr, boost::is_any_of("+"));
 
     guint mask = 0;
 
     uint32_t key = 0;
 
     for (std::string s: v) {
+        boost::trim(s);
         if (s.empty()) continue;
         if (s.size() == 1) {
             key = s[0];
@@ -44,7 +41,8 @@ bool match_event(const std::string &descr, GdkEvent *event) {
             if (s == "mod4") { mask |= GDK_MOD4_MASK; continue; }
             if (s == "mod5") { mask |= GDK_MOD5_MASK; continue; }
         }
-        
+
+        if (s == "alt") { mask |= GDK_MOD2_MASK; continue; }
         if (s == "ctrl") { mask |= GDK_CONTROL_MASK; continue; }
         if (s == "shift") { mask |= GDK_SHIFT_MASK; continue; }
 
@@ -66,15 +64,17 @@ bool match_event(const std::string &descr, GdkEvent *event) {
         if (s == "scrolllock") { key = GDK_KEY_Scroll_Lock; continue; }
         if (s == "delete") { key = GDK_KEY_Delete; continue; }
     }
+    rv.key = key;
+    rv.mask = mask;
+    return rv;
+}
 
-    if (key == 0) return false;
+bool match_event(GdkEvent *event, const KeySym_t &ks) {
+    if (event->type != GDK_KEY_PRESS &&
+        event->type != GDK_KEY_RELEASE) return false;
 
-    std::cout << gdk_keyval_name(event->key.keyval) << std::endl;
-
-    std::cout << event->key.keyval << " " << (event->key.state & MOD_MASK) << std::endl;
-    std::cout << "*" << key << " " << mask << std::endl;
-
-    if (key == event->key.keyval && (event->key.state & MOD_MASK) == mask)
+    if (ks.key == 0) return false;
+    if (ks.key == event->key.keyval && (event->key.state & ks.mask) == ks.mask)
         return true;
 
     return false;

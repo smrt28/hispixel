@@ -13,13 +13,15 @@ public:
         g_signal_connect(w, "child-exited", G_CALLBACK(child_exited), app);
     }
 
+
     void reg_key_press_event(GtkWidget * w) {
         g_signal_connect(w, "key-press-event", G_CALLBACK(keypress), app);
     }
 
 private:
-    static void child_exited(GtkApplication* appx, gpointer _udata) {
-        ((App_t *)_udata)->child_exited();
+
+    static void child_exited(VteTerminal *t, gint status, gpointer _udata) {
+        ((App_t *)_udata)->child_exited(t, status);
     }
     
     static gboolean keypress(GtkWidget *widget, GdkEvent *event,
