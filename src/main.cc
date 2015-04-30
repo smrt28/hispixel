@@ -41,7 +41,6 @@ public:
 };
 
 gboolean HisPixelApp_t::keypress(GtkWidget *widget, GdkEvent *event) {
-
     s28::TConfig_t::Action_t ac = config.find_action(event);
 
     if (ac.type == s28::TConfig_t::Action_t::ACTION_OPENTAB) {
@@ -115,7 +114,7 @@ void HisPixelApp_t::open_tab() {
     gtk_widget_show(terminal);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);
     gtk_notebook_next_page (GTK_NOTEBOOK(tabs));
-    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 1);
+    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
 
 }
 
@@ -137,7 +136,13 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
 
 
     tabs = gtk_notebook_new();
+    
     label = gtk_label_new("smrt");
+
+    color.red = 0xffff;
+    gtk_widget_modify_bg(label, GTK_STATE_NORMAL, &color);
+
+
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 1);
 
     gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
@@ -146,8 +151,11 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     open_tab();
 
     gtk_container_add (GTK_CONTAINER (window), box);
-    gtk_widget_show_all (window);
-
+    
+    gtk_widget_show_all(GTK_WIDGET(tabs));
+    gtk_widget_show(box);
+    gtk_widget_show(window);
+   // gtk_widget_show(label);
 }
 
 int main(int argc, char **argv, char** envp)
