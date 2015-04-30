@@ -79,9 +79,9 @@ int TConfig_t::parse_config_line(const std::string &line) {
 
 void TConfig_t::init_defaults() {
 
-    insert_default<std::string>("term_font", "Terminus 8");
-    insert_default<bool>("allow_bold", "1");
-
+    insert_default<std::string>("term_font", "Terminus");
+    insert_default<int>("term_font_size", "12");
+    insert_default<bool>("allow_bold", "true");
 
 
     parse_config_line("bindsym alt+1 focus 1");
@@ -95,7 +95,9 @@ void TConfig_t::init_defaults() {
     parse_config_line("bindsym alt+9 focus 9");
     parse_config_line("bindsym alt+10 focus 10");
     parse_config_line("bindsym alt+ctrl+z opentab");
-    parse_config_line("set term_font = Terminus 8");
+
+    parse_config_line("set term_font = Terminus");
+    parse_config_line("set term_font_size = 12");
     parse_config_line("set allow_bold = true");
 }
 
