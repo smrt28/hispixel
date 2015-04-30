@@ -1,6 +1,6 @@
 # hispixel
 
-Terminal application according my needs.
+Terminal application according to my needs.
 
 - minimalistic design
 - highly configurable
