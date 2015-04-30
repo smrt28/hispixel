@@ -168,6 +168,6 @@ inline std::pair<std::string, std::string> eq(Parser_t &p) {
 }
 
 } // nemaspace parser
-}  // namespace s28
+} // namespace s28
 
 #endif /* SRC_PARSER_H */

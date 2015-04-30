@@ -15,6 +15,7 @@ namespace aux {
             } catch(...) {
                 RAISE(VALUE_CAST);
             }
+            throw 1; // not reachable
         }
     };
 
@@ -26,13 +27,14 @@ namespace aux {
             if (s == "false" || s == "FALSE" || s == "False"
                     || s == "0") return false;
             RAISE(VALUE_CAST);
+            throw 1; // not reachable
         }
     };
 } // namespace aux
 
 template<typename Type_t>
 Type_t value_cast(const std::string &s) {
-    return aux::ValueCast_t<Type_t>(s);
+    return aux::ValueCast_t<Type_t>::cast(s);
 }
 } // namespace s28
 

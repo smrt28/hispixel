@@ -29,11 +29,13 @@ namespace errcode {
 
     typedef ErrorCode_t<errc::INTERNAL, 401> IMPOSSIBLE;
     typedef ErrorCode_t<errc::INTERNAL, 402> ARGS;
+    typedef ErrorCode_t<errc::INTERNAL, 500> FATAL;
+
 
     typedef ErrorCode_t<errc::CONFIG_PARSE, 800> CFG_PARSE;
     typedef ErrorCode_t<errc::CONFIG_PARSE, 801> UNKNOWN_ACTION;
-
-
+    typedef ErrorCode_t<errc::CONFIG_PARSE, 802> VALUE_CAST;
+    typedef ErrorCode_t<errc::CONFIG_PARSE, 803> VALUE_DEFINITION;
 }
 }
 

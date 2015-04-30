@@ -78,7 +78,10 @@ void HisPixelApp_t::open_tab() {
     RegEvents_t<HisPixelApp_t> evts(this);
     GtkWidget * terminal = vte_terminal_new();
 
-    std::string font_name = config.get_value("term_font");
+    config.get<std::string>("term_font");
+    config.get<bool>("allow_bold");
+
+    std::string font_name = "Terminus 8"; //config.get_value("term_font");
 
     PangoFontDescription *description =
         pango_font_description_from_string(font_name.c_str());

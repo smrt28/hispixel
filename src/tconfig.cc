@@ -5,6 +5,7 @@
 #include "tconfig.h"
 #include "parser.h"
 #include "keyevent.h"
+#include "valuecast.h"
 
 namespace s28 {
 
@@ -40,6 +41,7 @@ TConfig_t::Action_t action(parser::Parser_t &p) {
     }
 
     RAISE(UNKNOWN_ACTION) << "probably unknown action: " << s;
+    return TConfig_t::Action_t();
 }
 
 }
@@ -58,7 +60,17 @@ int TConfig_t::parse_config_line(const std::string &line) {
         return 1;
     }
     if (aword == "set") {
-        kv.insert(parser::eq(p));
+        auto res = parser::eq(p);
+        try {
+            auto it = kv.find(res.first);
+            if (it == kv.end()) {
+                RAISE(CFG_PARSE) << "unknown config key: " << res.first;
+            }
+            it->second->set(res.second);
+            return 1;
+        } catch(...) {
+            RAISE(CFG_PARSE) << "invalid value for: " << res.first;
+        }
     }
 
     return 0;
@@ -66,6 +78,12 @@ int TConfig_t::parse_config_line(const std::string &line) {
 
 
 void TConfig_t::init_defaults() {
+
+    insert_default<std::string>("term_font", "Terminus 8");
+    insert_default<bool>("allow_bold", "1");
+
+
+
     parse_config_line("bindsym alt+1 focus 1");
     parse_config_line("bindsym alt+2 focus 2");
     parse_config_line("bindsym alt+3 focus 3");
@@ -78,6 +96,7 @@ void TConfig_t::init_defaults() {
     parse_config_line("bindsym alt+10 focus 10");
     parse_config_line("bindsym alt+ctrl+z opentab");
     parse_config_line("set term_font = Terminus 8");
+    parse_config_line("set allow_bold = true");
 }
 
 
