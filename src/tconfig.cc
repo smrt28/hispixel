@@ -102,7 +102,7 @@ void TConfig_t::init_defaults() {
 }
 
 
-TConfig_t::Action_t TConfig_t::find_action(GdkEvent *event) {
+TConfig_t::Action_t TConfig_t::find_action(GdkEvent *event) const {
     for (const KeyBinding_t &kb: keybindings) {
         if (match_gtk_event(event, kb.keysym)) {
             return kb.action;
@@ -110,6 +110,5 @@ TConfig_t::Action_t TConfig_t::find_action(GdkEvent *event) {
     }
     return Action_t();
 }
-
 
 }

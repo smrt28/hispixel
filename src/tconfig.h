@@ -20,23 +20,14 @@ private:
     public:
         virtual ~BaseValue_t() {}
 
-
-        template<typename Type_t>
-        Type_t & cast() {
-            Value_t<Type_t> *res =  dynamic_cast<Value_t<Type_t> *>(this);
-            if (!res) {
-                RAISE(VALUE_DEFINITION);
-            }
-            return res->val;
-        }
-
         template<typename Type_t>
         const Type_t & cast() const {
-            Value_t<Type_t> *res =  dynamic_cast<Value_t<Type_t> *>(this);
+            const Value_t<Type_t> *res =
+                dynamic_cast<const Value_t<Type_t> *>(this);
             if (!res) {
-                RAISE(VALUE_DEFINITION);
+                RAISE(FATAL) << "requesting invalid config value type";
             }
-            return res->val;
+            return res->get();
         }
 
         virtual void set(const std::string &s) = 0;
@@ -45,14 +36,32 @@ public:
     template<typename Type_t>
     class Value_t : public BaseValue_t {
     public:
+        Value_t() : isset(false) {}
+
         Value_t(const std::string &s) :
-            val(value_cast<Type_t>(s))
-        {}
+            isset(false)
+        {
+            set(s);
+        }
 
         void set(const std::string &s) {
             val = value_cast<Type_t>(s);
+            isset = true;
         }
+
+        bool is_set() const {
+            return isset;
+        }
+
+        const Type_t & get() const {
+            if (!isset) {
+                RAISE(CFG_VAL_NOT_SET);
+            }
+            return val;
+        }
+    private:
         Type_t val;
+        bool isset;
     };
 
 
@@ -88,15 +97,11 @@ public:
 		Action_t action;
 	};
 
-	int parse_config_line(const std::string &line);
 
-
-    Action_t find_action(GdkEvent *event);
-
-	std::vector<KeyBinding_t> keybindings;
+    Action_t find_action(GdkEvent *event) const;
 
     template<typename Type_t>
-    Type_t get(const std::string &key) {
+    const Type_t & get(const std::string &key) const {
         try {
             return kv.at(key).cast<Type_t>();
         } catch(...) {
@@ -105,7 +110,9 @@ public:
         throw 1; // unreachable
     }
 
+
 	void init_defaults();
+	int parse_config_line(const std::string &line);
 
 private:
     template<typename Type_t>
@@ -115,10 +122,10 @@ private:
     }
 
     boost::ptr_map<std::string, BaseValue_t> kv;
+	std::vector<KeyBinding_t> keybindings;
 
 };
 
 }
 
 #endif /* SRC_CONFIG_T */
-

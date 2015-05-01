@@ -36,6 +36,7 @@ namespace errcode {
     typedef ErrorCode_t<errc::CONFIG_PARSE, 801> UNKNOWN_ACTION;
     typedef ErrorCode_t<errc::CONFIG_PARSE, 802> VALUE_CAST;
     typedef ErrorCode_t<errc::CONFIG_PARSE, 803> VALUE_DEFINITION;
+    typedef ErrorCode_t<errc::CONFIG_PARSE, 804> CFG_VAL_NOT_SET;
 }
 }
 
