@@ -2,6 +2,9 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 #include <vte/vte.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 #include <iostream>
 
@@ -154,12 +157,47 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
    // gtk_widget_show(label);
 }
 
+
+static std::string homedir() {
+    const char *h = 0;
+    if ((h = getenv("HOME")) == NULL) {
+        h = getpwuid(getuid())->pw_dir;
+    }
+    if (!h) return "/";
+    return h;
+}
+
+
+static std::vector<std::string> get_config_files() {
+    static const char * HISPIXE_CFG = ".hispixel";
+    std::string h = homedir();
+    std::vector<std::string> rv;
+    rv.push_back(h + "/" + HISPIXE_CFG);
+
+    return rv;
+
+}
+
+
 int main(int argc, char **argv, char** envp)
 {
     int status;
     try {
         HisPixelApp_t hispixel(argc, argv, envp);
         hispixel.config.init_defaults();
+
+        bool cfgok = false;
+
+        for (auto cfile: get_config_files()) {
+            if (hispixel.config.init(cfile)) {
+                cfgok = true;
+                break;
+            }
+        }
+
+        if (!cfgok) {
+            std::cerr << "err: config file not found" << std::endl;
+        }
 
         GtkApplication *app;
 

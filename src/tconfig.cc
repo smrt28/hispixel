@@ -2,6 +2,8 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/lexical_cast.hpp>
 
+#include <fstream>
+
 #include "tconfig.h"
 #include "parser.h"
 #include "keyevent.h"
@@ -50,7 +52,8 @@ int TConfig_t::parse_config_line(const std::string &line) {
     parser::Parser_t p(line);
     parser::ltrim(p);
 
-    if (p && p[0] == '#') return 0;
+    if (!p) return 0;
+    if (p[0] == '#') return 0;
 
     std::string aword = parser::word(p).str();
     if (aword == "bindsym") {
@@ -76,29 +79,26 @@ int TConfig_t::parse_config_line(const std::string &line) {
     return 0;
 }
 
+bool TConfig_t::init(const std::string &file) {
+    std::ifstream f(file);
+    if (!f) return false;
+    std::string line;
+    int n = 0;
+    while (std::getline(f, line)) {
+        ++n;
+        try {
+            parse_config_line(line);
+        } catch(...) {
+            RAISE(CFG_PARSE) << "config parse error at line: " << n;
+        }
+    }
+    return true;
+}
 
 void TConfig_t::init_defaults() {
-
     insert_default<std::string>("term_font", "Terminus");
     insert_default<int>("term_font_size", "12");
     insert_default<bool>("allow_bold", "true");
-
-
-    parse_config_line("bindsym alt+1 focus 1");
-    parse_config_line("bindsym alt+2 focus 2");
-    parse_config_line("bindsym alt+3 focus 3");
-    parse_config_line("bindsym alt+4 focus 4");
-    parse_config_line("bindsym alt+5 focus 5");
-    parse_config_line("bindsym alt+6 focus 6");
-    parse_config_line("bindsym alt+7 focus 7");
-    parse_config_line("bindsym alt+8 focus 8");
-    parse_config_line("bindsym alt+9 focus 9");
-    parse_config_line("bindsym alt+10 focus 10");
-    parse_config_line("bindsym alt+ctrl+z opentab");
-
-    parse_config_line("set term_font = Terminus");
-    parse_config_line("set term_font_size = 12");
-    parse_config_line("set allow_bold = true");
 }
 
 

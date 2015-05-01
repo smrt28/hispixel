@@ -111,6 +111,7 @@ public:
     }
 
 
+    bool init(const std::string &file);
 	void init_defaults();
 	int parse_config_line(const std::string &line);
 
