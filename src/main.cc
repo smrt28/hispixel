@@ -170,12 +170,16 @@ static std::string homedir() {
 
 static std::vector<std::string> get_config_files() {
     static const char * HISPIXE_CFG = ".hispixel";
+    static const char * HISPIXE_CFG2 = "hispixel.conf";
     std::string h = homedir();
     std::vector<std::string> rv;
     rv.push_back(h + "/" + HISPIXE_CFG);
-
+    rv.push_back(h + "/" + HISPIXE_CFG2);
+    rv.push_back(h + "/.config/" + HISPIXE_CFG);
+    rv.push_back(h + "/.config/" + HISPIXE_CFG2);
+    rv.push_back(h + "/etc/" + HISPIXE_CFG);
+    rv.push_back(h + "/etc/" + HISPIXE_CFG2);
     return rv;
-
 }
 
 

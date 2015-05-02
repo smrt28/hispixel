@@ -1,6 +1,7 @@
 #ifndef SRC_VALUECAST_H
 #define SRC_VALUECAST_H
 
+#include <ctype.h>
 #include <boost/lexical_cast.hpp>
 #include <string>
 
@@ -21,11 +22,17 @@ namespace aux {
 
     template<>
     struct ValueCast_t<bool> {
-        static bool cast(const std::string &s) {
-            if (s == "true" || s == "TRUE" || s == "True"
-                    || s == "1") return true;
-            if (s == "false" || s == "FALSE" || s == "False"
-                    || s == "0") return false;
+        static bool cast(const std::string &_s) {
+            std::string s = _s;
+
+            std::transform(s.begin(), s.end(), s.begin(), ::tolower);
+
+            if (s == "true" || s == "1" || s == "yes" ||
+                    s == "y" || s == "t") return true;
+
+            if (s == "false" || s == "0" || s == "no" ||
+                    s == "n" || s == "f") return false;
+
             RAISE(VALUE_CAST);
             throw 1; // not reachable
         }
