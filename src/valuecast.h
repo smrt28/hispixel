@@ -1,6 +1,7 @@
 #ifndef SRC_VALUECAST_H
 #define SRC_VALUECAST_H
 
+#include <gtk/gtk.h>
 #include <ctype.h>
 #include <boost/lexical_cast.hpp>
 #include <string>
@@ -37,6 +38,19 @@ struct ValueCast_t<bool> {
         throw 1; // not reachable
     }
 };
+
+template<>
+struct ValueCast_t<GdkRGBA> {
+    static GdkRGBA cast(const std::string &_s) {
+        GdkRGBA rv;
+        if (!gdk_rgba_parse(&rv, _s.c_str())) {
+            RAISE(VALUE_CAST);
+        }
+        return rv;
+    }
+};
+
+
 } // namespace aux
 
 template<typename Type_t>

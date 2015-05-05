@@ -110,6 +110,7 @@ std::string HisPixelApp_t::tabbar_text() {
 }
 
 void HisPixelApp_t::update_tabbar() {
+    if (!tabbar_visible) return;
     std::string s = tabbar_text();
     gtk_label_set_markup(GTK_LABEL(label), s.c_str());
 }
@@ -183,16 +184,14 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     tabs = gtk_notebook_new();
     evts.reg_page_removed(tabs);
 
-    label = gtk_label_new("smrt");
-    color.red = 0.1;
-    color.green = 0.1;
-    color.blue = 0.1;
+    label = gtk_label_new("");
+    color = config.get<GdkRGBA>("tabbar_bg_color");
+    color.alpha = 1;
 
     gtk_widget_override_background_color(label, GTK_STATE_FLAG_NORMAL, &color);
 
     gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
     gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
-    //gtk_label_set_xalign(GTK_LABEL(label), 0);
     gtk_misc_set_alignment(GTK_MISC(label), 0, .5);
 
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 1);
@@ -210,6 +209,7 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     tabbar_visible = config.get<bool>("show_tabbar");
     if (tabbar_visible) {
         gtk_widget_show(label);
+        update_tabbar();
     }
 }
 
