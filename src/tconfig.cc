@@ -99,6 +99,7 @@ void TConfig_t::init_defaults() {
     insert_default<std::string>("term_font", "Terminus");
     insert_default<int>("term_font_size", "12");
     insert_default<bool>("allow_bold", "true");
+    insert_default<bool>("show_tabbar", "true");
 }
 
 

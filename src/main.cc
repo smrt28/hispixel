@@ -28,6 +28,11 @@ public:
     void open_tab();
     void child_exited(VteTerminal *t, gint status);
     gboolean key_press_event(GtkWidget *widget, GdkEvent *event);
+    void page_removed(GtkNotebook *notebook, GtkWidget *child, guint page_num);
+
+
+    std::string tabbar_text();
+    void update_tabbar();
 
 
     int argc;
@@ -40,10 +45,14 @@ public:
     GtkWidget *window;
     GtkWidget *box;
 
+    bool tabbar_visible;
+
     s28::TConfig_t config;
 };
 
-gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/, GdkEvent *event) {
+gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/,
+        GdkEvent *event)
+{
     s28::TConfig_t::Action_t ac = config.find_action(event);
 
     if (ac.type == s28::TConfig_t::Action_t::ACTION_OPENTAB) {
@@ -53,11 +62,18 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/, GdkEvent *event)
 
     if (ac.type == s28::TConfig_t::Action_t::ACTION_FOCUS) {
         gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), ac.data - 1);
+        update_tabbar();
         return TRUE;
     }
 
     //gtk_widget_hide(GTK_WIDGET(label));
     return FALSE;
+}
+
+void HisPixelApp_t::page_removed(GtkNotebook * /*notebook*/,
+        GtkWidget * /*child*/, guint /*page_num*/)
+{
+    update_tabbar();
 }
 
 void HisPixelApp_t::child_exited(VteTerminal *t, gint /*status*/) {
@@ -75,6 +91,28 @@ static void activate(GtkApplication* app, gpointer _udata)
     hispixel->activate(app);
 }
 
+
+std::string HisPixelApp_t::tabbar_text() {
+    gint n = gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));
+    std::ostringstream oss;
+    gint c = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
+    for (int i = 0; i < n; i++) {
+        if (i == c) {
+            oss << "<span foreground=\"#ffffff\"";
+            oss << " font_weight=\"bold\">";
+            oss << "[" << i << "]";
+            oss << "</span>";
+        } else {
+            oss << "[" << i << "]";
+        }
+    }
+    return oss.str();
+}
+
+void HisPixelApp_t::update_tabbar() {
+    std::string s = tabbar_text();
+    gtk_label_set_markup(GTK_LABEL(label), s.c_str());
+}
 
 void HisPixelApp_t::open_tab() {
 
@@ -123,11 +161,13 @@ void HisPixelApp_t::open_tab() {
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);
     gtk_notebook_next_page (GTK_NOTEBOOK(tabs));
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
+    update_tabbar();
 
 }
 
 void HisPixelApp_t::activate(GtkApplication* _app) {
     app = _app;
+    RegEvents_t<HisPixelApp_t> evts(this);
     window = gtk_application_window_new (app);
 
     GdkRGBA color;
@@ -141,7 +181,19 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     gtk_window_set_default_size (GTK_WINDOW (window), 200, 400);
 
     tabs = gtk_notebook_new();
+    evts.reg_page_removed(tabs);
+
     label = gtk_label_new("smrt");
+    color.red = 0.1;
+    color.green = 0.1;
+    color.blue = 0.1;
+
+    gtk_widget_override_background_color(label, GTK_STATE_FLAG_NORMAL, &color);
+
+    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+    gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+    //gtk_label_set_xalign(GTK_LABEL(label), 0);
+    gtk_misc_set_alignment(GTK_MISC(label), 0, .5);
 
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 1);
     gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
@@ -154,7 +206,11 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     gtk_widget_show_all(GTK_WIDGET(tabs));
     gtk_widget_show(box);
     gtk_widget_show(window);
-   // gtk_widget_show(label);
+
+    tabbar_visible = config.get<bool>("show_tabbar");
+    if (tabbar_visible) {
+        gtk_widget_show(label);
+    }
 }
 
 

@@ -5,7 +5,7 @@
 
 
 template<typename App_t>
-class RegEvents_t {    
+class RegEvents_t {
 public:
     RegEvents_t(App_t *app) : app(app) {}
 
@@ -20,16 +20,27 @@ public:
                 G_CALLBACK(key_press_event), app);
     }
 
+    void reg_page_removed(GtkWidget * w) {
+        g_signal_connect(w, "page-removed",
+                G_CALLBACK(page_removed), app);
+    }
+
 private:
 
     static void child_exited(VteTerminal *t, gint status, gpointer _udata) {
         ((App_t *)_udata)->child_exited(t, status);
     }
-    
+
     static gboolean key_press_event(GtkWidget *widget, GdkEvent *event,
             gpointer _udata)
     {
         return ((App_t *)_udata)->key_press_event(widget, event);
+    }
+
+    static void page_removed(GtkNotebook *notebook, GtkWidget *child,
+        guint page_num, gpointer _udata)
+    {
+        return ((App_t *)_udata)->page_removed(notebook, child, page_num);
     }
 
     App_t *app;

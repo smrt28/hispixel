@@ -124,9 +124,7 @@ private:
 
     boost::ptr_map<std::string, BaseValue_t> kv;
 	std::vector<KeyBinding_t> keybindings;
-
 };
-
-}
+} // namespace s28
 
 #endif /* SRC_CONFIG_T */
