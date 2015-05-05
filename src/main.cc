@@ -27,7 +27,7 @@ public:
     void activate(GtkApplication* app);
     void open_tab();
     void child_exited(VteTerminal *t, gint status);
-    gboolean keypress(GtkWidget *widget, GdkEvent *event);
+    gboolean key_press_event(GtkWidget *widget, GdkEvent *event);
 
 
     int argc;
@@ -43,7 +43,7 @@ public:
     s28::TConfig_t config;
 };
 
-gboolean HisPixelApp_t::keypress(GtkWidget * /*widget*/, GdkEvent *event) {
+gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/, GdkEvent *event) {
     s28::TConfig_t::Action_t ac = config.find_action(event);
 
     if (ac.type == s28::TConfig_t::Action_t::ACTION_OPENTAB) {

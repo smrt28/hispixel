@@ -10,12 +10,14 @@ public:
     RegEvents_t(App_t *app) : app(app) {}
 
     void reg_child_exited(GtkWidget * w) {
-        g_signal_connect(w, "child-exited", G_CALLBACK(child_exited), app);
+        g_signal_connect(w, "child-exited",
+                G_CALLBACK(child_exited), app);
     }
 
 
     void reg_key_press_event(GtkWidget * w) {
-        g_signal_connect(w, "key-press-event", G_CALLBACK(keypress), app);
+        g_signal_connect(w, "key-press-event",
+                G_CALLBACK(key_press_event), app);
     }
 
 private:
@@ -24,10 +26,10 @@ private:
         ((App_t *)_udata)->child_exited(t, status);
     }
     
-    static gboolean keypress(GtkWidget *widget, GdkEvent *event,
+    static gboolean key_press_event(GtkWidget *widget, GdkEvent *event,
             gpointer _udata)
     {
-        return ((App_t *)_udata)->keypress(widget, event);
+        return ((App_t *)_udata)->key_press_event(widget, event);
     }
 
     App_t *app;
