@@ -195,8 +195,14 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     gtk_misc_set_alignment(GTK_MISC(label), 0, .5);
 
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 1);
-    gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
-    gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
+
+    if (config.get<bool>("tabbar_on_bottom")) {
+        gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
+        gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
+    } else {
+        gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
+        gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
+    }
 
     open_tab();
 

@@ -17,7 +17,7 @@ struct ValueCast_t {
         } catch(...) {
             RAISE(VALUE_CAST);
         }
-        throw 1; // not reachable
+        throw __PRETTY_FUNCTION__;
     }
 };
 
@@ -35,7 +35,7 @@ struct ValueCast_t<bool> {
                 s == "n" || s == "f") return false;
 
         RAISE(VALUE_CAST);
-        throw 1; // not reachable
+        throw __PRETTY_FUNCTION__;
     }
 };
 
@@ -49,7 +49,6 @@ struct ValueCast_t<GdkRGBA> {
         return rv;
     }
 };
-
 
 } // namespace aux
 

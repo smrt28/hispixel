@@ -101,6 +101,7 @@ void TConfig_t::init_defaults() {
     insert_default<bool>("allow_bold", "true");
     insert_default<bool>("show_tabbar", "true");
     insert_default<GdkRGBA>("tabbar_bg_color","#303030");
+    insert_default<bool>("tabbar_on_bottom", "false");
 }
 
 
