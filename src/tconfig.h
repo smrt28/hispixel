@@ -65,37 +65,37 @@ public:
     };
 
 
-	class Action_t {
-	public:
+    class Action_t {
+    public:
         Action_t() :
             type(ACTION_NONE),
             data(0)
         {}
-		enum ActionType_t {
+        enum ActionType_t {
             ACTION_NONE,
-			ACTION_FOCUS,
-            ACTION_OPENTAB
+            ACTION_FOCUS,
+            ACTION_OPENTAB,
+            ACTION_TOGGLE_TABBAR
+        };
 
-		};
+        Action_t(ActionType_t type, int data) :
+            type(type), data(data)
+        {}
 
-		Action_t(ActionType_t type, int data) :
-			type(type), data(data)
-		{}
-
-		ActionType_t type;
-		int data;
-	};
+        ActionType_t type;
+        int data;
+    };
 
 
-	class KeyBinding_t {
-	public:
-		KeyBinding_t(const KeySym_t &keysym, const Action_t &action) :
-			keysym(keysym),
-			action(action)
-		{}
+    class KeyBinding_t {
+    public:
+        KeyBinding_t(const KeySym_t &keysym, const Action_t &action) :
+            keysym(keysym),
+            action(action)
+        {}
         KeySym_t keysym;
-		Action_t action;
-	};
+        Action_t action;
+    };
 
 
     Action_t find_action(GdkEvent *event) const;
@@ -112,8 +112,8 @@ public:
 
 
     bool init(const std::string &file);
-	void init_defaults();
-	int parse_config_line(const std::string &line);
+    void init_defaults();
+    int parse_config_line(const std::string &line);
 
 private:
     template<typename Type_t>
@@ -123,7 +123,7 @@ private:
     }
 
     boost::ptr_map<std::string, BaseValue_t> kv;
-	std::vector<KeyBinding_t> keybindings;
+    std::vector<KeyBinding_t> keybindings;
 };
 } // namespace s28
 

@@ -41,6 +41,11 @@ TConfig_t::Action_t action(parser::Parser_t &p) {
         rv.type = TConfig_t::Action_t::ACTION_OPENTAB;
         return rv;
     }
+    if (s == "toggle_tabbar") {
+        TConfig_t::Action_t rv;
+        rv.type = TConfig_t::Action_t::ACTION_TOGGLE_TABBAR;
+        return rv;
+    }
 
     RAISE(UNKNOWN_ACTION) << "probably unknown action: " << s;
     return TConfig_t::Action_t();

@@ -55,18 +55,24 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/,
 {
     s28::TConfig_t::Action_t ac = config.find_action(event);
 
-    if (ac.type == s28::TConfig_t::Action_t::ACTION_OPENTAB) {
-        open_tab();
-        return TRUE;
+    switch (ac.type) {
+        case s28::TConfig_t::Action_t::ACTION_OPENTAB:
+            open_tab();
+            return TRUE;
+        case s28::TConfig_t::Action_t::ACTION_FOCUS:
+            gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), ac.data - 1);
+            update_tabbar();
+            return TRUE;
+        case s28::TConfig_t::Action_t::ACTION_TOGGLE_TABBAR:
+            if (gtk_widget_get_visible(label)) {
+                gtk_widget_hide(GTK_WIDGET(label));
+            } else {
+                gtk_widget_show(GTK_WIDGET(label));
+            }
+            return TRUE;
+        default:
+            break;
     }
-
-    if (ac.type == s28::TConfig_t::Action_t::ACTION_FOCUS) {
-        gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), ac.data - 1);
-        update_tabbar();
-        return TRUE;
-    }
-
-    //gtk_widget_hide(GTK_WIDGET(label));
     return FALSE;
 }
 

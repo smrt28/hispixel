@@ -57,6 +57,8 @@ KeySym_t parse_key_sym(const std::string &descr) {
             if (s == "f8") { key = GDK_KEY_F8; continue; }
             if (s == "f9") { key = GDK_KEY_F9; continue; }
             if (s == "f10") { key = GDK_KEY_F10; continue; }
+            if (s == "f11") { key = GDK_KEY_F11; continue; }
+            if (s == "f12") { key = GDK_KEY_F12; continue; }
         }
 
         if (s == "pause") { key = GDK_KEY_Pause; continue; }
