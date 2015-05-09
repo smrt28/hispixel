@@ -29,22 +29,24 @@ KeySym_t keysym(parser::Parser_t &p) {
 }
 
 TConfig_t::Action_t action(parser::Parser_t &p) {
+    typedef TConfig_t::Action_t Action_t;
     std::string s = word(p).str();
     if (s == "focus") {
-        TConfig_t::Action_t rv;
-        rv.type = TConfig_t::Action_t::ACTION_FOCUS;
+        Action_t rv(Action_t::ACTION_FOCUS);
         rv.data = boost::lexical_cast<int>(word(p).str());
         return rv;
     }
+    if (s == "focus_next") {
+        return Action_t(Action_t::ACTION_FOCUS_NEXT);
+    }
+    if (s == "focus_prev") {
+        return Action_t(Action_t::ACTION_FOCUS_PREV);
+    }
     if (s == "opentab") {
-        TConfig_t::Action_t rv;
-        rv.type = TConfig_t::Action_t::ACTION_OPENTAB;
-        return rv;
+        return Action_t(Action_t::ACTION_OPENTAB);
     }
     if (s == "toggle_tabbar") {
-        TConfig_t::Action_t rv;
-        rv.type = TConfig_t::Action_t::ACTION_TOGGLE_TABBAR;
-        return rv;
+        return Action_t(Action_t::ACTION_TOGGLE_TABBAR);
     }
 
     RAISE(UNKNOWN_ACTION) << "probably unknown action: " << s;

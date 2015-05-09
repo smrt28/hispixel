@@ -65,6 +65,12 @@ KeySym_t parse_key_sym(const std::string &descr) {
         if (s == "escape") { key = GDK_KEY_Escape; continue; }
         if (s == "scrolllock") { key = GDK_KEY_Scroll_Lock; continue; }
         if (s == "delete") { key = GDK_KEY_Delete; continue; }
+
+        // arrows
+        if (s == "left") { key = GDK_KEY_Left; continue; }
+        if (s == "right") { key = GDK_KEY_Right; continue; }
+        if (s == "up") { key = GDK_KEY_Up; continue; }
+        if (s == "down") { key = GDK_KEY_Down; continue; }
     }
     rv.key = key;
     rv.mask = mask;

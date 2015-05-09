@@ -53,23 +53,45 @@ public:
 gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/,
         GdkEvent *event)
 {
-    s28::TConfig_t::Action_t ac = config.find_action(event);
+    typedef s28::TConfig_t::Action_t Action_t;
+    Action_t ac = config.find_action(event);
 
     switch (ac.type) {
-        case s28::TConfig_t::Action_t::ACTION_OPENTAB:
+        case Action_t::ACTION_OPENTAB:
             open_tab();
             return TRUE;
-        case s28::TConfig_t::Action_t::ACTION_FOCUS:
+        case Action_t::ACTION_FOCUS:
             gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), ac.data - 1);
             update_tabbar();
             return TRUE;
-        case s28::TConfig_t::Action_t::ACTION_TOGGLE_TABBAR:
+        case Action_t::ACTION_TOGGLE_TABBAR:
             if (gtk_widget_get_visible(label)) {
                 gtk_widget_hide(GTK_WIDGET(label));
             } else {
                 gtk_widget_show(GTK_WIDGET(label));
             }
             return TRUE;
+        case Action_t::ACTION_FOCUS_NEXT: {
+            gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs)) + 1;
+            gint total = gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));
+            if (n >= total) n = 0;
+            gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), n);
+            update_tabbar();
+            return TRUE;
+            }
+        case Action_t::ACTION_FOCUS_PREV: {
+            gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
+            gint total = gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));
+            if (n == 0) {
+                n = total - 1;
+            } else {
+                n -= 1;
+            }
+            gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), n);
+            update_tabbar();
+            return TRUE;
+            }
+
         default:
             break;
     }

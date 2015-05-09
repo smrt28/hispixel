@@ -67,16 +67,25 @@ public:
 
     class Action_t {
     public:
-        Action_t() :
-            type(ACTION_NONE),
-            data(0)
-        {}
         enum ActionType_t {
             ACTION_NONE,
             ACTION_FOCUS,
             ACTION_OPENTAB,
-            ACTION_TOGGLE_TABBAR
+            ACTION_TOGGLE_TABBAR,
+            ACTION_FOCUS_NEXT,
+            ACTION_FOCUS_PREV,
         };
+
+        Action_t() :
+            type(ACTION_NONE),
+            data(0)
+        {}
+
+        Action_t(ActionType_t type) :
+            type(type),
+            data(0)
+        {}
+
 
         Action_t(ActionType_t type, int data) :
             type(type), data(data)
