@@ -57,6 +57,8 @@ int TConfig_t::parse_config_line(const std::string &line) {
     parser::Parser_t p(line);
     parser::ltrim(p);
 
+    parser::Parser_t pp = p;
+
     if (!p) return 0;
     if (p[0] == '#') return 0;
 
@@ -67,18 +69,18 @@ int TConfig_t::parse_config_line(const std::string &line) {
         keybindings.push_back(KeyBinding_t(ks, action));
         return 1;
     }
-    if (aword == "set") {
-        auto res = parser::eq(p);
-        try {
-            auto it = kv.find(res.first);
-            if (it == kv.end()) {
-                RAISE(CFG_PARSE) << "unknown config key: " << res.first;
-            }
-            it->second->set(res.second);
-            return 1;
-        } catch(...) {
-            RAISE(CFG_PARSE) << "invalid value for: " << res.first;
+
+    p = pp;
+    auto res = parser::eq(p);
+    try {
+        auto it = kv.find(res.first);
+        if (it == kv.end()) {
+            RAISE(CFG_PARSE) << "unknown config key: " << res.first;
         }
+        it->second->set(res.second);
+        return 1;
+    } catch(...) {
+        RAISE(CFG_PARSE) << "invalid value for: " << res.first;
     }
 
     return 0;
