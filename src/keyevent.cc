@@ -71,6 +71,11 @@ KeySym_t parse_key_sym(const std::string &descr) {
         if (s == "right") { key = GDK_KEY_Right; continue; }
         if (s == "up") { key = GDK_KEY_Up; continue; }
         if (s == "down") { key = GDK_KEY_Down; continue; }
+
+        if (s == "home") { key = GDK_KEY_Home; continue; }
+        if (s == "end") { key = GDK_KEY_End; continue; }
+        if (s == "pageup") { key = GDK_KEY_Page_Up; continue; }
+        if (s == "pagedown") { key = GDK_KEY_Page_Down; continue; }
     }
     rv.key = key;
     rv.mask = mask;
