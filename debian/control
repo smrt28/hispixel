@@ -1,0 +1,9 @@
+Source: hispixel
+Priority: extra
+Maintainer: Ondrej Holecek <ondrej.holecek@gmail.com>
+Build-Depends: autotools-dev
+Standards-Version: 1.0.1
+
+Package: hispixel
+Architecture: any
+Description: minimalistic GTK terminal

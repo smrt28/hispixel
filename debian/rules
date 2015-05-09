@@ -1,0 +1,14 @@
+#!/usr/bin/make -f
+
+export DH_VERBOSE=1
+
+%:
+	dh $@ --with autoreconf --parallel
+
+override_dh_auto_configure:
+	dh_auto_configure -- \
+		--enable-optimization
+
+#override_dh_strip:
+#	echo "skip STRIP"
+
