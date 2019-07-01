@@ -3,7 +3,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include <fstream>
-
+#include <iostream>
 #include "tconfig.h"
 #include "parser.h"
 #include "keyevent.h"
@@ -31,6 +31,7 @@ KeySym_t keysym(parser::Parser_t &p) {
 TConfig_t::Action_t action(parser::Parser_t &p) {
     typedef TConfig_t::Action_t Action_t;
     std::string s = word(p).str();
+
     if (s == "focus") {
         Action_t rv(Action_t::ACTION_FOCUS);
         rv.data = boost::lexical_cast<int>(word(p).str());
@@ -111,16 +112,6 @@ void TConfig_t::init_defaults() {
     insert_default<bool>("show_tabbar", "true");
     insert_default<GdkRGBA>("tabbar_bg_color","#303030");
     insert_default<bool>("tabbar_on_bottom", "false");
-}
-
-
-TConfig_t::Action_t TConfig_t::find_action(GdkEvent *event) const {
-    for (const KeyBinding_t &kb: keybindings) {
-        if (match_gtk_event(event, kb.keysym)) {
-            return kb.action;
-        }
-    }
-    return Action_t();
 }
 
 }

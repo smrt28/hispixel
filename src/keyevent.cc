@@ -83,16 +83,5 @@ KeySym_t parse_key_sym(const std::string &descr) {
     return rv;
 }
 
-bool match_gtk_event(GdkEvent *event, const KeySym_t &ks) {
-    if (event->type != GDK_KEY_PRESS &&
-        event->type != GDK_KEY_RELEASE) return false;
-
-    if (ks.key == 0) return false;
-    if (ks.key == event->key.keyval && (event->key.state & ks.mask) == ks.mask)
-        return true;
-
-    return false;
-}
-
 }
 

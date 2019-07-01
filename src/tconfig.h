@@ -106,9 +106,6 @@ public:
         Action_t action;
     };
 
-
-    Action_t find_action(GdkEvent *event) const;
-
     template<typename Type_t>
     const Type_t & get(const std::string &key) const {
         try {
@@ -124,6 +121,11 @@ public:
     void init_defaults();
     int parse_config_line(const std::string &line);
 
+    typedef std::vector<KeyBinding_t> KeyBindings_t;
+
+    const KeyBindings_t & get_keybindings() const { return keybindings; }
+
+
 private:
     template<typename Type_t>
     void insert_default(std::string key, std::string value) {
@@ -132,7 +134,7 @@ private:
     }
 
     boost::ptr_map<std::string, BaseValue_t> kv;
-    std::vector<KeyBinding_t> keybindings;
+    KeyBindings_t keybindings;
 };
 } // namespace s28
 

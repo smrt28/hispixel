@@ -12,6 +12,8 @@
 #include "keyevent.h"
 #include "tconfig.h"
 #include "error.h"
+#include "keyevent.h"
+
 class HisPixelApp_t {
 public:
     HisPixelApp_t(int argc, char **argv, char** envp) :
@@ -50,11 +52,32 @@ public:
     s28::TConfig_t config;
 };
 
+
+static bool match_gtk_ks_event(GdkEvent *event, const s28::KeySym_t &ks) {
+    if (event->type != GDK_KEY_PRESS &&
+        event->type != GDK_KEY_RELEASE) return false;
+
+    if (ks.key == 0) return false;
+    if (ks.key == event->key.keyval && (event->key.state & ks.mask) == ks.mask)
+        return true;
+
+    return false;
+}
+
+
 gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/,
         GdkEvent *event)
 {
     typedef s28::TConfig_t::Action_t Action_t;
-    Action_t ac = config.find_action(event);
+    Action_t ac;
+    const s28::TConfig_t::KeyBindings_t &keybindings = config.get_keybindings();
+
+    for (auto binding: keybindings) {
+        if (match_gtk_ks_event(event, binding.keysym)) {
+            ac = binding.action;
+            break;
+        }
+    }
 
     switch (ac.type) {
         case Action_t::ACTION_OPENTAB:
@@ -91,6 +114,9 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/,
             update_tabbar();
             return TRUE;
             }
+            break;
+        case Action_t::ACTION_NONE:
+            return FALSE;
 
         default:
             break;
@@ -202,12 +228,6 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     RegEvents_t<HisPixelApp_t> evts(this);
     window = gtk_application_window_new (app);
 
-    GdkRGBA color;
-    color.red = 0;
-    color.green = 0;
-    color.blue = 0;
-    color.alpha = 1;
-
     GError *error = NULL;
 
     GdkDisplay *display = gdk_display_get_default();;
@@ -216,8 +236,9 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     std::ostringstream oss;
 
     GdkRGBA clor = config.get<GdkRGBA>("tabbar_bg_color");
-    oss << "* { background-color: " << gdk_rgba_to_string (&clor)   << ";"
-        << "border-color: black; "
+    oss << "* { "
+        <<       "background-color: " << gdk_rgba_to_string (&clor)   << ";"
+        <<       "border-color: black;"
         <<" }";
 
     std::string css = oss.str();
@@ -228,11 +249,9 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
         RAISE(FATAL) << "invalid GTK CSS";
     }
 
-
     gtk_style_context_add_provider_for_screen (screen,
                        GTK_STYLE_PROVIDER(provider),
                        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-
 
     gtk_window_set_title (GTK_WINDOW (window), "Window");
     gtk_window_set_default_size (GTK_WINDOW (window), 200, 400);
@@ -244,7 +263,7 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
 
     gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
     gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
-    gtk_misc_set_alignment(GTK_MISC(label), 0, .5);
+    gtk_widget_set_halign(label, GTK_ALIGN_START);
 
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 
