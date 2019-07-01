@@ -172,7 +172,8 @@ void HisPixelApp_t::open_tab() {
     argv[0] = strdup("/bin/bash");
     argv[1] = 0;
 
-    /*int ret =*/ vte_terminal_fork_command_full(VTE_TERMINAL(terminal),
+    /*int ret =*/// vte_terminal_fork_command_full
+        vte_terminal_spawn_sync(VTE_TERMINAL(terminal),
             VTE_PTY_DEFAULT, /* VtePtyFlags pty_flags */
             NULL, /* const char *working_directory */
             argv, /* char **argv */
@@ -182,7 +183,7 @@ void HisPixelApp_t::open_tab() {
             NULL, /* gpointer child_setup_data */
             &childpid, /* GPid *child_pid */
             NULL  /* GError **error */
-            );
+            , NULL);
 
     ::free(argv[0]);
     int sel = gtk_notebook_append_page(GTK_NOTEBOOK(tabs), terminal, 0);
@@ -295,7 +296,7 @@ int main(int argc, char **argv, char** envp)
 
         GtkApplication *app;
 
-        app = gtk_application_new ("org.gtk.example", G_APPLICATION_FLAGS_NONE);
+        app = gtk_application_new (NULL /* application name */, G_APPLICATION_FLAGS_NONE);
         g_signal_connect (app, "activate", G_CALLBACK (activate), &hispixel);
 
         status = g_application_run (G_APPLICATION (app), argc, argv);
