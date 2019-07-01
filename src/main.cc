@@ -167,13 +167,12 @@ void HisPixelApp_t::open_tab() {
     evts.reg_child_exited(terminal);
     evts.reg_key_press_event(terminal);
 
-    GPid childpid;
     char *argv[2];
     argv[0] = strdup("/bin/bash");
     argv[1] = 0;
 
     /*int ret =*/// vte_terminal_fork_command_full
-        vte_terminal_spawn_sync(VTE_TERMINAL(terminal),
+        vte_terminal_spawn_async(VTE_TERMINAL(terminal),
             VTE_PTY_DEFAULT, /* VtePtyFlags pty_flags */
             NULL, /* const char *working_directory */
             argv, /* char **argv */
@@ -181,9 +180,12 @@ void HisPixelApp_t::open_tab() {
             G_SPAWN_SEARCH_PATH,    /* GSpawnFlags spawn_flags */
             NULL, /* GSpawnChildSetupFunc child_setup */
             NULL, /* gpointer child_setup_data */
-            &childpid, /* GPid *child_pid */
+            NULL, /* GDestroyNotify child_setup_data_destroy */
+            -1, /* int timeout */
+            NULL, /* GCancellable *cancellable, */
+            NULL, /* GPid *child_pid */
             NULL  /* GError **error */
-            , NULL);
+            );
 
     ::free(argv[0]);
     int sel = gtk_notebook_append_page(GTK_NOTEBOOK(tabs), terminal, 0);
@@ -206,7 +208,32 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     color.blue = 0;
     color.alpha = 1;
 
-    gtk_widget_override_background_color(window, GTK_STATE_FLAG_NORMAL, &color);
+    GError *error = NULL;
+
+    GdkDisplay *display = gdk_display_get_default();;
+    GdkScreen *screen = gdk_display_get_default_screen (display);
+
+    std::ostringstream oss;
+
+    GdkRGBA clor = config.get<GdkRGBA>("tabbar_bg_color");
+    oss << "* { background-color: " << gdk_rgba_to_string (&clor)   << ";"
+        << "border-color: black; "
+        <<" }";
+
+    std::string css = oss.str();
+    GtkCssProvider *provider = gtk_css_provider_new();
+    gtk_css_provider_load_from_data(provider, css.c_str(), css.size(), &error);
+
+    if (error) {
+        RAISE(FATAL) << "invalid GTK CSS";
+    }
+
+
+    gtk_style_context_add_provider_for_screen (screen,
+                       GTK_STYLE_PROVIDER(provider),
+                       GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+
     gtk_window_set_title (GTK_WINDOW (window), "Window");
     gtk_window_set_default_size (GTK_WINDOW (window), 200, 400);
 
@@ -214,16 +241,12 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     evts.reg_page_removed(tabs);
 
     label = gtk_label_new("");
-    color = config.get<GdkRGBA>("tabbar_bg_color");
-    color.alpha = 1;
-
-    gtk_widget_override_background_color(label, GTK_STATE_FLAG_NORMAL, &color);
 
     gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
     gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
     gtk_misc_set_alignment(GTK_MISC(label), 0, .5);
 
-    box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 1);
+    box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
 
     if (config.get<bool>("tabbar_on_bottom")) {
         gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);

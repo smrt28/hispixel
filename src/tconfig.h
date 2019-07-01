@@ -127,8 +127,8 @@ public:
 private:
     template<typename Type_t>
     void insert_default(std::string key, std::string value) {
-        std::auto_ptr<BaseValue_t> bv(new Value_t<Type_t>(value));
-        kv.insert(key, bv);
+        std::unique_ptr<BaseValue_t> bv(new Value_t<Type_t>(value));
+        kv.insert(key, bv.release());
     }
 
     boost::ptr_map<std::string, BaseValue_t> kv;
