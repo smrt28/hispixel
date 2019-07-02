@@ -5,7 +5,7 @@
 #include <fstream>
 #include <iostream>
 #include "tconfig.h"
-#include "parser.h"
+#include "parslet.h"
 #include "keyevent.h"
 #include "valuecast.h"
 
@@ -13,9 +13,9 @@ namespace s28 {
 
 namespace parser {
 
-KeySym_t keysym(parser::Parser_t &p) {
+KeySym_t keysym(parser::Parslet_t &p) {
     ltrim(p);
-    Parser_t rv = p;
+    Parslet_t rv = p;
     for (;;) {
         parser::word(p);
         rv.eit = p.it;
@@ -28,7 +28,7 @@ KeySym_t keysym(parser::Parser_t &p) {
     }
 }
 
-TConfig_t::Action_t action(parser::Parser_t &p) {
+TConfig_t::Action_t action(parser::Parslet_t &p) {
     typedef TConfig_t::Action_t Action_t;
     std::string s = word(p).str();
 
@@ -57,10 +57,10 @@ TConfig_t::Action_t action(parser::Parser_t &p) {
 }
 
 int TConfig_t::parse_config_line(const std::string &line) {
-    parser::Parser_t p(line);
+    parser::Parslet_t p(line);
     parser::ltrim(p);
 
-    parser::Parser_t pp = p;
+    parser::Parslet_t pp = p;
 
     if (!p) return 0;
     if (p[0] == '#') return 0;
