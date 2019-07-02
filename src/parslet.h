@@ -133,10 +133,10 @@ public:
 
     bool empty() const { return it == eit; }
 
+private:
     const char *it;
     const char *eit;
 
-private:
     void raise(Error_t::Code_t code) const {
         throw Error_t(code, "parsing");
     }

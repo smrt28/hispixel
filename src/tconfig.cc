@@ -18,7 +18,7 @@ KeySym_t keysym(parser::Parslet_t &p) {
     Parslet_t rv = p;
     for (;;) {
         parser::word(p);
-        rv.eit = p.it;
+        rv = Parslet_t(rv.begin(), p.begin());
         ltrim(p);
         if (p[0] == '+') {
             p.skip();
