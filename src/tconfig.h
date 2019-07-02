@@ -74,6 +74,7 @@ public:
             ACTION_TOGGLE_TABBAR,
             ACTION_FOCUS_NEXT,
             ACTION_FOCUS_PREV,
+            ACTION_CLOSE_LAST
         };
 
         Action_t() :
@@ -126,6 +127,7 @@ public:
     const KeyBindings_t & get_keybindings() const { return keybindings; }
 
 
+    bool has_close_last = false;
 private:
     template<typename Type_t>
     void insert_default(std::string key, std::string value) {

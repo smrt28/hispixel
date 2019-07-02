@@ -49,6 +49,9 @@ TConfig_t::Action_t action(parser::Parslet_t &p) {
     if (s == "toggle_tabbar") {
         return Action_t(Action_t::ACTION_TOGGLE_TABBAR);
     }
+    if (s == "close_last") {
+        return Action_t(Action_t::ACTION_CLOSE_LAST);
+    }
 
     RAISE(UNKNOWN_ACTION) << "probably unknown action: " << s;
     return TConfig_t::Action_t();
@@ -69,6 +72,8 @@ int TConfig_t::parse_config_line(const std::string &line) {
     if (aword == "bindsym") {
         KeySym_t ks = parser::keysym(p);
         TConfig_t::Action_t action = parser::action(p);
+        if (action.type == Action_t::ACTION_CLOSE_LAST)
+            has_close_last = true;
         keybindings.push_back(KeyBinding_t(ks, action));
         return 1;
     }

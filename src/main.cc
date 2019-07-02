@@ -80,6 +80,13 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/,
             return TRUE;
             }
             break;
+        case Action_t::ACTION_CLOSE_LAST:
+            {
+            gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs)) + 1;
+            std::cout << "last " << n << std::endl;
+            if (n == 0) g_application_quit(G_APPLICATION(app));
+            return FALSE;
+            }
         case Action_t::ACTION_NONE:
             return FALSE;
 
@@ -99,7 +106,7 @@ void HisPixelApp_t::child_exited(VteTerminal *t, gint /*status*/) {
     gint n = gtk_notebook_page_num(GTK_NOTEBOOK(tabs), GTK_WIDGET(t));
     if (n < 0) return;
     gtk_notebook_remove_page(GTK_NOTEBOOK(tabs), n);
-    if (gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs)) == 0) {
+    if (!config.has_close_last && gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs)) == 0) {
         g_application_quit(G_APPLICATION(app));
     }
 }
@@ -157,7 +164,6 @@ void HisPixelApp_t::open_tab() {
     vte_terminal_set_font (VTE_TERMINAL(terminal), description);
 
     evts.reg_child_exited(terminal);
-    evts.reg_key_press_event(terminal);
 
     char *argv[2];
     argv[0] = strdup("/bin/bash");
@@ -186,6 +192,7 @@ void HisPixelApp_t::open_tab() {
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
     update_tabbar();
 
+    gtk_widget_grab_focus(terminal);
 }
 
 
@@ -209,6 +216,7 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     RegEvents_t<HisPixelApp_t> evts(this);
     window = gtk_application_window_new (app);
 
+    evts.reg_key_press_event(window);
     GError *error = NULL;
 
     GdkDisplay *display = gdk_display_get_default();;
