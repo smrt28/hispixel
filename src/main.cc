@@ -13,44 +13,9 @@
 #include "tconfig.h"
 #include "error.h"
 #include "keyevent.h"
+#include "hispixelapp.h"
 
-class HisPixelApp_t {
-public:
-    HisPixelApp_t(int argc, char **argv, char** envp) :
-        argc(argc),
-        argv(argv),
-        envp(envp),
-        label(0),
-        tabs(0),
-        window(0),
-        box(0)
-    {}
-
-    void activate(GtkApplication* app);
-    void open_tab();
-    void child_exited(VteTerminal *t, gint status);
-    gboolean key_press_event(GtkWidget *widget, GdkEvent *event);
-    void page_removed(GtkNotebook *notebook, GtkWidget *child, guint page_num);
-
-
-    std::string tabbar_text();
-    void update_tabbar();
-
-
-    int argc;
-    char **argv;
-    char **envp;
-
-    GtkApplication* app;
-    GtkWidget *label;
-    GtkWidget *tabs;
-    GtkWidget *window;
-    GtkWidget *box;
-
-    bool tabbar_visible;
-
-    s28::TConfig_t config;
-};
+namespace s28 {
 
 
 static bool match_gtk_ks_event(GdkEvent *event, const s28::KeySym_t &ks) {
@@ -174,6 +139,7 @@ void HisPixelApp_t::open_tab() {
     RegEvents_t<HisPixelApp_t> evts(this);
     GtkWidget * terminal = vte_terminal_new();
 
+
     if (config.get<bool>("allow_bold")) {
         vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), TRUE);
     } else {
@@ -197,21 +163,20 @@ void HisPixelApp_t::open_tab() {
     argv[0] = strdup("/bin/bash");
     argv[1] = 0;
 
-    /*int ret =*/// vte_terminal_fork_command_full
-        vte_terminal_spawn_async(VTE_TERMINAL(terminal),
-            VTE_PTY_DEFAULT, /* VtePtyFlags pty_flags */
-            NULL, /* const char *working_directory */
-            argv, /* char **argv */
-            NULL, /* char **envv */
-            G_SPAWN_SEARCH_PATH,    /* GSpawnFlags spawn_flags */
-            NULL, /* GSpawnChildSetupFunc child_setup */
-            NULL, /* gpointer child_setup_data */
-            NULL, /* GDestroyNotify child_setup_data_destroy */
-            -1, /* int timeout */
-            NULL, /* GCancellable *cancellable, */
-            NULL, /* GPid *child_pid */
-            NULL  /* GError **error */
-            );
+    vte_terminal_spawn_async(VTE_TERMINAL(terminal),
+        VTE_PTY_DEFAULT, /* VtePtyFlags pty_flags */
+        NULL, /* const char *working_directory */
+        argv, /* char **argv */
+        NULL, /* char **envv */
+        G_SPAWN_SEARCH_PATH,    /* GSpawnFlags spawn_flags */
+        NULL, /* GSpawnChildSetupFunc child_setup */
+        NULL, /* gpointer child_setup_data */
+        NULL, /* GDestroyNotify child_setup_data_destroy */
+        -1, /* int timeout */
+        NULL, /* GCancellable *cancellable, */
+        NULL, /* GPid *child_pid */
+        NULL  /* GError **error */
+        );
 
     ::free(argv[0]);
     int sel = gtk_notebook_append_page(GTK_NOTEBOOK(tabs), terminal, 0);
@@ -223,6 +188,22 @@ void HisPixelApp_t::open_tab() {
 
 }
 
+
+std::string HisPixelApp_t::gtk_css() {
+    std::ostringstream oss;
+    GdkRGBA clor = config.get<GdkRGBA>("tabbar_bg_color");
+    oss << "* { "
+        <<       "background-color: " << gdk_rgba_to_string (&clor)   << ";"
+        <<       "border-color: black;"
+        <<" }";
+
+    std::string rv = oss.str();
+
+    std::cout << rv << std::endl;
+    return rv;
+}
+
+
 void HisPixelApp_t::activate(GtkApplication* _app) {
     app = _app;
     RegEvents_t<HisPixelApp_t> evts(this);
@@ -233,16 +214,9 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     GdkDisplay *display = gdk_display_get_default();;
     GdkScreen *screen = gdk_display_get_default_screen (display);
 
-    std::ostringstream oss;
+    std::string css = gtk_css();
 
-    GdkRGBA clor = config.get<GdkRGBA>("tabbar_bg_color");
-    oss << "* { "
-        <<       "background-color: " << gdk_rgba_to_string (&clor)   << ";"
-        <<       "border-color: black;"
-        <<" }";
-
-    std::string css = oss.str();
-    GtkCssProvider *provider = gtk_css_provider_new();
+    provider = gtk_css_provider_new();
     gtk_css_provider_load_from_data(provider, css.c_str(), css.size(), &error);
 
     if (error) {
@@ -253,10 +227,11 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
                        GTK_STYLE_PROVIDER(provider),
                        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
-    gtk_window_set_title (GTK_WINDOW (window), "Window");
+    gtk_window_set_title (GTK_WINDOW (window), "HisPixel");
     gtk_window_set_default_size (GTK_WINDOW (window), 200, 400);
 
     tabs = gtk_notebook_new();
+
     evts.reg_page_removed(tabs);
 
     label = gtk_label_new("");
@@ -315,17 +290,24 @@ static std::vector<std::string> get_config_files() {
     return rv;
 }
 
+HisPixelApp_t::~HisPixelApp_t() {
+    gtk_widget_hide(window);
+    gtk_widget_destroy(window);
+}
+
+
+} // namespace s28
 
 int main(int argc, char **argv, char** envp)
 {
     int status;
     try {
-        HisPixelApp_t hispixel(argc, argv, envp);
+        s28::HisPixelApp_t hispixel(argc, argv, envp);
         hispixel.config.init_defaults();
 
         bool cfgok = false;
 
-        for (auto cfile: get_config_files()) {
+        for (auto cfile: s28::get_config_files()) {
             if (hispixel.config.init(cfile)) {
                 cfgok = true;
                 break;
@@ -339,7 +321,7 @@ int main(int argc, char **argv, char** envp)
         GtkApplication *app;
 
         app = gtk_application_new (NULL /* application name */, G_APPLICATION_FLAGS_NONE);
-        g_signal_connect (app, "activate", G_CALLBACK (activate), &hispixel);
+        g_signal_connect(app, "activate", G_CALLBACK (s28::activate), &hispixel);
 
         status = g_application_run (G_APPLICATION (app), argc, argv);
         g_object_unref (app);
