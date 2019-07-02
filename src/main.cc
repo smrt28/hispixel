@@ -83,7 +83,6 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/,
         case Action_t::ACTION_CLOSE_LAST:
             {
             gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs)) + 1;
-            std::cout << "last " << n << std::endl;
             if (n == 0) g_application_quit(G_APPLICATION(app));
             return FALSE;
             }
