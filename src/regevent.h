@@ -3,17 +3,26 @@
 
 #include <gtk/gtk.h>
 
+/**
+ * This is simple C-GTK event wrapper. It handles C-style GTK callbacks by
+ * passing them to App_t class methods.
+ *
+ * The methods callbacks are weapped in try/catch statement and potential exception
+ * would be passed to App_t::on_exit()
+ *
+ */
 
 template<typename App_t>
 class RegEvents_t {
 public:
     RegEvents_t(App_t *app) : app(app) {}
 
+    // reg_* methods connect GTK signal and given method
+
     void reg_child_exited(GtkWidget * w) {
         g_signal_connect(w, "child-exited",
                 G_CALLBACK(child_exited), app);
     }
-
 
     void reg_key_press_event(GtkWidget * w) {
         g_signal_connect(w, "key-press-event",
@@ -54,7 +63,6 @@ private:
     static void page_removed(GtkNotebook *notebook, GtkWidget *child,
         guint page_num, gpointer _udata)
     {
-
         try {
             ((App_t *)_udata)->page_removed(notebook, child, page_num);
         } catch(const std::exception &e) {

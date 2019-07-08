@@ -140,7 +140,7 @@ std::string HisPixelApp_t::tabbar_text() {
     for (int i = 0; i < n; i++) {
         if (i == c) {
             oss << "<span foreground=\"#ffffff\"";
-            oss << " font_weight=\"bold\">";
+            oss << " font_weight=\"bold\">"; // the selected tab is bold
             oss << "[" << i << "]"; // tab number
             oss << "</span>";
         } else {
@@ -216,6 +216,7 @@ void HisPixelApp_t::open_tab() {
 
 
 std::string HisPixelApp_t::gtk_css() {
+    // create the CSS style according to the hispixel.conf
     std::ostringstream oss;
     GdkRGBA clor = config.get<GdkRGBA>("tabbar_bg_color");
     oss << "* { "
@@ -230,13 +231,18 @@ std::string HisPixelApp_t::gtk_css() {
 void HisPixelApp_t::activate(GtkApplication* theApp) {
     app = theApp;
 
-    RegEvents_t<HisPixelApp_t> evts(this);
 
     window = gtk_application_window_new (app);
     if (!window) RAISE(FATAL) << "gtk_application_window_new failed";
 
+    // event weapper
+    RegEvents_t<HisPixelApp_t> evts(this);
+
+    // register window key_press signal callbacks
     evts.reg_key_press_event(window);
 
+    // GTK3 uses CSS styling. Create the CSS for the app.
+    // create CSS provider, assign the CSS to the screen
     GdkDisplay *display = gdk_display_get_default();
     if (!display) RAISE(FATAL) << "gdk_display_get_default failed";
 
@@ -257,19 +263,25 @@ void HisPixelApp_t::activate(GtkApplication* theApp) {
                        GTK_STYLE_PROVIDER(provider),
                        GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
 
+    // the window title is allways "HisPixel"
     gtk_window_set_title (GTK_WINDOW (window), "HisPixel");
+
+    // Don't care in i3 WM
     gtk_window_set_default_size (GTK_WINDOW (window), 200, 400);
 
+    // create notebook widget - the "tabbed window".
     tabs = gtk_notebook_new();
     if (!tabs) RAISE(FATAL) << "gtk_notebook_new failed";
 
+    // register page-removed event
     evts.reg_page_removed(tabs);
 
+    // create a helper box widget. It holds the tab-bar (if visible) and the terminals.
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     if (!box) RAISE(FATAL) << "gtk_box_new failed";
 
-
     if (tabbar_visible) {
+        // the tabbar is a GTK label. Crete the label...
         label = gtk_label_new("");
         if (!label) RAISE(FATAL) << "gtk_label_new failed";
 
@@ -277,7 +289,7 @@ void HisPixelApp_t::activate(GtkApplication* theApp) {
         gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
         gtk_widget_set_halign(label, GTK_ALIGN_START);
 
-
+        // ...and put it to top/bottom
         if (config.get<bool>("tabbar_on_bottom")) {
             gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
             gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
@@ -286,21 +298,26 @@ void HisPixelApp_t::activate(GtkApplication* theApp) {
             gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
         }
 
+        // ...and show it
         gtk_widget_show(label);
     } else {
+        // ...show the box only
         gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
     }
 
+    // open the very first tab
     open_tab();
 
-    gtk_container_add (GTK_CONTAINER (window), box);
+    // add the box container to the window
+    gtk_container_add(GTK_CONTAINER (window), box);
+
+    // show everything
     gtk_widget_show_all(GTK_WIDGET(tabs));
     gtk_widget_show(box);
     gtk_widget_show(window);
 
-    if (tabbar_visible) {
-        update_tabbar();
-    }
+    // update tabbar if visible
+    update_tabbar();
 }
 
 
@@ -377,7 +394,7 @@ int main(int argc, char **argv, char** envp)
             RAISE(FATAL) << "unable to create GTK application instance";
         }
 
-        //connect the app to the callback
+        // connect the app and the callbacks
         if (g_signal_connect(app, "activate", G_CALLBACK (s28::activate), &hispixel) <= 0) {
             RAISE(FATAL) << "g_signal_connect failed";
         }
@@ -385,10 +402,14 @@ int main(int argc, char **argv, char** envp)
         // run
         status = g_application_run (G_APPLICATION (app), argc, argv);
 
-        // release app
+        // release the app
         g_object_unref (app);
-    } catch(const s28::Error_t &e) {
+    } catch (const s28::Error_t &e) {
         std::cout << "err(" << e.code() << "): " << e.what() << std::endl;
+    } catch (const std::exception &e) {
+        std::cout << "err: " << e.what() << std::endl;
+    } catch (...) {
+        std::cout << "err: fatal" << std::endl;
     }
 
     return status;
