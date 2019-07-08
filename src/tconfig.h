@@ -33,6 +33,8 @@ private:
         virtual void set(const std::string &s) = 0;
     };
 public:
+
+    // config value holder
     template<typename Type_t>
     class Value_t : public BaseValue_t {
     public:
@@ -118,7 +120,8 @@ public:
     }
 
 
-    bool init(const std::string &file);
+    bool init(const std::vector<std::string> &files);
+
     void init_defaults();
     int parse_config_line(const std::string &line);
 
@@ -129,6 +132,8 @@ public:
 
     bool has_close_last = false;
 private:
+    bool init(const std::string &file);
+
     template<typename Type_t>
     void insert_default(std::string key, std::string value) {
         std::unique_ptr<BaseValue_t> bv(new Value_t<Type_t>(value));

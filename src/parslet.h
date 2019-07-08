@@ -63,7 +63,8 @@ public:
 
     char at(size_t i) const {
         int rv = (*this)[i];
-        if (rv == eof) raise(Error_t::RANGE);
+        if (rv == eof)
+            throw Error_t(Error_t::RANGE);
         return (char)rv;
     }
 
@@ -84,7 +85,8 @@ public:
     }
 
     void operator+=(size_t i) {
-        if (it + i > eit) raise(Error_t::OVERFLOW);
+        if (it + i > eit)
+            throw Error_t(Error_t::OVERFLOW);
         it += i;
     }
 
@@ -97,19 +99,23 @@ public:
     }
 
     void expect_eof() {
-        if (!empty()) raise(Error_t::EXPECT);
+        if (!empty())
+            throw Error_t(Error_t::EXPECT);
     }
 
     void expect_char(char c) {
         int k = (*this)[0];
-        if (k == -1) raise(Error_t::OVERFLOW);
+        if (k == -1)
+            throw Error_t(Error_t::OVERFLOW);
 
-        if ((char)k != c) raise(Error_t::EXPECT);
+        if ((char)k != c)
+            throw Error_t(Error_t::EXPECT);
         next();
     }
 
     void skip() {
-        if (it >= eit) raise(Error_t::OVERFLOW);
+        if (it >= eit)
+            throw Error_t(Error_t::OVERFLOW);
         ++it;
     }
 
@@ -127,7 +133,8 @@ public:
     }
 
     size_t size() const {
-        if (it > eit) raise(Error_t::OVERFLOW);
+        if (it > eit)
+            throw Error_t(Error_t::OVERFLOW);
         return eit - it;
     }
 
@@ -137,9 +144,6 @@ private:
     const char *it;
     const char *eit;
 
-    void raise(Error_t::Code_t code) const {
-        throw Error_t(code, "parsing");
-    }
 
 };
 
@@ -221,7 +225,9 @@ inline std::pair<std::string, std::string> eq(Parslet_t &p) {
 
 Parslet_t word(Parslet_t &p) {
     ltrim(p);
-    if (!isalnum(*p)) throw Error_t(Error_t::EXPECT);
+    if (!isalnum(*p)) {
+        throw Error_t(Error_t::EXPECT, "word");
+    }
     Parslet_t rv = p;
     while (p && !isspace(*p)) {
         p.skip();

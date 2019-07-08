@@ -11,41 +11,40 @@
 
 namespace s28 {
 
-
-class Error_t
+class ErrorBase_t
 {
 public:
-    Error_t(int c, const std::string &msg) :
-        msg(msg),
-        _code(c)
+    ErrorBase_t(const std::string &msg) :
+        msg(msg)
     {}
 
-    virtual ~Error_t() throw() {}
-    
-    int code() const {
-        return _code;
-    }
+    virtual ~ErrorBase_t() throw() {}
 
     const char* what() const throw() {
         return msg.c_str();
     }
 private:
     std::string msg;
-    int _code;
 };
 
-template<int CAT>
-class GeneralError_t : public Error_t {
+
+class Error_t : public ErrorBase_t {
 public:
-    GeneralError_t(int c, const std::string &msg) :
-        Error_t(c, msg)
+    Error_t(int code, const std::string &msg) :
+        ErrorBase_t(msg),
+        code_(code)
     {}
+   
+    int code() const { return code_; }
+
+private:
+    int code_;
 };
 
 
 template<typename Code_t>
 void raise(const std::string &msg = std::string()) {
-    throw GeneralError_t<Code_t::CATEGORY>(Code_t::CODE, msg);
+    throw Error_t(Code_t::CODE, msg);
 }
 
 
@@ -70,18 +69,21 @@ private:
     std::ostringstream oss;
 };
 
-template<typename EC_t>
 class LErr_t {
 public:
+    LErr_t(int code) : code(code) {}
+
     void operator=(const RErr_t &re) {
-        s28::raise<EC_t>(re.str());
+        throw Error_t(code, re.str());
     }
+
+    int code;
 };
 
 } // namespace detail
 
 #define RAISE(code)\
-    s28::detail::LErr_t<s28::errcode::code>()=s28::detail::RErr_t()
+    s28::detail::LErr_t(::s28::errcode::code)=s28::detail::RErr_t()
 
 }
 

@@ -28,19 +28,40 @@ public:
 private:
 
     static void child_exited(VteTerminal *t, gint status, gpointer _udata) {
-        ((App_t *)_udata)->child_exited(t, status);
+        try {
+            ((App_t *)_udata)->child_exited(t, status);
+        } catch(const std::exception &e) {
+            ((App_t *)_udata)->on_error(&e);
+        } catch(...) {
+            ((App_t *)_udata)->on_error(nullptr);
+        }
     }
 
     static gboolean key_press_event(GtkWidget *widget, GdkEvent *event,
             gpointer _udata)
     {
-        return ((App_t *)_udata)->key_press_event(widget, event);
+        try {
+            return ((App_t *)_udata)->key_press_event(widget, event);
+        } catch(const std::exception &e) {
+            ((App_t *)_udata)->on_error(&e);
+        } catch(...) {
+            ((App_t *)_udata)->on_error(nullptr);
+        }
+
+        return FALSE;
     }
 
     static void page_removed(GtkNotebook *notebook, GtkWidget *child,
         guint page_num, gpointer _udata)
     {
-        return ((App_t *)_udata)->page_removed(notebook, child, page_num);
+
+        try {
+            ((App_t *)_udata)->page_removed(notebook, child, page_num);
+        } catch(const std::exception &e) {
+            ((App_t *)_udata)->on_error(&e);
+        } catch(...) {
+            ((App_t *)_udata)->on_error(nullptr);
+        }
     }
 
     App_t *app;

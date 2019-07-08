@@ -110,6 +110,14 @@ bool TConfig_t::init(const std::string &file) {
     return true;
 }
 
+bool TConfig_t::init(const std::vector<std::string> &files) {
+    init_defaults();
+    for (std::string cfile: files) {
+        if (init(cfile)) return true;
+    }
+    return false;
+}
+
 void TConfig_t::init_defaults() {
     insert_default<std::string>("term_font", "Terminus");
     insert_default<int>("term_font_size", "12");

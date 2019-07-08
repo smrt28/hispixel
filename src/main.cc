@@ -30,13 +30,14 @@ static bool match_gtk_ks_event(GdkEvent *event, const s28::KeySym_t &ks) {
 }
 
 
-gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/,
-        GdkEvent *event)
+gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/, GdkEvent *event)
 {
     typedef s28::TConfig_t::Action_t Action_t;
     Action_t ac;
+
     const s28::TConfig_t::KeyBindings_t &keybindings = config.get_keybindings();
 
+    // search key bindings
     for (auto binding: keybindings) {
         if (match_gtk_ks_event(event, binding.keysym)) {
             ac = binding.action;
@@ -95,6 +96,16 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/,
     return FALSE;
 }
 
+
+void HisPixelApp_t::on_error(const std::exception *e) {
+    if (e) {
+        std::cerr << "HisPixelApp error: " << e->what() << std::endl;
+    } else {
+        std::cerr << "HisPixelApp general error"  << std::endl;
+    }
+    g_application_quit(G_APPLICATION(app));
+}
+
 void HisPixelApp_t::page_removed(GtkNotebook * /*notebook*/,
         GtkWidget * /*child*/, guint /*page_num*/)
 {
@@ -118,14 +129,19 @@ static void activate(GtkApplication* app, gpointer _udata)
 
 
 std::string HisPixelApp_t::tabbar_text() {
+    // get number of tabs
     gint n = gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));
-    std::ostringstream oss;
+    if (n <= 0) return std::string();
+
+    // selected tab number
     gint c = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
+
+    std::ostringstream oss;
     for (int i = 0; i < n; i++) {
         if (i == c) {
             oss << "<span foreground=\"#ffffff\"";
             oss << " font_weight=\"bold\">";
-            oss << "[" << i << "]";
+            oss << "[" << i << "]"; // tab number
             oss << "</span>";
         } else {
             oss << "[" << i << "]";
@@ -135,16 +151,24 @@ std::string HisPixelApp_t::tabbar_text() {
 }
 
 void HisPixelApp_t::update_tabbar() {
+    // tabbar is not visible, update is not needed
     if (!tabbar_visible) return;
+
+    // get the tab-bar content
     std::string s = tabbar_text();
+
+    // and show it
     gtk_label_set_markup(GTK_LABEL(label), s.c_str());
 }
 
-void HisPixelApp_t::open_tab() {
 
+
+void HisPixelApp_t::open_tab() {
     RegEvents_t<HisPixelApp_t> evts(this);
+
     GtkWidget * terminal = vte_terminal_new();
 
+    if (!terminal) RAISE(FATAL) << "vte_terminal_new failed";
 
     if (config.get<bool>("allow_bold")) {
         vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), TRUE);
@@ -152,19 +176,13 @@ void HisPixelApp_t::open_tab() {
         vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), FALSE);
     }
 
-    std::string font_name = config.get<std::string>("term_font");
 
-    PangoFontDescription *description =
-        pango_font_description_from_string(font_name.c_str());
-
-    pango_font_description_set_size(description,
-            config.get<int>("term_font_size") * PANGO_SCALE);
-
-    vte_terminal_set_font (VTE_TERMINAL(terminal), description);
+    vte_terminal_set_font (VTE_TERMINAL(terminal), font_description);
 
     evts.reg_child_exited(terminal);
 
-    char *argv[2];
+    // Not sure if this is needed. Maybe const_cast would be sufficiend here...
+    char *argv[2]; 
     argv[0] = strdup("/bin/bash");
     argv[1] = 0;
 
@@ -183,7 +201,9 @@ void HisPixelApp_t::open_tab() {
         NULL  /* GError **error */
         );
 
+    // vte_terminal_spawn_async doesn't thow, so this is safe
     ::free(argv[0]);
+
     int sel = gtk_notebook_append_page(GTK_NOTEBOOK(tabs), terminal, 0);
     gtk_widget_show(terminal);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);
@@ -203,32 +223,35 @@ std::string HisPixelApp_t::gtk_css() {
         <<       "border-color: black;"
         <<" }";
 
-    std::string rv = oss.str();
-
-    std::cout << rv << std::endl;
-    return rv;
+    return oss.str();
 }
 
 
-void HisPixelApp_t::activate(GtkApplication* _app) {
-    app = _app;
+void HisPixelApp_t::activate(GtkApplication* theApp) {
+    app = theApp;
+
     RegEvents_t<HisPixelApp_t> evts(this);
+
     window = gtk_application_window_new (app);
+    if (!window) RAISE(FATAL) << "gtk_application_window_new failed";
 
     evts.reg_key_press_event(window);
-    GError *error = NULL;
 
-    GdkDisplay *display = gdk_display_get_default();;
-    GdkScreen *screen = gdk_display_get_default_screen (display);
+    GdkDisplay *display = gdk_display_get_default();
+    if (!display) RAISE(FATAL) << "gdk_display_get_default failed";
+
+    GdkScreen *screen = gdk_display_get_default_screen(display);
+    if (!screen) RAISE(FATAL) << "gdk_display_get_default_screen failed";
 
     std::string css = gtk_css();
 
     provider = gtk_css_provider_new();
+    if (!provider) RAISE(FATAL) << "gtk_css_provider_new failed";
+
+    GError *error = nullptr;
     gtk_css_provider_load_from_data(provider, css.c_str(), css.size(), &error);
 
-    if (error) {
-        RAISE(FATAL) << "invalid GTK CSS";
-    }
+    if (error) RAISE(FATAL) << "invalid GTK CSS";
 
     gtk_style_context_add_provider_for_screen (screen,
                        GTK_STYLE_PROVIDER(provider),
@@ -238,45 +261,54 @@ void HisPixelApp_t::activate(GtkApplication* _app) {
     gtk_window_set_default_size (GTK_WINDOW (window), 200, 400);
 
     tabs = gtk_notebook_new();
+    if (!tabs) RAISE(FATAL) << "gtk_notebook_new failed";
 
     evts.reg_page_removed(tabs);
 
-    label = gtk_label_new("");
-
-    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-    gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
-    gtk_widget_set_halign(label, GTK_ALIGN_START);
-
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+    if (!box) RAISE(FATAL) << "gtk_box_new failed";
 
-    if (config.get<bool>("tabbar_on_bottom")) {
-        gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
-        gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
+
+    if (tabbar_visible) {
+        label = gtk_label_new("");
+        if (!label) RAISE(FATAL) << "gtk_label_new failed";
+
+        gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+        gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+        gtk_widget_set_halign(label, GTK_ALIGN_START);
+
+
+        if (config.get<bool>("tabbar_on_bottom")) {
+            gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
+            gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
+        } else {
+            gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
+            gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
+        }
+
+        gtk_widget_show(label);
     } else {
-        gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
         gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
     }
 
     open_tab();
 
     gtk_container_add (GTK_CONTAINER (window), box);
-
     gtk_widget_show_all(GTK_WIDGET(tabs));
     gtk_widget_show(box);
     gtk_widget_show(window);
 
-    tabbar_visible = config.get<bool>("show_tabbar");
     if (tabbar_visible) {
-        gtk_widget_show(label);
         update_tabbar();
     }
 }
 
 
 static std::string homedir() {
-    const char *h = 0;
+    const char *h = nullptr;
     if ((h = getenv("HOME")) == NULL) {
-        h = getpwuid(getuid())->pw_dir;
+        struct passwd *pwd = getpwuid(getuid());
+        if (pwd) h = pwd->pw_dir;
     }
     if (!h) return "/";
     return h;
@@ -298,10 +330,36 @@ static std::vector<std::string> get_config_files() {
 }
 
 HisPixelApp_t::~HisPixelApp_t() {
-    gtk_widget_hide(window);
-    gtk_widget_destroy(window);
+    if (window) {
+        gtk_widget_hide(window);
+        gtk_widget_destroy(window);
+        window = nullptr;
+    }
+
+    // In very rare case of error when the widgets are not connected to
+    // the window yet, it could be nice to release them explicitelly as well.
+    // Not sure how to do that...
+
+    if (font_description) {
+        pango_font_description_free(font_description);
+    }
 }
 
+void HisPixelApp_t::read_config() {
+    // try to read config file from several paths
+    if (!config.init(s28::get_config_files())) {
+        // no config found. Print warning and continue with default config values.
+        std::cerr << "err: config file not found" << std::endl;
+    }
+
+    tabbar_visible = config.get<bool>("show_tabbar");
+
+    // get and cache pango font dectiptin used by VTE
+    std::string font_name = config.get<std::string>("term_font");
+    font_description = pango_font_description_from_string(font_name.c_str());
+    if (!font_description) RAISE(FATAL) << "pango_font_description_from_string failed:" << font_name;
+    pango_font_description_set_size(font_description, config.get<int>("term_font_size") * PANGO_SCALE);
+}
 
 } // namespace s28
 
@@ -310,27 +368,24 @@ int main(int argc, char **argv, char** envp)
     int status;
     try {
         s28::HisPixelApp_t hispixel(argc, argv, envp);
-        hispixel.config.init_defaults();
+        hispixel.read_config();
 
-        bool cfgok = false;
-
-        for (auto cfile: s28::get_config_files()) {
-            if (hispixel.config.init(cfile)) {
-                cfgok = true;
-                break;
-            }
-        }
-
-        if (!cfgok) {
-            std::cerr << "err: config file not found" << std::endl;
-        }
-
+        // create GTK application
         GtkApplication *app;
-
         app = gtk_application_new (NULL /* application name */, G_APPLICATION_FLAGS_NONE);
-        g_signal_connect(app, "activate", G_CALLBACK (s28::activate), &hispixel);
+        if (!app) {
+            RAISE(FATAL) << "unable to create GTK application instance";
+        }
 
+        //connect the app to the callback
+        if (g_signal_connect(app, "activate", G_CALLBACK (s28::activate), &hispixel) <= 0) {
+            RAISE(FATAL) << "g_signal_connect failed";
+        }
+
+        // run
         status = g_application_run (G_APPLICATION (app), argc, argv);
+
+        // release app
         g_object_unref (app);
     } catch(const s28::Error_t &e) {
         std::cout << "err(" << e.code() << "): " << e.what() << std::endl;

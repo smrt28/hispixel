@@ -12,11 +12,7 @@ public:
     HisPixelApp_t(int argc, char **argv, char** envp) :
         argc(argc),
         argv(argv),
-        envp(envp),
-        label(0),
-        tabs(0),
-        window(0),
-        box(0)
+        envp(envp)
     {}
 
     ~HisPixelApp_t();
@@ -26,26 +22,27 @@ public:
     void child_exited(VteTerminal *t, gint status);
     gboolean key_press_event(GtkWidget *widget, GdkEvent *event);
     void page_removed(GtkNotebook *notebook, GtkWidget *child, guint page_num);
-
     std::string gtk_css();
-
-
     std::string tabbar_text();
     void update_tabbar();
+    void read_config();
+    void on_error(const std::exception *e);
 
+
+private:
 
     int argc;
     char **argv;
     char **envp;
 
-    GtkApplication* app;
-    GtkWidget *label;
-    GtkWidget *tabs;
-    GtkWidget *window;
-    GtkWidget *box;
-    GtkCssProvider *provider;
-
-    bool tabbar_visible;
+    GtkApplication* app = nullptr;
+    GtkWidget *label = nullptr;
+    GtkWidget *tabs = nullptr;
+    GtkWidget *window = nullptr;
+    GtkWidget *box = nullptr;
+    PangoFontDescription *font_description = nullptr;
+    GtkCssProvider *provider = nullptr;
+    bool tabbar_visible = true;
 
     s28::TConfig_t config;
 };
