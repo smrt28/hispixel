@@ -34,7 +34,7 @@ public:
         ErrorBase_t(msg),
         code_(code)
     {}
-   
+
     int code() const { return code_; }
 
 private:

@@ -164,7 +164,6 @@ void HisPixelApp_t::update_tabbar() {
 
 
 void HisPixelApp_t::open_tab() {
-    RegEvents_t<HisPixelApp_t> evts(this);
 
     GtkWidget * terminal = vte_terminal_new();
 
@@ -176,14 +175,17 @@ void HisPixelApp_t::open_tab() {
         vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), FALSE);
     }
 
-
     vte_terminal_set_font (VTE_TERMINAL(terminal), font_description);
 
+    RegEvents_t<HisPixelApp_t> evts(this);
+
+    // when the terminal exits it has to be removed from tab-bar, so
+    // we need to register for the child-exited signal
     evts.reg_child_exited(terminal);
 
     // Not sure if this is needed. Maybe const_cast would be sufficiend here...
-    char *argv[2]; 
-    argv[0] = strdup("/bin/bash");
+    char *argv[2];
+    argv[0] = strdup("/bin/bash"); // TODO: get shell be getpwuid()
     argv[1] = 0;
 
     vte_terminal_spawn_async(VTE_TERMINAL(terminal),
@@ -320,14 +322,14 @@ void HisPixelApp_t::activate(GtkApplication* theApp) {
     update_tabbar();
 }
 
-
+// recognize the user home directory
 static std::string homedir() {
     const char *h = nullptr;
     if ((h = getenv("HOME")) == NULL) {
         struct passwd *pwd = getpwuid(getuid());
         if (pwd) h = pwd->pw_dir;
     }
-    if (!h) return "/";
+    if (!h) RAISE(FATAL) << "unknown users home directory";
     return h;
 }
 
@@ -363,7 +365,7 @@ HisPixelApp_t::~HisPixelApp_t() {
 }
 
 void HisPixelApp_t::read_config() {
-    // try to read config file from several paths
+    // try to read config file from several possible paths
     if (!config.init(s28::get_config_files())) {
         // no config found. Print warning and continue with default config values.
         std::cerr << "err: config file not found" << std::endl;
