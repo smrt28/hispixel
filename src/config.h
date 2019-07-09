@@ -1,18 +1,24 @@
-#ifndef SRC_TCONFIG_T
-#define SRC_TCONFIG_T
+#ifndef SRC_CONFIG_H
+#define SRC_CONFIG_H
 
 #include <string>
 #include <vector>
 #include <map>
 #include <boost/ptr_container/ptr_map.hpp>
 
-#include "keyevent.h"
 #include "valuecast.h"
 #include "error.h"
 
 namespace s28 {
 
-class TConfig_t {
+class KeySym_t {
+public:
+    KeySym_t() : mask(0), key(0) {}
+    guint mask;
+    uint32_t key;
+};
+
+class Config_t {
 public:
     template<typename> class Value_t;
 private:
@@ -120,17 +126,14 @@ public:
 
 
     bool init(const std::vector<std::string> &files);
-
-    void init_defaults();
     int parse_config_line(const std::string &line);
-
     typedef std::vector<KeyBinding_t> KeyBindings_t;
-
     const KeyBindings_t & get_keybindings() const { return keybindings; }
 
-
     bool has_close_last = false;
+
 private:
+    void init_defaults();
     bool init(const std::string &file);
 
     template<typename Type_t>

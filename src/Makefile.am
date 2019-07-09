@@ -9,7 +9,7 @@ AM_LDFLAGS = @HISPIXEL_LIBS@
 bin_PROGRAMS = hispixel
 
 #hispixel_LDADD = @HISPIXEL_LIBS@
-hispixel_SOURCES = main.cc keyevent.cc tconfig.cc
+hispixel_SOURCES = main.cc config.cc
 
 
 

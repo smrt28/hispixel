@@ -4,7 +4,7 @@
 #include <gtk/gtk.h>
 #include <vte/vte.h>
 
-#include "tconfig.h"
+#include "config.h"
 namespace s28 {
 
 class HisPixelApp_t {
@@ -44,7 +44,7 @@ private:
     GtkCssProvider *provider = nullptr;
     bool tabbar_visible = true;
 
-    s28::TConfig_t config;
+    s28::Config_t config;
 };
 
 } // namespace s28

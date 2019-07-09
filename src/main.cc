@@ -9,10 +9,8 @@
 #include <iostream>
 
 #include "regevent.h"
-#include "keyevent.h"
-#include "tconfig.h"
+#include "config.h"
 #include "error.h"
-#include "keyevent.h"
 #include "hispixelapp.h"
 
 namespace s28 {
@@ -32,10 +30,10 @@ static bool match_gtk_ks_event(GdkEvent *event, const s28::KeySym_t &ks) {
 
 gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/, GdkEvent *event)
 {
-    typedef s28::TConfig_t::Action_t Action_t;
+    typedef s28::Config_t::Action_t Action_t;
     Action_t ac;
 
-    const s28::TConfig_t::KeyBindings_t &keybindings = config.get_keybindings();
+    const s28::Config_t::KeyBindings_t &keybindings = config.get_keybindings();
 
     // search key bindings
     for (auto binding: keybindings) {
