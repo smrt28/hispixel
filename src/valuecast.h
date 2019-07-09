@@ -13,7 +13,9 @@ namespace aux {
 /** Config value cast implementations/specializations
  */
 
-// general implementation uses boost::lexical_cast
+/**
+ * General implementation uses boost::lexical_cast
+ */
 template<typename Type_t>
 struct ValueCast_t {
     static Type_t cast(const std::string &s) {
@@ -26,7 +28,9 @@ struct ValueCast_t {
     }
 };
 
-// boolean could be defined 1/0 true/false yes/no
+/**
+ * Boolean could be defined 1/0 true/false yes/no
+ */
 template<>
 struct ValueCast_t<bool> {
     static bool cast(const std::string &_s) {
@@ -45,7 +49,9 @@ struct ValueCast_t<bool> {
     }
 };
 
-// casts color defined like "#303030" to GdkRGBA struct
+/**
+ * casts color defined like "#303030" to GdkRGBA struct
+ */
 template<>
 struct ValueCast_t<GdkRGBA> {
     static GdkRGBA cast(const std::string &s) {

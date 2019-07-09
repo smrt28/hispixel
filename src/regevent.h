@@ -10,6 +10,7 @@
  * The methods callbacks are weapped in try/catch statement and potential exception
  * would be passed to App_t::on_exit()
  *
+ * see: https://developer.gnome.org/gobject/stable/gobject-Signals.html#g-signal-connect
  */
 
 template<typename App_t>
@@ -19,16 +20,28 @@ public:
 
     // reg_* methods connect GTK signal and given method
 
+    /**
+     * Register GTK signal
+     * @param w the widget
+     */
     void reg_child_exited(GtkWidget * w) {
         g_signal_connect(w, "child-exited",
                 G_CALLBACK(child_exited), app);
     }
 
+    /**
+     * Register GTK signal
+     * @param w the widget
+     */
     void reg_key_press_event(GtkWidget * w) {
         g_signal_connect(w, "key-press-event",
                 G_CALLBACK(key_press_event), app);
     }
 
+    /**
+     * Register GTK signal
+     * @param w the widget
+     */
     void reg_page_removed(GtkWidget * w) {
         g_signal_connect(w, "page-removed",
                 G_CALLBACK(page_removed), app);
@@ -36,6 +49,9 @@ public:
 
 private:
 
+    /**
+     * child_exited GTK signal callback wrap
+     */
     static void child_exited(VteTerminal *t, gint status, gpointer _udata) {
         try {
             ((App_t *)_udata)->child_exited(t, status);
@@ -46,6 +62,9 @@ private:
         }
     }
 
+    /**
+     * key_press_event GTK signal callback wrap.
+     */
     static gboolean key_press_event(GtkWidget *widget, GdkEvent *event,
             gpointer _udata)
     {
@@ -60,6 +79,9 @@ private:
         return FALSE;
     }
 
+    /**
+     * page_removed GTK signal callback wrap
+     */
     static void page_removed(GtkNotebook *notebook, GtkWidget *child,
         guint page_num, gpointer _udata)
     {
@@ -72,6 +94,7 @@ private:
         }
     }
 
+    // the application class
     App_t *app;
 };
 

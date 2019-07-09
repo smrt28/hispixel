@@ -14,19 +14,22 @@
 
 namespace s28 {
 
-namespace parser {
-
 namespace {
 
 #define DEF_MASK(m, mm)   if (s == m) { mask |= mm; continue; }
+
 void tolower(std::string &data) {
     std::transform(data.begin(), data.end(), data.begin(), ::tolower);
 }
 
-
+/* parse key-sym description like "ctrl+alt+1"
+ *
+ * @return KeySym_t structure
+ **/
 KeySym_t parse_key_sym(const std::string &descr) {
     KeySym_t rv;
     std::vector<std::string> v;
+
     boost::split(v, descr, boost::is_any_of("+"));
 
     guint mask = 0;
@@ -112,26 +115,26 @@ KeySym_t parse_key_sym(const std::string &descr) {
 }
 
 
-} // namespce
-
-
 // parse "alt+ctrl+z" key description
 KeySym_t keysym(parser::Parslet_t &p) {
     ltrim(p);
-    Parslet_t rv = p;
+    parser::Parslet_t key_descr = p;
     for (;;) {
         parser::word(p);
-        rv = Parslet_t(rv.begin(), p.begin());
+        key_descr = parser::Parslet_t(key_descr.begin(), p.begin());
         ltrim(p);
         if (p[0] == '+') {
             p.skip();
             continue;
         }
-        return parse_key_sym(rv.str());
+        return parse_key_sym(key_descr.str());
     }
 }
 
-Config_t::Action_t action(parser::Parslet_t &p) {
+} // namespce
+
+
+Config_t::Action_t string_to_action(parser::Parslet_t &p) {
     typedef Config_t::Action_t Action_t;
     std::string s = word(p).str();
 
@@ -159,7 +162,6 @@ Config_t::Action_t action(parser::Parslet_t &p) {
     return Config_t::Action_t(); // not reachable (avoids compiler warning)
 }
 
-} // namespace parser
 
 int Config_t::parse_config_line(const std::string &line) {
     parser::Parslet_t p(line);
@@ -174,8 +176,8 @@ int Config_t::parse_config_line(const std::string &line) {
     // handle bindsym first
     std::string aword = parser::word(p).str();
     if (aword == "bindsym") {
-        KeySym_t ks = parser::keysym(p);
-        Config_t::Action_t action = parser::action(p);
+        KeySym_t ks = keysym(p);
+        Config_t::Action_t action = string_to_action(p);
         if (action.type == Action_t::ACTION_CLOSE_LAST)
             has_close_last = true;
         keybindings.push_back(KeyBinding_t(ks, action));
@@ -225,6 +227,7 @@ bool Config_t::init(const std::string &file) {
 }
 
 bool Config_t::init(const std::vector<std::string> &files) {
+    // initialize default values
     init_defaults();
 
     // iterate all the file names and use the first which opens for reading
@@ -236,6 +239,8 @@ bool Config_t::init(const std::vector<std::string> &files) {
 
 void Config_t::init_defaults() {
     // hardcoded default config values
+    //
+    // On UBUNTU, the Mono font could be even better....
     insert_default<std::string>("term_font", "Terminus");
     insert_default<int>("term_font_size", "12");
     insert_default<bool>("allow_bold", "true");

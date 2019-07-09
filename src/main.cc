@@ -15,8 +15,39 @@
 
 namespace s28 {
 
+namespace {
 
-static bool match_gtk_ks_event(GdkEvent *event, const s28::KeySym_t &ks) {
+// recognize the user home directory
+std::string homedir() {
+    const char *h = nullptr;
+    if ((h = getenv("HOME")) == NULL) {
+        struct passwd *pwd = getpwuid(getuid());
+        if (pwd) h = pwd->pw_dir;
+    }
+    if (!h) RAISE(FATAL) << "unknown users home directory";
+    return h;
+}
+
+
+// returns list of possible hispixel.conf file placements
+std::vector<std::string> get_config_files() {
+    static const char * HISPIXE_CFG = ".hispixel";
+    static const char * HISPIXE_CFG2 = "hispixel.conf";
+    std::string h = homedir();
+
+    std::vector<std::string> rv;
+    rv.push_back(h + "/" + HISPIXE_CFG); // ~ directory
+    rv.push_back(h + "/" + HISPIXE_CFG2);
+    rv.push_back(h + "/.config/" + HISPIXE_CFG); // ~/.config directory
+    rv.push_back(h + "/.config/" + HISPIXE_CFG2);
+    rv.push_back(std::string("/etc/") + HISPIXE_CFG); // /etc directory
+    rv.push_back(std::string("/etc/") + HISPIXE_CFG2);
+    return rv;
+}
+
+
+// matck GTK event and KeySym_t
+bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
     if (event->type != GDK_KEY_PRESS &&
         event->type != GDK_KEY_RELEASE) return false;
 
@@ -27,8 +58,9 @@ static bool match_gtk_ks_event(GdkEvent *event, const s28::KeySym_t &ks) {
     return false;
 }
 
+} // namespace
 
-gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/, GdkEvent *event)
+gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
 {
     typedef s28::Config_t::Action_t Action_t;
     Action_t ac;
@@ -48,39 +80,57 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/, GdkEvent *event)
             open_tab();
             return TRUE;
         case Action_t::ACTION_FOCUS:
+            // switching tab...
             gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), ac.data - 1);
             update_tabbar();
             return TRUE;
         case Action_t::ACTION_FOCUS_NEXT: {
+            // get current tab index + 1
             gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs)) + 1;
+
+            // get total number of tabs
             gint total = gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));
+
+            // switch from the last tab to the first
             if (n >= total) n = 0;
             gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), n);
+
+            // update tabbar
             update_tabbar();
             return TRUE;
             }
         case Action_t::ACTION_FOCUS_PREV: {
+            // get current tab
             gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
+
+            // get total number of tabs
             gint total = gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));
+
             if (n == 0) {
+                // jump form the first to the last
                 n = total - 1;
             } else {
+                // jump to the next tab
                 n -= 1;
             }
+
+            // switch tabs
             gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), n);
+
+            // and update tabbar
             update_tabbar();
             return TRUE;
             }
             break;
-        case Action_t::ACTION_CLOSE_LAST:
-            {
+        case Action_t::ACTION_CLOSE_LAST: {
+            // If there is a key binding for "close_last" defined, HisPixel doesn't exit
+            // with the last tab, but it waits for pressing the "close_last" key to confirm exit.
             gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs)) + 1;
             if (n == 0) g_application_quit(G_APPLICATION(app));
             return FALSE;
             }
         case Action_t::ACTION_NONE:
             return FALSE;
-
         default:
             break;
     }
@@ -311,32 +361,6 @@ void HisPixelApp_t::activate(GtkApplication* theApp) {
 
     // update tabbar if visible
     update_tabbar();
-}
-
-// recognize the user home directory
-static std::string homedir() {
-    const char *h = nullptr;
-    if ((h = getenv("HOME")) == NULL) {
-        struct passwd *pwd = getpwuid(getuid());
-        if (pwd) h = pwd->pw_dir;
-    }
-    if (!h) RAISE(FATAL) << "unknown users home directory";
-    return h;
-}
-
-
-static std::vector<std::string> get_config_files() {
-    static const char * HISPIXE_CFG = ".hispixel";
-    static const char * HISPIXE_CFG2 = "hispixel.conf";
-    std::string h = homedir();
-    std::vector<std::string> rv;
-    rv.push_back(h + "/" + HISPIXE_CFG);
-    rv.push_back(h + "/" + HISPIXE_CFG2);
-    rv.push_back(h + "/.config/" + HISPIXE_CFG);
-    rv.push_back(h + "/.config/" + HISPIXE_CFG2);
-    rv.push_back(h + "/etc/" + HISPIXE_CFG);
-    rv.push_back(h + "/etc/" + HISPIXE_CFG2);
-    return rv;
 }
 
 HisPixelApp_t::~HisPixelApp_t() {
