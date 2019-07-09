@@ -1,12 +1,13 @@
 #include <vector>
+#include <set>
 #include <string>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string.hpp>
-
 #include <ctype.h>
 
 #include "keyevent.h"
+#include "error.h"
 
 namespace s28 {
 
@@ -16,7 +17,7 @@ void tolower(std::string &data) {
 }
 } // namespace
 
-#define DEF_MASK(m, mm)   if (s == m) { mask |= mm; } continue
+#define DEF_MASK(m, mm)   if (s == m) { mask |= mm; continue; }
 
 KeySym_t parse_key_sym(const std::string &descr) {
     KeySym_t rv;
@@ -26,17 +27,33 @@ KeySym_t parse_key_sym(const std::string &descr) {
     guint mask = 0;
     uint32_t key = 0;
 
+    std::set<std::string> check;
+
     for (std::string s: v) {
         boost::trim(s);
-        if (s.empty()) continue;
+        if (s.empty()) {
+            RAISE(PARSER) << "invalid key-sym spec";
+        }
+
+        // handle single char
         if (s.size() == 1) {
+            if (key != 0) {
+                RAISE(PARSER) << "invalid key-sym spec";
+            }
             key = s[0];
             continue;
         }
 
         tolower(s);
 
-        if (s[0] == 'm') { // optimization
+        // hadle keyword entered multiple times, like "alt+alt"
+        if (check.count(s)) {
+            RAISE(PARSER) << "invalid key-sym spec";
+        }
+
+        check.insert(s);
+
+        if (s[0] == 'm') {
             DEF_MASK("mod1", GDK_MOD1_MASK);
             DEF_MASK("mod2", GDK_MOD2_MASK);
             DEF_MASK("mod3", GDK_MOD3_MASK);
@@ -48,7 +65,8 @@ KeySym_t parse_key_sym(const std::string &descr) {
         DEF_MASK("ctrl", GDK_CONTROL_MASK);
         DEF_MASK("shift", GDK_SHIFT_MASK);
 
-        if (s[0] == 'f') { // optimization
+
+        if (s[0] == 'f') {
             if (s == "f1") { key = GDK_KEY_F1; continue; }
             if (s == "f2") { key = GDK_KEY_F2; continue; }
             if (s == "f3") { key = GDK_KEY_F3; continue; }
@@ -78,6 +96,8 @@ KeySym_t parse_key_sym(const std::string &descr) {
         if (s == "end") { key = GDK_KEY_End; continue; }
         if (s == "pageup") { key = GDK_KEY_Page_Up; continue; }
         if (s == "pagedown") { key = GDK_KEY_Page_Down; continue; }
+
+        RAISE(PARSER) << "unknown key-sym keyword: \"" << s << "\"";
     }
     rv.key = key;
     rv.mask = mask;
