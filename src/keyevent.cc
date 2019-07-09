@@ -53,6 +53,7 @@ KeySym_t parse_key_sym(const std::string &descr) {
 
         check.insert(s);
 
+        // handle win-key etc...
         if (s[0] == 'm') {
             DEF_MASK("mod1", GDK_MOD1_MASK);
             DEF_MASK("mod2", GDK_MOD2_MASK);
@@ -105,5 +106,4 @@ KeySym_t parse_key_sym(const std::string &descr) {
     return rv;
 }
 
-}
-
+} // namespace s28
