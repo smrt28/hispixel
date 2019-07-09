@@ -9,18 +9,18 @@
 namespace s28 {
 namespace parser {
 
-class Error_t : public s28::Error_t {
-    public:
-        enum Code_t {
-            UNDEFINED = 1,
-            OVERFLOW  = 2,
-            RANGE     = 3,
-            EXPECT    = 4
-        };
+// parser low level error codes (reasons)
 
-        explicit Error_t(Code_t code, std::string message = "parslet"):
-            s28::Error_t((int)code, message)
-        {}
+static const int UNDEFINED = 1;
+static const int OVERFLOW  = 2;
+static const int RANGE     = 3;
+static const int EXPECT    = 4;
+
+template<int REASON>
+class Error_t : public s28::HisError_t<errcode::PARSER> {
+    public:
+        Error_t(const std::string &msg = "parslet") :
+            s28::HisError_t<errcode::PARSER>(msg) {}
 };
 
 
@@ -64,7 +64,7 @@ public:
     char at(size_t i) const {
         int rv = (*this)[i];
         if (rv == eof)
-            throw Error_t(Error_t::RANGE);
+            throw Error_t<RANGE>();
         return (char)rv;
     }
 
@@ -86,7 +86,7 @@ public:
 
     void operator+=(size_t i) {
         if (it + i > eit)
-            throw Error_t(Error_t::OVERFLOW);
+            throw Error_t<OVERFLOW>();
         it += i;
     }
 
@@ -100,22 +100,22 @@ public:
 
     void expect_eof() {
         if (!empty())
-            throw Error_t(Error_t::EXPECT);
+            throw Error_t<EXPECT>();
     }
 
     void expect_char(char c) {
         int k = (*this)[0];
         if (k == -1)
-            throw Error_t(Error_t::OVERFLOW);
+            throw Error_t<OVERFLOW>();
 
         if ((char)k != c)
-            throw Error_t(Error_t::EXPECT);
+            throw Error_t<EXPECT>();
         next();
     }
 
     void skip() {
         if (it >= eit)
-            throw Error_t(Error_t::OVERFLOW);
+            throw Error_t<OVERFLOW>();
         ++it;
     }
 
@@ -134,7 +134,7 @@ public:
 
     size_t size() const {
         if (it > eit)
-            throw Error_t(Error_t::OVERFLOW);
+            throw Error_t<OVERFLOW>();
         return eit - it;
     }
 
@@ -192,7 +192,7 @@ inline Parslet_t split(Parslet_t &p, char c) {
         int x = p.next();
         if (x == Parslet_t::eof) {
             p = orig;
-            throw Error_t(Error_t::EXPECT);
+            throw Error_t<EXPECT>();
         }
         if ((unsigned char)x == (unsigned char)c) {
             return Parslet_t(it, p.begin() - 1);
@@ -226,7 +226,7 @@ inline std::pair<std::string, std::string> eq(Parslet_t &p) {
 Parslet_t word(Parslet_t &p) {
     ltrim(p);
     if (!isalnum(*p)) {
-        throw Error_t(Error_t::EXPECT, "word");
+        throw Error_t<EXPECT>();
     }
     Parslet_t rv = p;
     while (p && !isspace(*p)) {

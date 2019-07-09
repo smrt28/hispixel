@@ -73,7 +73,6 @@ public:
             ACTION_NONE,
             ACTION_FOCUS,
             ACTION_OPENTAB,
-            ACTION_TOGGLE_TABBAR,
             ACTION_FOCUS_NEXT,
             ACTION_FOCUS_PREV,
             ACTION_CLOSE_LAST
@@ -95,7 +94,7 @@ public:
         {}
 
         ActionType_t type;
-        int data;
+        int data; // arbitrary data
     };
 
 

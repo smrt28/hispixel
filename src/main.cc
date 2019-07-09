@@ -53,13 +53,6 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget * /*widget*/, GdkEvent *event)
             gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), ac.data - 1);
             update_tabbar();
             return TRUE;
-        case Action_t::ACTION_TOGGLE_TABBAR:
-            if (gtk_widget_get_visible(label)) {
-                gtk_widget_hide(GTK_WIDGET(label));
-            } else {
-                gtk_widget_show(GTK_WIDGET(label));
-            }
-            return TRUE;
         case Action_t::ACTION_FOCUS_NEXT: {
             gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs)) + 1;
             gint total = gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));

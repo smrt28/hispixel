@@ -1,13 +1,16 @@
-# hispixel
+# HisPixel
 
-Terminal application according to my needs.
+Terminal application
 
 - minimalistic design
 - highly configurable
 - inspired by https://github.com/volca02/mypixels
 
 
-# build
+# Build
+
+
+## Ubuntu 18.4
 
 $ sudo apt install autogen autoconf libtool pkgconf libvte-2.91-dev
 $ autoreconf -if
