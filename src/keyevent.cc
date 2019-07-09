@@ -10,11 +10,13 @@
 
 namespace s28 {
 
-static void tolower(std::string &data) {
+namespace {
+void tolower(std::string &data) {
     std::transform(data.begin(), data.end(), data.begin(), ::tolower);
 }
+} // namespace
 
-#define DEF_MASK(m, mm)  do { if (s == m) { mask |= mm; continue; } } while(0)
+#define DEF_MASK(m, mm)   if (s == m) { mask |= mm; } continue
 
 KeySym_t parse_key_sym(const std::string &descr) {
     KeySym_t rv;
@@ -34,7 +36,7 @@ KeySym_t parse_key_sym(const std::string &descr) {
 
         tolower(s);
 
-        if (s[0] == 'm') {
+        if (s[0] == 'm') { // optimization
             DEF_MASK("mod1", GDK_MOD1_MASK);
             DEF_MASK("mod2", GDK_MOD2_MASK);
             DEF_MASK("mod3", GDK_MOD3_MASK);
@@ -46,7 +48,7 @@ KeySym_t parse_key_sym(const std::string &descr) {
         DEF_MASK("ctrl", GDK_CONTROL_MASK);
         DEF_MASK("shift", GDK_SHIFT_MASK);
 
-        if (s[0] == 'f') {
+        if (s[0] == 'f') { // optimization
             if (s == "f1") { key = GDK_KEY_F1; continue; }
             if (s == "f2") { key = GDK_KEY_F2; continue; }
             if (s == "f3") { key = GDK_KEY_F3; continue; }
