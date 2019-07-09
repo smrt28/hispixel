@@ -15,6 +15,7 @@ namespace {
 void tolower(std::string &data) {
     std::transform(data.begin(), data.end(), data.begin(), ::tolower);
 }
+
 } // namespace
 
 #define DEF_MASK(m, mm)   if (s == m) { mask |= mm; continue; }
@@ -66,7 +67,7 @@ KeySym_t parse_key_sym(const std::string &descr) {
         DEF_MASK("ctrl", GDK_CONTROL_MASK);
         DEF_MASK("shift", GDK_SHIFT_MASK);
 
-
+        // f* keys
         if (s[0] == 'f') {
             if (s == "f1") { key = GDK_KEY_F1; continue; }
             if (s == "f2") { key = GDK_KEY_F2; continue; }
@@ -82,17 +83,17 @@ KeySym_t parse_key_sym(const std::string &descr) {
             if (s == "f12") { key = GDK_KEY_F12; continue; }
         }
 
-        if (s == "pause") { key = GDK_KEY_Pause; continue; }
-        if (s == "escape") { key = GDK_KEY_Escape; continue; }
-        if (s == "scrolllock") { key = GDK_KEY_Scroll_Lock; continue; }
-        if (s == "delete") { key = GDK_KEY_Delete; continue; }
-
         // arrows
         if (s == "left") { key = GDK_KEY_Left; continue; }
         if (s == "right") { key = GDK_KEY_Right; continue; }
         if (s == "up") { key = GDK_KEY_Up; continue; }
         if (s == "down") { key = GDK_KEY_Down; continue; }
 
+        // other spec. keys
+        if (s == "pause") { key = GDK_KEY_Pause; continue; }
+        if (s == "escape") { key = GDK_KEY_Escape; continue; }
+        if (s == "scrolllock") { key = GDK_KEY_Scroll_Lock; continue; }
+        if (s == "delete") { key = GDK_KEY_Delete; continue; }
         if (s == "home") { key = GDK_KEY_Home; continue; }
         if (s == "end") { key = GDK_KEY_End; continue; }
         if (s == "pageup") { key = GDK_KEY_Page_Up; continue; }
