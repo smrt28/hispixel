@@ -22,43 +22,8 @@ public:
 
 class Config_t {
 public:
-    template<typename> class Value_t;
-private:
-    // class for values defined in config file
-    class BaseValue_t {
-    public:
-        virtual ~BaseValue_t() {}
 
-        template<typename Type_t>
-        const Type_t & cast() const {
-            const Value_t<Type_t> *res = dynamic_cast<const Value_t<Type_t> *>(this);
-            if (!res) RAISE(FATAL) << "requesting invalid config value type";
-            return res->get();
-        }
-
-        virtual void set(const std::string &s) = 0;
-    };
-
-public:
-
-    // config value holder
-    template<typename Type_t>
-    class Value_t : public BaseValue_t {
-    public:
-        void set(const std::string &s) {
-            val = value_cast<Type_t>(s);
-        }
-
-        const Type_t & get() const {
-            // ensure the value is set
-            if (!val) RAISE(CFG_VAL_NOT_SET);
-            return val.value();
-        }
-    private:
-        boost::optional<Type_t> val;
-    };
-
-
+    // key action class
     class Action_t {
     public:
         enum ActionType_t {
@@ -71,13 +36,11 @@ public:
         };
 
         Action_t() :
-            type(ACTION_NONE),
-            data(0)
+            type(ACTION_NONE)
         {}
 
         Action_t(ActionType_t type) :
-            type(type),
-            data(0)
+            type(type)
         {}
 
 
@@ -86,7 +49,7 @@ public:
         {}
 
         ActionType_t type;
-        int data; // arbitrary data
+        int data = 0; // arbitrary data
     };
 
 
@@ -111,14 +74,73 @@ public:
     }
 
 
+    /** 
+     * Read and parse config file. Iterate all the file names and use the
+     * first which opens for reading.
+     * @param files vector of file names
+     * @return true if config file read
+     */
     bool init(const std::vector<std::string> &files);
 
     typedef std::vector<KeyBinding_t> KeyBindings_t;
+
+    /**
+     * @return keybindings
+     */
     const KeyBindings_t & get_keybindings() const { return keybindings; }
 
+    // true if close_last keybinding set
     bool has_close_last = false;
 
 private:
+    template<typename> class Value_t;
+
+    class BaseValue_t {
+    public:
+        virtual ~BaseValue_t() {}
+
+        /**
+         * Casts the BaseValue to particular Value
+         */
+        template<typename Type_t>
+        const Type_t & cast() const {
+            const Value_t<Type_t> *res = dynamic_cast<const Value_t<Type_t> *>(this);
+            if (!res) RAISE(FATAL) << "requesting invalid config value type";
+            return res->get();
+        }
+
+        virtual void set(const std::string &s) = 0;
+    };
+
+
+    template<typename Type_t>
+    class Value_t : public BaseValue_t {
+    public:
+        /**
+         * Set value by string. Throws if the sting has wrong format.
+         * @param s the value to be parsed
+         */
+        void set(const std::string &s) {
+            val = value_cast<Type_t>(s);
+        }
+
+        /**
+         * @return the wrapped value
+         */
+        const Type_t & get() const {
+            // ensure the value is set
+            if (!val) RAISE(CFG_VAL_NOT_SET);
+            return val.value();
+        }
+    private:
+        boost::optional<Type_t> val;
+    };
+
+
+
+
+
+
     void init_defaults();
     bool init(const std::string &file);
     int parse_config_line(const std::string &line);
