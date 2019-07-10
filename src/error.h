@@ -24,7 +24,7 @@ public:
         return msg.c_str();
     }
 
-    virtual int code() const { return 0; }
+    virtual int code() const = 0;
 private:
     std::string msg;
 };

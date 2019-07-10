@@ -2,10 +2,9 @@
 #define ANYTYPEMAP_H
 
 #include <string>
-#include <vector>
-#include <map>
 #include <boost/ptr_container/ptr_map.hpp>
 #include <boost/optional.hpp>
+
 #include "error.h"
 #include "valuecast.h"
 
@@ -118,7 +117,7 @@ private:
          */
         const Type_t & get() const {
             // ensure the value is set
-            if (!val) RAISE(CFG_VAL_NOT_SET);
+            if (!val) RAISE(NOT_FOUND);
             return val.value();
         }
     private:

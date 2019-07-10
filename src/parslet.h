@@ -9,14 +9,11 @@
 namespace s28 {
 namespace parser {
 
-// parser low level error codes (reasons)
+enum Reason_t {
+    UNDEFINED, OVERFLOW, RANGE, EXPECT
+};
 
-static const int UNDEFINED = 1;
-static const int OVERFLOW  = 2;
-static const int RANGE     = 3;
-static const int EXPECT    = 4;
-
-template<int REASON>
+template<parser::Reason_t REASON>
 class Error_t : public s28::HisError_t<errcode::PARSER> {
     public:
         Error_t(const std::string &msg = "parslet") :

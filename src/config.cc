@@ -192,7 +192,7 @@ int Config_t::parse_config_line(const std::string &line) {
 
     // known keys are defined in init_defaults()
     if (!val) {
-        RAISE(CONFIG_SYNTAX) << "unknown key: " << res.first;
+        RAISE(CONFIG) << "unknown key: " << res.first;
     }
 
     try {
@@ -200,7 +200,7 @@ int Config_t::parse_config_line(const std::string &line) {
         val->set(res.second);
         return 1;
     } catch(...) {
-        RAISE(CONFIG_SYNTAX) << "invalid value for key: " << res.first;
+        RAISE(CONFIG) << "invalid value for key: " << res.first;
     }
 
     return 0;
@@ -217,9 +217,9 @@ bool Config_t::init(const std::string &file) {
         try {
             parse_config_line(line);
         } catch(const std::exception &e) {
-            RAISE(CONFIG_SYNTAX) << errmsg_prefix << n << "; [" << e.what() << "]";
+            RAISE(CONFIG) << errmsg_prefix << n << "; [" << e.what() << "]";
         } catch(...) {
-            RAISE(CONFIG_SYNTAX) << errmsg_prefix << n;
+            RAISE(CONFIG) << errmsg_prefix << n;
         }
         ++n; // line counter
     }
