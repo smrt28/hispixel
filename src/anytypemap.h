@@ -11,6 +11,24 @@
 
 namespace s28 {
 
+/**
+ * AnyTypeMap holds the key-value map string->any. The value is always
+ * set by a string where the string is  value_cast'ed to the particular value - see valuecast.h.
+ *
+ * m.set<int>("a", 1);
+ *
+ * m.get<int>("a"); // return 1
+ * m.get<std::string>("a"); // throws since there "a" contains integer type
+ * m.set<int>("a", "x"); // throws, x is supposed to be a decmal number
+ * 
+ * // You dont neet'd to know the type if the type has been already set:
+ * AnyTypeMap_t::Value_t *v = m.find("a");
+ * a->set("10");
+ *
+ * m.find("b") // return nullptr since there was no value set for the key "b"
+ */
+
+
 class AnyTypeMap_t {
 public:
     class Value_t {
@@ -23,7 +41,7 @@ public:
         template<typename Type_t>
         const Type_t & cast() const {
             const ValueImpl_t<Type_t> *res = dynamic_cast<const ValueImpl_t<Type_t> *>(this);
-            if (!res) RAISE(FATAL) << "requesting invalid config value type";
+            if (!res) RAISE(FATAL) << "invalid value type";
             return res->get();
         }
 
@@ -54,7 +72,8 @@ public:
      */
     template<typename Type_t>
     void set(std::string key, std::string val) {
-        std::unique_ptr<Value_t> bv(new ValueImpl_t<Type_t>());
+        kv.erase(key);
+        std::unique_ptr<ValueImpl_t<Type_t> > bv(new ValueImpl_t<Type_t>());
         bv->set(val);
         kv.insert(key, bv.release());
     }
@@ -65,6 +84,7 @@ public:
      */
     template<typename Type_t>
     void set(std::string key) {
+        kv.erase(key);
         kv.insert(key, new ValueImpl_t<Type_t>());
     }
 
@@ -89,7 +109,7 @@ private:
          *
          * @param s the value to be parsed
          */
-        void set(const std::string &s) {
+        void set(const std::string &s) override {
             val = value_cast<Type_t>(s);
         }
 

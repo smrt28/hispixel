@@ -1,6 +1,24 @@
 #include "gtest/gtest.h"
 #include "parslet.h"
 #include "valuecast.h"
+#include "anytypemap.h"
+
+// anytypemap.h
+TEST(AnyTypeMap, map) {
+    s28::AnyTypeMap_t m;
+    m.set<int>("a", "10");
+    EXPECT_EQ(m.get<int>("a"), 10);
+    auto v = m.find("a");
+    EXPECT_NE(v, nullptr);
+    v->set("11");
+
+    EXPECT_THROW(v->set("a11"), s28::Error_t);
+    EXPECT_EQ(m.get<int>("a"), 11);
+    EXPECT_THROW(m.get<std::string>("a"), s28::Error_t);
+    m.set<std::string>("a", "v");
+    EXPECT_EQ(m.get<std::string>("a"), "v");
+    EXPECT_THROW(m.get<int>("a"), s28::Error_t);
+}
 
 
 // valuecast.h
@@ -17,6 +35,7 @@ TEST(Value, cast) {
     EXPECT_THROW(s28::value_cast<bool>("ajflas"), s28::Error_t);
 
     EXPECT_EQ(s28::value_cast<int>("10"), 10);
+    EXPECT_EQ(s28::value_cast<std::string>("10"), "10");
 }
 
 
@@ -44,7 +63,7 @@ TEST(Parsing, trim) {
     s28::parser::rtrim(p);
     EXPECT_EQ(p.str(), "");
 
-    // check eof = -1
+    // eof = -1
     EXPECT_EQ(p[0], -1);
     EXPECT_EQ(p[1], -1);
     EXPECT_EQ(p[-1], -1);

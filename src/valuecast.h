@@ -62,7 +62,6 @@ struct ValueCast_t<GdkRGBA> {
         return rv;
     }
 };
-
 } // namespace aux
 
 template<typename Type_t>
