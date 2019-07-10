@@ -1,9 +1,6 @@
 #include <string.h>
-#include <stdlib.h>
 #include <gtk/gtk.h>
 #include <vte/vte.h>
-#include <unistd.h>
-#include <sys/types.h>
 #include <pwd.h>
 
 #include <iostream>
