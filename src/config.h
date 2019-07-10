@@ -5,9 +5,8 @@
 #include <vector>
 #include <map>
 #include <boost/ptr_container/ptr_map.hpp>
-#include <boost/optional.hpp>
 
-#include "valuecast.h"
+#include "anytypemap.h"
 #include "error.h"
 
 namespace s28 {
@@ -65,12 +64,7 @@ public:
 
     template<typename Type_t>
     const Type_t & get(const std::string &key) const {
-        try {
-            return config_map.at(key).cast<Type_t>();
-        } catch(...) {
-            RAISE(FATAL) << "unknow config key: " << key;
-        }
-        throw 1; // unreachable
+        return config_map.get<Type_t>(key);
     }
 
 
@@ -78,7 +72,6 @@ public:
      * Read and parse config file. Iterate all the file names and use the
      * first which opens for reading. If there is a syntax error in the file,
      * it throws.
-     *
      * @param files vector of file names
      * @return true if config file read
      */
@@ -95,63 +88,11 @@ public:
     bool has_close_last = false;
 
 private:
-    template<typename> class Value_t;
-    class BaseValue_t {
-    public:
-        virtual ~BaseValue_t() {}
-
-        /**
-         * Casts the BaseValue to particular Value
-         */
-        template<typename Type_t>
-        const Type_t & cast() const {
-            const Value_t<Type_t> *res = dynamic_cast<const Value_t<Type_t> *>(this);
-            if (!res) RAISE(FATAL) << "requesting invalid config value type";
-            return res->get();
-        }
-
-        virtual void set(const std::string &s) = 0;
-    };
-
-
-    template<typename Type_t>
-    class Value_t : public BaseValue_t {
-    public:
-        /**
-         * Set value by string. Throws if the sting has wrong format.
-         *
-         * @param s the value to be parsed
-         */
-        void set(const std::string &s) {
-            val = value_cast<Type_t>(s);
-        }
-
-        /**
-         * @return the wrapped value
-         */
-        const Type_t & get() const {
-            // ensure the value is set
-            if (!val) RAISE(CFG_VAL_NOT_SET);
-            return val.value();
-        }
-    private:
-        boost::optional<Type_t> val;
-    };
-
-
 
     void init_defaults();
     bool init(const std::string &file);
     int parse_config_line(const std::string &line);
-
-    template<typename Type_t>
-    void insert_default(std::string key, std::string value) {
-        std::unique_ptr<BaseValue_t> bv(new Value_t<Type_t>());
-        bv->set(value);
-        config_map.insert(key, bv.release());
-    }
-
-    boost::ptr_map<std::string, BaseValue_t> config_map;
+    AnyTypeMap_t config_map;
     KeyBindings_t keybindings;
 };
 } // namespace s28

@@ -14,6 +14,7 @@ namespace errcode {
     static const int VALUE_DEFINITION = 803;
     static const int CFG_VAL_NOT_SET = 804;
     static const int PARSER = 805;
+    static const int KEY_NOT_FOUND = 806;
 }
 
 

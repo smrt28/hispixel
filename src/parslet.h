@@ -319,6 +319,12 @@ inline Parslet_t split(Parslet_t &p, char c) {
     }
 }
 
+
+/**
+ * Parse "key=value" equation style string format.
+ * @param p parslet
+ * @return key/value pair of strings
+ */
 inline std::pair<std::string, std::string> eq(Parslet_t &p) {
     std::pair<std::string, std::string> rv;
     ltrim(p);
@@ -342,6 +348,12 @@ inline std::pair<std::string, std::string> eq(Parslet_t &p) {
     return rv;
 }
 
+/**
+ * Read first word from the parslet. Shift the parslet beginning after the
+ * end of the next word. Throws, if there is no remaining word in the parslet.
+ * @param p the parslet
+ * @return the word
+ */
 inline Parslet_t word(Parslet_t &p) {
     ltrim(p);
     if (!isalnum(*p)) {

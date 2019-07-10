@@ -188,16 +188,16 @@ int Config_t::parse_config_line(const std::string &line) {
     // parse "key = value" style config lines
     auto res = parser::eq(p);
 
-    auto it = config_map.find(res.first);
+    auto val = config_map.find(res.first);
 
     // known keys are defined in init_defaults()
-    if (it == config_map.end()) {
+    if (!val) {
         RAISE(CONFIG_SYNTAX) << "unknown key: " << res.first;
     }
 
     try {
         // set() checks the value format by ValueCast_t::cast
-        it->second->set(res.second);
+        val->set(res.second);
         return 1;
     } catch(...) {
         RAISE(CONFIG_SYNTAX) << "invalid value for key: " << res.first;
@@ -241,12 +241,12 @@ void Config_t::init_defaults() {
     // hardcoded default config values
     //
     // On UBUNTU, the Mono font could be even better....
-    insert_default<std::string>("term_font", "Terminus");
-    insert_default<int>("term_font_size", "12");
-    insert_default<bool>("allow_bold", "true");
-    insert_default<bool>("show_tabbar", "true");
-    insert_default<GdkRGBA>("tabbar_bg_color","#303030");
-    insert_default<bool>("tabbar_on_bottom", "false");
+    config_map.set<std::string>("term_font", "Terminus");
+    config_map.set<int>("term_font_size", "12");
+    config_map.set<bool>("allow_bold", "true");
+    config_map.set<bool>("show_tabbar", "true");
+    config_map.set<GdkRGBA>("tabbar_bg_color","#303030");
+    config_map.set<bool>("tabbar_on_bottom", "false");
 }
 
 } // namespace s28
