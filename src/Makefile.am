@@ -11,7 +11,7 @@ bin_PROGRAMS = hispixel testpixel
 
 hispixel_SOURCES = main.cc config.cc hispixelapp.cc
 
-testpixel_CPPFLAGS = -I$(top_srcdir)/src/gtest/include
+testpixel_CPPFLAGS = -I$(top_srcdir)/src/gtest/include @HISPIXEL_CFLAGS@
 testpixel_LDADD = gtest/libgtest_main.a gtest/libgtest.a -lpthread -lcrypt
 testpixel_SOURCES = test.cc
 

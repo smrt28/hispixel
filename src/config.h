@@ -96,7 +96,6 @@ public:
 
 private:
     template<typename> class Value_t;
-
     class BaseValue_t {
     public:
         virtual ~BaseValue_t() {}

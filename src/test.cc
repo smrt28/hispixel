@@ -1,6 +1,26 @@
 #include "gtest/gtest.h"
 #include "parslet.h"
+#include "valuecast.h"
 
+
+// valuecast.h
+TEST(Value, cast) {
+    EXPECT_TRUE(s28::value_cast<bool>("1"));
+    EXPECT_TRUE(s28::value_cast<bool>("true"));
+    EXPECT_TRUE(s28::value_cast<bool>("yes"));
+    EXPECT_FALSE(s28::value_cast<bool>("0"));
+    EXPECT_FALSE(s28::value_cast<bool>("false"));
+    EXPECT_FALSE(s28::value_cast<bool>("no"));
+
+    EXPECT_THROW(s28::value_cast<bool>("2"), s28::Error_t);
+    EXPECT_THROW(s28::value_cast<bool>(""), s28::Error_t);
+    EXPECT_THROW(s28::value_cast<bool>("ajflas"), s28::Error_t);
+
+    EXPECT_EQ(s28::value_cast<int>("10"), 10);
+}
+
+
+// parslet.h
 TEST(Parsing, trim) {
     std::string s  = "    one, two, three   ";
     std::string ss =     "one, two, three";
@@ -39,6 +59,7 @@ TEST(Parsing, trim) {
 
 }
 
+// parslet.h
 TEST(Parsing, refs) {
     std::string ss = "one, two, three";
     s28::parser::Parslet_t p(ss);
@@ -83,6 +104,7 @@ TEST(Parsing, refs) {
 }
 
 
+// parslet.h
 TEST(Parsing, split) {
     std::string ss = "one, two, three";
 
@@ -111,6 +133,7 @@ TEST(Parsing, split) {
     EXPECT_EQ(p.str(), q1);
 }
 
+// parslet.h
 TEST(Parsing, word) {
     std::string s = "   123   abc \n\t\r e-a x";
 
@@ -129,6 +152,7 @@ TEST(Parsing, word) {
     EXPECT_EQ(p.size(), 3U); // 3 spaces remains
 }
 
+// parslet.h
 TEST(Parsing, noname) {
     using namespace s28::parser;
     std::string s;
