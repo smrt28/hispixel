@@ -22,10 +22,10 @@ void tolower(std::string &data) {
     std::transform(data.begin(), data.end(), data.begin(), ::tolower);
 }
 
-/* parse key-sym description like "ctrl+alt+1"
- *
+/**
+ * parse key-sym description like "ctrl+alt+1"
  * @return KeySym_t structure
- **/
+ */
 KeySym_t parse_key_sym(const std::string &descr) {
     KeySym_t rv;
     std::vector<std::string> v;
@@ -115,7 +115,10 @@ KeySym_t parse_key_sym(const std::string &descr) {
 }
 
 
-// parse "alt+ctrl+z" key description
+/**
+ * parse "alt+ctrl+z" key description
+ * @param p parslet
+ */
 KeySym_t keysym(parser::Parslet_t &p) {
     ltrim(p);
     parser::Parslet_t key_descr = p;
@@ -131,9 +134,11 @@ KeySym_t keysym(parser::Parslet_t &p) {
     }
 }
 
-} // namespce
 
-
+/**
+ * Convert config file key-binding keyword to the action
+ * @return action
+ */
 Config_t::Action_t string_to_action(parser::Parslet_t &p) {
     typedef Config_t::Action_t Action_t;
     std::string s = word(p).str();
@@ -162,6 +167,8 @@ Config_t::Action_t string_to_action(parser::Parslet_t &p) {
     return Config_t::Action_t(); // not reachable (avoids compiler warning)
 }
 
+
+} // namespce
 
 int Config_t::parse_config_line(const std::string &line) {
     parser::Parslet_t p(line);
