@@ -153,9 +153,16 @@ void HisPixelApp_t::page_removed(GtkNotebook * /*notebook*/,
 }
 
 void HisPixelApp_t::child_exited(VteTerminal *t, gint /*status*/) {
+    // get index of the tab which has been closed
     gint n = gtk_notebook_page_num(GTK_NOTEBOOK(tabs), GTK_WIDGET(t));
+    
+    // just ignore errors
     if (n < 0) return;
+
+    // close the tab
     gtk_notebook_remove_page(GTK_NOTEBOOK(tabs), n);
+
+    // exit the app if there is no tab reminding
     if (!config.has_close_last && gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs)) == 0) {
         g_application_quit(G_APPLICATION(app));
     }
