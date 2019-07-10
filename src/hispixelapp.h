@@ -17,24 +17,38 @@ public:
 
     ~HisPixelApp_t();
 
+    /**
+     * GTK signal hanlders
+     */
     void activate(GtkApplication* app);
-    void open_tab();
     void child_exited(VteTerminal *t, gint status);
     gboolean key_press_event(GtkWidget *widget, GdkEvent *event);
     void page_removed(GtkNotebook *notebook, GtkWidget *child, guint page_num);
-    std::string gtk_css();
-    std::string tabbar_text();
-    void update_tabbar();
-    void read_config();
+
+
+    /**
+     * Handle exception thrown in the GTK signal handler
+     */
     void on_error(const std::exception *e);
+
+    /**
+     * Read and parse config file
+     */
+    void read_config();
 
 
 private:
+    void update_tabbar();
+    std::string gtk_css();
+    std::string tabbar_text();
+    void open_tab();
 
+    // main arguments (not needed yet)
     int argc;
     char **argv;
     char **envp;
 
+    // GTK resources
     GtkApplication* app = nullptr;
     GtkWidget *label = nullptr;
     GtkWidget *tabs = nullptr;
@@ -42,8 +56,10 @@ private:
     GtkWidget *box = nullptr;
     PangoFontDescription *font_description = nullptr;
     GtkCssProvider *provider = nullptr;
+
     bool tabbar_visible = true;
 
+    // Config map
     s28::Config_t config;
 };
 

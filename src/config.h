@@ -25,6 +25,7 @@ public:
     // key action class
     class Action_t {
     public:
+        // the actions, usually invoked by a key press
         enum ActionType_t {
             ACTION_NONE,
             ACTION_FOCUS,
@@ -67,13 +68,12 @@ public:
         return config_map.get<Type_t>(key);
     }
 
-
     /** 
      * Read and parse config file. Iterate all the file names and use the
      * first which opens for reading. If there is a syntax error in the file,
      * it throws.
      * @param files vector of file names
-     * @return true if config file read
+     * @return true if config file read successfully
      */
     bool init(const std::vector<std::string> &files);
 
@@ -88,10 +88,10 @@ public:
     bool has_close_last = false;
 
 private:
-
     void init_defaults();
-    bool init(const std::string &file);
+    bool init(const std::string &config_file);
     int parse_config_line(const std::string &line);
+
     AnyTypeMap_t config_map;
     KeyBindings_t keybindings;
 };

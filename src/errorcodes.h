@@ -7,7 +7,6 @@
  * throw HisError_t<FATAL>();
  *
  */
-
 namespace s28 {
 
 namespace errcode {
@@ -18,7 +17,7 @@ namespace errcode {
     static const int NOT_FOUND = 803;
     static const int CONFIG = 804;
     static const int PARSER = 805;
-}
+} // namespace errorcode
 
-}
+} // namespace s28
 #endif

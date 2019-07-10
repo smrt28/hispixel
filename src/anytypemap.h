@@ -12,7 +12,7 @@ namespace s28 {
 
 /**
  * AnyTypeMap holds the key-value map string->any. The value is always
- * set by a string where the string is  value_cast'ed to the particular value - see valuecast.h.
+ * set by a string where the string is value_cast'ed to the particular type - see valuecast.h.
  *
  * m.set<int>("a", 1);
  *
@@ -26,7 +26,6 @@ namespace s28 {
  *
  * m.find("b") // return nullptr since there was no value set for the key "b"
  */
-
 
 class AnyTypeMap_t {
 public:
@@ -105,7 +104,6 @@ private:
     public:
         /**
          * Set value by string. Throws if the sting has wrong format.
-         *
          * @param s the value to be parsed
          */
         void set(const std::string &s) override {
@@ -121,7 +119,7 @@ private:
             return val.value();
         }
     private:
-        boost::optional<Type_t> val;
+        boost::optional<Type_t> val; // the value
     };
 
     boost::ptr_map<std::string, Value_t> kv;
