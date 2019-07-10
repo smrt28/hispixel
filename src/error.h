@@ -9,6 +9,9 @@
 
 #include "errorcodes.h"
 
+/**
+ * Exception class definition
+ */
 namespace s28 {
 
 // base exception class
@@ -40,7 +43,6 @@ public:
 };
 
 
-
 /**
  * This is C++ exception helper. It wraps C++ throw primitive.
  * The idea is to pass an error message as a stream:
@@ -53,8 +55,6 @@ public:
  *
  * The exeption is thrown in the = operator of the formula. Since << operator has higher priority
  * than =, the message could be assembled in std::ostringstream.
- *
- *
  */
 namespace detail {
 
@@ -64,6 +64,7 @@ public:
         oss.exceptions(std::ios_base::failbit | std::ios_base::badbit);
     }
 
+    // just pass the operator to std::ostringstream
     template<typename T_t>
     RErr_t & operator <<(T_t val) {
         oss << val;

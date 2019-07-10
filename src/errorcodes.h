@@ -1,8 +1,14 @@
 #ifndef S28_ERRORCOES_H
 #define S28_ERRORCOES_H
 
-namespace s28 {
+/**
+ * Codes used to define new exceptions:
+ *
+ * throw HisError_t<FATAL>();
+ *
+ */
 
+namespace s28 {
 
 namespace errcode {
     static const int FAILED = 300;
@@ -14,7 +20,5 @@ namespace errcode {
     static const int PARSER = 805;
 }
 
-
 }
-
 #endif
