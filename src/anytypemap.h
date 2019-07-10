@@ -99,7 +99,7 @@ public:
     }
 
 private:
-    // Value implementation for given typle
+    // Value implementation for given type
     template<typename Type_t>
     class ValueImpl_t : public Value_t {
     public:

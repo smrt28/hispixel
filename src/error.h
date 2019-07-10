@@ -11,6 +11,7 @@
 
 namespace s28 {
 
+// base exception class
 class Error_t : public std::exception
 {
 public:
@@ -29,15 +30,32 @@ private:
     std::string msg;
 };
 
+// exceptions with code
 template<int CODE>
 class HisError_t : public s28::Error_t {
 public:
     HisError_t(const std::string &msg) : Error_t(msg) {}
 
-    int code() const override { return CODE; }
+    int code() const final { return CODE; }
 };
 
 
+
+/**
+ * This is C++ exception helper. It wraps C++ throw primitive.
+ * The idea is to pass an error message as a stream:
+ *
+ * RAISE(code) << "this is message number " << 1;
+ *
+ * RAISE is defined as a macro which creates a C++ equation formula:
+ *
+ *  s28::detail::LErr_t<::s28::errcode::code>() = s28::detail::RErr_t()
+ *
+ * The exeption is thrown in the = operator of the formula. Since << operator has higher priority
+ * than =, the message could be assembled in std::ostringstream.
+ *
+ *
+ */
 namespace detail {
 
 class RErr_t {
@@ -62,6 +80,7 @@ private:
 template<int CODE>
 class LErr_t {
 public:
+    // the operator = throws
     void operator=(const RErr_t &re) {
         throw HisError_t<CODE>(re.str());
     }
@@ -70,8 +89,8 @@ public:
 } // namespace detail
 
 #define RAISE(code)\
-    s28::detail::LErr_t<::s28::errcode::code>()=s28::detail::RErr_t()
+    s28::detail::LErr_t<::s28::errcode::code>() = s28::detail::RErr_t()
 
-}
+} // namespace s28
 
 #endif
