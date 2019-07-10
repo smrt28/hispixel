@@ -137,8 +137,10 @@ public:
      * @return first character of the parslet before the shift
      */
     int operator+=(size_t i) {
-        if (it + i > eit)
-            throw Error_t<OVERFLOW>();
+        if (it + i > eit) {
+            it = eit;
+            return eof;
+        }
         int rv = (unsigned char)*it;
         it += i;
         return rv;

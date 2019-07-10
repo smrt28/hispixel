@@ -80,7 +80,7 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
             open_tab();
             return TRUE;
         case Action_t::ACTION_FOCUS:
-            // switching tab...
+            // switching tabs...
             gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), ac.data - 1);
             update_tabbar();
             return TRUE;

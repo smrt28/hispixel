@@ -70,6 +70,6 @@ AC_CHECK_LIB(boost_thread-mt, main, , [
 
 
 # Write config.status and the Makefile
-AC_CONFIG_FILES([Makefile src/Makefile version])
+AC_CONFIG_FILES([Makefile src/Makefile src/gtest/Makefile version])
 
 AC_OUTPUT()

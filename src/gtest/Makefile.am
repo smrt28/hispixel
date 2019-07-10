@@ -1,0 +1,63 @@
+
+AUTOMAKE_OPTIONS = foreign subdir-objects
+# Nonstandard package files for distribution
+EXTRA_DIST = \
+  include/gtest/gtest-param-test.h.pump \
+  include/gtest/internal/gtest-param-util-generated.h.pump \
+  include/gtest/internal/gtest-tuple.h.pump \
+  include/gtest/internal/gtest-type-util.h.pump
+
+GTEST_INCLUDES=\
+  include/gtest/internal/gtest-param-util-generated.h \
+  include/gtest/internal/gtest-type-util.h \
+  include/gtest/internal/gtest-param-util.h \
+  include/gtest/internal/gtest-port.h \
+  include/gtest/internal/gtest-linked_ptr.h \
+  include/gtest/internal/gtest-internal.h \
+  include/gtest/internal/gtest-death-test-internal.h \
+  include/gtest/internal/gtest-filepath.h \
+  include/gtest/internal/gtest-string.h \
+  include/gtest/internal/gtest-tuple.h \
+  include/gtest/gtest.h \
+  include/gtest/gtest-typed-test.h \
+  include/gtest/gtest-message.h \
+  include/gtest/gtest-test-part.h \
+  include/gtest/gtest_pred_impl.h \
+  include/gtest/gtest-printers.h \
+  include/gtest/gtest-death-test.h \
+  include/gtest/gtest-param-test.h \
+  include/gtest/gtest-spi.h \
+  include/gtest/gtest_prod.h
+
+# gtest source files that we don't compile directly.  They are
+# #included by gtest-all.cc.
+GTEST_SRC = \
+  src/gtest-death-test.cc \
+  src/gtest-filepath.cc \
+  src/gtest-internal-inl.h \
+  src/gtest-port.cc \
+  src/gtest-printers.cc \
+  src/gtest-test-part.cc \
+  src/gtest-typed-test.cc \
+  src/gtest.cc $(GTEST_INCLUDES)
+
+#include_HEADERS = $(GTEST_SRC)
+
+EXTRA_DIST += $(GTEST_SRC)
+
+# We define the global AM_CPPFLAGS as everything we compile includes from these
+# directories.
+AM_CPPFLAGS = -isystem $(srcdir)/include -I$(srcdir)/gtest $(GTEST_CPPFLAGS)
+AM_CXXFLAGS = $(GTEST_CXXFLAGS)
+AM_LDFLAGS = $(GTEST_LDFLAGS)
+LDADD = $(GTEST_LIBS)
+
+lib_LIBRARIES=libgtest_main.a libgtest.a
+
+
+libgtest_a_SOURCES = src/gtest-all.cc
+
+
+libgtest_main_a_SOURCES = src/gtest_main.cc
+libgtest_main_a_LIBADD = libgtest.a
+
