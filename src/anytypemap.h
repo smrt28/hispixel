@@ -60,7 +60,7 @@ public:
         } catch (const s28::Error_t &) {
             throw;
         } catch (...) {
-            RAISE(KEY_NOT_FOUND) << "key not found: " << key;
+            RAISE(NOT_FOUND) << "key not found: " << key;
         }
         throw __PRETTY_FUNCTION__; // not reachable, avoids compiler warning
     }

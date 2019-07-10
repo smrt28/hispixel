@@ -144,7 +144,9 @@ void HisPixelApp_t::on_error(const std::exception *e) {
     } else {
         std::cerr << "HisPixelApp general error"  << std::endl;
     }
-    g_application_quit(G_APPLICATION(app));
+
+    // Is it a good idea to force exit here? Probably not...
+    // g_application_quit(G_APPLICATION(app)); 
 }
 
 void HisPixelApp_t::page_removed(GtkNotebook * /*notebook*/,
@@ -202,7 +204,9 @@ void HisPixelApp_t::open_tab() {
 
     GtkWidget * terminal = vte_terminal_new();
 
-    if (!terminal) RAISE(FATAL) << "vte_terminal_new failed";
+    if (!terminal) {
+        RAISE(FAILED) << "vte_terminal_new failed";
+    }
 
     if (config.get<bool>("allow_bold")) {
         vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), TRUE);
