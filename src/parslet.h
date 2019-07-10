@@ -34,6 +34,11 @@ public:
     static const int eof = -1;
 
     /**
+     * Constructor, empty parslet by default
+     */
+    Parslet_t() : it(nullptr), eit(nullptr) {}
+
+    /**
      * Constructor
      * @param it the string beginning (iterator)
      * @param eit the string end (end iterator)
@@ -64,6 +69,7 @@ public:
      * @return content of parslet as a string
      */
     std::string str() const {
+        if (it == nullptr || it >= eit) return std::string();
         return std::string(it, eit);
     }
 
@@ -330,7 +336,7 @@ inline std::pair<std::string, std::string> eq(Parslet_t &p) {
     return rv;
 }
 
-Parslet_t word(Parslet_t &p) {
+inline Parslet_t word(Parslet_t &p) {
     ltrim(p);
     if (!isalnum(*p)) {
         throw Error_t<EXPECT>();
