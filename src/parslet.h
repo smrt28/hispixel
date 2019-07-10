@@ -64,6 +64,12 @@ public:
         eit = it + s.size();
     }
 
+    /**
+     * Make parslet empty
+     */
+    void reset() {
+        eit = it = nullptr;
+    }
 
     /**
      * @return content of parslet as a string

@@ -33,16 +33,16 @@ TEST(Parsing, trim) {
     EXPECT_EQ(p.str(), ss);
     EXPECT_EQ(p.last(), 'e');
 
-    std::string empty;
-    p.reset(empty);
+    p.reset();
 
     EXPECT_TRUE(p.empty());
     EXPECT_FALSE(p);
     EXPECT_EQ(p.size(), 0U);
+    EXPECT_EQ(p.str(), "");
 
     s28::parser::ltrim(p);
     s28::parser::rtrim(p);
-    EXPECT_EQ(p.str(), empty);
+    EXPECT_EQ(p.str(), "");
 
     // check eof = -1
     EXPECT_EQ(p[0], -1);
@@ -95,9 +95,9 @@ TEST(Parsing, refs) {
     EXPECT_EQ(++p, ss[2]);
     EXPECT_EQ(*p, ss[2]);
 
-    std::string empty;
-    p.reset(empty);
+    p.reset();
     EXPECT_THROW(*p, s28::Error_t);
+
 
     // should not throw
     p++; p+=1;
