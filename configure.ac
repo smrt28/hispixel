@@ -1,6 +1,6 @@
 # initialize autoconf
-AC_INIT([hispixel], [1.0.1], [ondrej.holecek@gmail.com])
-VERSION_INFO="-version-info 0:0:0"
+AC_INIT([hispixel], [1.1.0], [ondrej.holecek@gmail.com])
+#VERSION_INFO="-version-info 0:0:0"
 
 # install autotools scripts to build-aux dir
 AC_CONFIG_AUX_DIR([build-aux])
@@ -38,10 +38,7 @@ CXXFLAGS="-W -Wall -Wextra -Wconversion"
 
 AC_SUBST(MALLOC_LIB)
 
-#SVN_REVISION="`git describe --all --dirty --long --abbrev=40`"
-#AC_SUBST(SVN_REVISION)
-
-AC_SUBST(VERSION_INFO)
+#AC_SUBST(VERSION_INFO)
 
 PKG_PROG_PKG_CONFIG
 

@@ -2,12 +2,13 @@
 #define SRC_REGEVENT_H
 
 #include <gtk/gtk.h>
+#include <vte/vte.h>
 
 /**
  * This is simple C-GTK event wrapper. It handles C-style GTK callbacks by
  * passing them to App_t class methods.
  *
- * The methods callbacks are weapped in try/catch statement and potential exception
+ * The callbacks are weapped in try/catch statement and potential exception
  * would be passed to App_t::on_exit()
  *
  * see: https://developer.gnome.org/gobject/stable/gobject-Signals.html#g-signal-connect
@@ -18,7 +19,7 @@ class RegEvents_t {
 public:
     RegEvents_t(App_t *app) : app(app) {}
 
-    // reg_* methods connect GTK signal and given method
+    // reg_* methods connect GTK signal and the given method
 
     /**
      * Register GTK signal

@@ -188,10 +188,10 @@ int Config_t::parse_config_line(const std::string &line) {
     // parse "key = value" style config lines
     auto res = parser::eq(p);
 
-    auto it = kv.find(res.first);
+    auto it = config_map.find(res.first);
 
     // known keys are defined in init_defaults()
-    if (it == kv.end()) {
+    if (it == config_map.end()) {
         RAISE(CONFIG_SYNTAX) << "unknown key: " << res.first;
     }
 

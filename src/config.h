@@ -59,14 +59,14 @@ public:
             keysym(keysym),
             action(action)
         {}
-        KeySym_t keysym;
-        Action_t action;
+        KeySym_t keysym; // the key (or key combination)
+        Action_t action; // what to the when pressed
     };
 
     template<typename Type_t>
     const Type_t & get(const std::string &key) const {
         try {
-            return kv.at(key).cast<Type_t>();
+            return config_map.at(key).cast<Type_t>();
         } catch(...) {
             RAISE(FATAL) << "unknow config key: " << key;
         }
@@ -76,7 +76,9 @@ public:
 
     /** 
      * Read and parse config file. Iterate all the file names and use the
-     * first which opens for reading.
+     * first which opens for reading. If there is a syntax error in the file,
+     * it throws.
+     *
      * @param files vector of file names
      * @return true if config file read
      */
@@ -118,6 +120,7 @@ private:
     public:
         /**
          * Set value by string. Throws if the sting has wrong format.
+         *
          * @param s the value to be parsed
          */
         void set(const std::string &s) {
@@ -138,9 +141,6 @@ private:
 
 
 
-
-
-
     void init_defaults();
     bool init(const std::string &file);
     int parse_config_line(const std::string &line);
@@ -149,10 +149,10 @@ private:
     void insert_default(std::string key, std::string value) {
         std::unique_ptr<BaseValue_t> bv(new Value_t<Type_t>());
         bv->set(value);
-        kv.insert(key, bv.release());
+        config_map.insert(key, bv.release());
     }
 
-    boost::ptr_map<std::string, BaseValue_t> kv;
+    boost::ptr_map<std::string, BaseValue_t> config_map;
     KeyBindings_t keybindings;
 };
 } // namespace s28
