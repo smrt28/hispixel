@@ -43,7 +43,7 @@ std::vector<std::string> get_config_files() {
 }
 
 
-// matck GTK event and KeySym_t
+// match GTK event and KeySym_t
 bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
     if (event->type != GDK_KEY_PRESS &&
         event->type != GDK_KEY_RELEASE) return false;
@@ -155,7 +155,7 @@ void HisPixelApp_t::page_removed(GtkNotebook * /*notebook*/,
 void HisPixelApp_t::child_exited(VteTerminal *t, gint /*status*/) {
     // get index of the tab which has been closed
     gint n = gtk_notebook_page_num(GTK_NOTEBOOK(tabs), GTK_WIDGET(t));
-    
+
     // just ignore errors
     if (n < 0) return;
 
@@ -398,5 +398,3 @@ void HisPixelApp_t::read_config() {
 }
 
 } // namespace s28
-
-
