@@ -205,7 +205,7 @@ void HisPixelApp_t::page_removed(GtkNotebook * /*notebook*/,
         GtkWidget * child, guint /*page_num*/)
 {
     TerminalContext *tc = (TerminalContext *)g_object_get_data(G_OBJECT(child), CONTEXT28_ID);
-    delete tc;
+    if (tc) delete tc;
     update_tabbar();
 }
 
