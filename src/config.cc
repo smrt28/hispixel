@@ -277,6 +277,7 @@ void Config_t::init_defaults() {
     config_map.set<bool>("show_tabbar", "true");
     config_map.set<GdkRGBA>("tabbar_bg_color","#303030");
     config_map.set<bool>("tabbar_on_bottom", "false");
+    config_map.set<uint32_t>("scrollback_lines", "50000");
 }
 
 } // namespace s28

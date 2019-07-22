@@ -2,6 +2,7 @@
 #include <gtk/gtk.h>
 #include <vte/vte.h>
 #include <pwd.h>
+#include <stdlib.h>
 
 #include <iostream>
 
@@ -12,7 +13,15 @@
 
 namespace s28 {
 
+class TerminalContext {
+public:
+    TerminalContext() : a(rand()) {}
+    int a;
+};
+
 namespace {
+
+static const char * CONTEXT28_ID = "context28";
 
 // recognize the user home directory
 std::string homedir() {
@@ -47,10 +56,10 @@ std::vector<std::string> get_config_files() {
 bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
     static guint total_mask =
         GDK_MOD1_MASK | // alt
-        GDK_MOD2_MASK | // alt
-        GDK_MOD3_MASK | // alt
-        GDK_MOD4_MASK | // alt
-        GDK_MOD5_MASK | // alt
+        GDK_MOD2_MASK |
+        GDK_MOD3_MASK |
+        GDK_MOD4_MASK |
+        GDK_MOD5_MASK |
         GDK_CONTROL_MASK | // ctrl
         GDK_SHIFT_MASK; // shift
 
@@ -152,22 +161,25 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
             }
         case Action_t::ACTION_DUMP: {
             // not implemented yet
-            return FALSE;
-            /*
             gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
             GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), n);
+
             if (!VTE_TERMINAL(terminal)) return FALSE;
 
-            std::cout <<
-            vte_terminal_get_row_count(VTE_TERMINAL(terminal)) << std::endl;
+            GtkAdjustment *adj = gtk_scrollable_get_vadjustment(GTK_SCROLLABLE(terminal));
+            std::cout << gtk_adjustment_get_value(adj) << std::endl;
+
+//            vte_terminal_set_scrollback_lines;
+//            std::cout << gtk_adjustment_get_upper(adj) << std::endl;
+//scrollback-lines
+
+//            std::cout << vte_terminal_get_row_count(VTE_TERMINAL(terminal)) << std::endl;
 
 //            GArray *a = g_array_new (FALSE, FALSE, sizeof(VteCharAttributes));
 //            std::cout << vte_terminal_get_text_include_trailing_spaces(VTE_TERMINAL(terminal), 0, 0, 0);
-//            std::cout << vte_terminal_get_text_range(VTE_TERMINAL(terminal), 0, 0, 10, 0, dumpfn, 0,a);
+//            std::cout << vte_terminal_get_text_range(VTE_TERMINAL(terminal), 0, 0, 20, 0, nullptr, 0,a);
 //
-//            std::string s(a->data, a->len);
-            return FALSE;
-            */
+            return TRUE;
             }
         case Action_t::ACTION_NONE:
             return FALSE;
@@ -190,8 +202,10 @@ void HisPixelApp_t::on_error(const std::exception *e) {
 }
 
 void HisPixelApp_t::page_removed(GtkNotebook * /*notebook*/,
-        GtkWidget * /*child*/, guint /*page_num*/)
+        GtkWidget * child, guint /*page_num*/)
 {
+    TerminalContext *tc = (TerminalContext *)g_object_get_data(G_OBJECT(child), CONTEXT28_ID);
+    delete tc;
     update_tabbar();
 }
 
@@ -255,6 +269,15 @@ void HisPixelApp_t::open_tab() {
         RAISE(FAILED) << "vte_terminal_new failed";
     }
 
+    std::unique_ptr<TerminalContext> tc(new TerminalContext());
+
+
+
+
+    // set scrollback-limit property (50000 default)
+    vte_terminal_set_scrollback_lines(VTE_TERMINAL(terminal),
+            config.get<uint32_t>("scrollback_lines"));
+
     if (config.get<bool>("allow_bold")) {
         vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), TRUE);
     } else {
@@ -292,7 +315,18 @@ void HisPixelApp_t::open_tab() {
     // vte_terminal_spawn_async doesn't thow, so this is safe
     ::free(argv[0]);
 
+    g_object_set_data(G_OBJECT(terminal), CONTEXT28_ID, tc.get());
+
     int sel = gtk_notebook_append_page(GTK_NOTEBOOK(tabs), terminal, 0);
+    if (sel == -1) {
+        gtk_widget_destroy(terminal);
+        std::cout << "gtk_notebook_append_page failed";
+        return;
+    }
+
+    tc.release();
+
+
     gtk_widget_show(terminal);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);
     gtk_notebook_next_page (GTK_NOTEBOOK(tabs));
