@@ -17,6 +17,7 @@ public:
     KeySym_t() : mask(0), key(0) {}
     guint mask; // meta keys bit mask
     uint32_t key; // key code
+    std::string text;
 };
 
 class Config_t {
@@ -32,7 +33,9 @@ public:
             ACTION_OPENTAB,
             ACTION_FOCUS_NEXT,
             ACTION_FOCUS_PREV,
-            ACTION_CLOSE_LAST
+            ACTION_CLOSE_LAST,
+            ACTION_DUMP,
+            ACTION_BE_FIRST
         };
 
         Action_t() :

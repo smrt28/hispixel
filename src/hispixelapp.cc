@@ -45,12 +45,22 @@ std::vector<std::string> get_config_files() {
 
 // match GTK event and KeySym_t
 bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
+    static guint total_mask =
+        GDK_MOD1_MASK | // alt
+        GDK_CONTROL_MASK | // ctrl
+        GDK_SHIFT_MASK; // shift
+
     if (event->type != GDK_KEY_PRESS &&
         event->type != GDK_KEY_RELEASE) return false;
 
+
+    guint state = event->key.state & total_mask;
+
     if (ks.key == 0) return false;
-    if (ks.key == event->key.keyval && (event->key.state & ks.mask) == ks.mask)
+
+    if (ks.key == event->key.keyval && (total_mask & ks.mask) == state) {
         return true;
+    }
 
     return false;
 }
@@ -73,6 +83,15 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
     }
 
     switch (ac.type) {
+        case Action_t::ACTION_BE_FIRST:
+            {
+            gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
+            GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), n);
+
+            gtk_notebook_reorder_child(GTK_NOTEBOOK(tabs), terminal, 0);
+            update_tabbar();
+            return TRUE;
+            }
         case Action_t::ACTION_OPENTAB:
             open_tab();
             return TRUE;
@@ -125,6 +144,25 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
             gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs)) + 1;
             if (n == 0) g_application_quit(G_APPLICATION(app));
             return FALSE;
+            }
+        case Action_t::ACTION_DUMP: {
+            // not implemented yet
+            return FALSE;
+            /*
+            gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
+            GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), n);
+            if (!VTE_TERMINAL(terminal)) return FALSE;
+
+            std::cout <<
+            vte_terminal_get_row_count(VTE_TERMINAL(terminal)) << std::endl;
+
+//            GArray *a = g_array_new (FALSE, FALSE, sizeof(VteCharAttributes));
+//            std::cout << vte_terminal_get_text_include_trailing_spaces(VTE_TERMINAL(terminal), 0, 0, 0);
+//            std::cout << vte_terminal_get_text_range(VTE_TERMINAL(terminal), 0, 0, 10, 0, dumpfn, 0,a);
+//
+//            std::string s(a->data, a->len);
+            return FALSE;
+            */
             }
         case Action_t::ACTION_NONE:
             return FALSE;

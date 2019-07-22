@@ -28,6 +28,7 @@ void tolower(std::string &data) {
  */
 KeySym_t parse_key_sym(const std::string &descr) {
     KeySym_t rv;
+    rv.text = descr;
     std::vector<std::string> v;
 
     boost::split(v, descr, boost::is_any_of("+"));
@@ -95,6 +96,7 @@ KeySym_t parse_key_sym(const std::string &descr) {
         if (s == "right") { key = GDK_KEY_Right; continue; }
         if (s == "up") { key = GDK_KEY_Up; continue; }
         if (s == "down") { key = GDK_KEY_Down; continue; }
+        if (s == "esc") { key = GDK_KEY_Escape; continue; }
 
         // other spec. keys
         if (s == "pause") { key = GDK_KEY_Pause; continue; }
@@ -130,7 +132,10 @@ KeySym_t keysym(parser::Parslet_t &p) {
             p.skip();
             continue;
         }
-        return parse_key_sym(key_descr.str());
+        KeySym_t res = parse_key_sym(key_descr.str());
+//        std::cout << res.text << " mask=" << res.mask << " key="
+//            << res.key << std::endl;
+        return res;
     }
 }
 
@@ -162,6 +167,12 @@ Config_t::Action_t string_to_action(parser::Parslet_t &p) {
     if (s == "close_last") { // exits the app when there is no tab open
         return Action_t(Action_t::ACTION_CLOSE_LAST);
     }
+    if (s == "dump") {
+        return Action_t(Action_t::ACTION_DUMP);
+    }
+    if (s == "be_first") {
+        return Action_t(Action_t::ACTION_BE_FIRST);
+    }
 
     RAISE(UNKNOWN_ACTION) << "unknown config key: " << s;
     return Config_t::Action_t(); // not reachable (avoids compiler warning)
@@ -184,6 +195,9 @@ int Config_t::parse_config_line(const std::string &line) {
     std::string aword = parser::word(p).str();
     if (aword == "bindsym") {
         KeySym_t ks = keysym(p);
+
+
+
         Config_t::Action_t action = string_to_action(p);
         if (action.type == Action_t::ACTION_CLOSE_LAST)
             has_close_last = true;
