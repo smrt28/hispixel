@@ -47,6 +47,10 @@ std::vector<std::string> get_config_files() {
 bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
     static guint total_mask =
         GDK_MOD1_MASK | // alt
+        GDK_MOD2_MASK | // alt
+        GDK_MOD3_MASK | // alt
+        GDK_MOD4_MASK | // alt
+        GDK_MOD5_MASK | // alt
         GDK_CONTROL_MASK | // ctrl
         GDK_SHIFT_MASK; // shift
 
@@ -87,8 +91,9 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
             {
             gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
             GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), n);
+            if (!terminal) return TRUE;
 
-            gtk_notebook_reorder_child(GTK_NOTEBOOK(tabs), terminal, 0);
+            gtk_notebook_reorder_child(GTK_NOTEBOOK(tabs), terminal, ac.data);
             update_tabbar();
             return TRUE;
             }
@@ -220,10 +225,10 @@ std::string HisPixelApp_t::tabbar_text() {
         if (i == c) {
             oss << "<span foreground=\"#ffffff\"";
             oss << " font_weight=\"bold\">"; // the selected tab is bold
-            oss << "[" << i << "]"; // tab number
+            oss << "[" << i+1 << "]"; // tab number
             oss << "</span>";
         } else {
-            oss << "[" << i << "]";
+            oss << "[" << i+1 << "]";
         }
     }
     return oss.str();

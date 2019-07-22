@@ -170,9 +170,18 @@ Config_t::Action_t string_to_action(parser::Parslet_t &p) {
     if (s == "dump") {
         return Action_t(Action_t::ACTION_DUMP);
     }
-    if (s == "be_first") {
-        return Action_t(Action_t::ACTION_BE_FIRST);
-    }
+    if (s == "swap_1") { return Action_t(Action_t::ACTION_BE_FIRST, 0); }
+    if (s == "swap_2") { return Action_t(Action_t::ACTION_BE_FIRST, 1); }
+    if (s == "swap_3") { return Action_t(Action_t::ACTION_BE_FIRST, 2); }
+    if (s == "swap_4") { return Action_t(Action_t::ACTION_BE_FIRST, 3); }
+    if (s == "swap_5") { return Action_t(Action_t::ACTION_BE_FIRST, 4); }
+    if (s == "swap_6") { return Action_t(Action_t::ACTION_BE_FIRST, 5); }
+    if (s == "swap_7") { return Action_t(Action_t::ACTION_BE_FIRST, 6); }
+    if (s == "swap_8") { return Action_t(Action_t::ACTION_BE_FIRST, 7); }
+    if (s == "swap_9") { return Action_t(Action_t::ACTION_BE_FIRST, 8); }
+    if (s == "swap_10") { return Action_t(Action_t::ACTION_BE_FIRST, 9); }
+    if (s == "swap_11") { return Action_t(Action_t::ACTION_BE_FIRST, 10); }
+    if (s == "swap_12") { return Action_t(Action_t::ACTION_BE_FIRST, 11); }
 
     RAISE(UNKNOWN_ACTION) << "unknown config key: " << s;
     return Config_t::Action_t(); // not reachable (avoids compiler warning)
