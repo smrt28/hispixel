@@ -1,0 +1,5 @@
+    GError *error;
+    GDBusConnection * the_server = g_bus_get_sync (G_BUS_TYPE_SESSION, NULL, &error);
+    std::cout << g_dbus_connection_get_unique_name (the_server) << std::endl;
+
+
