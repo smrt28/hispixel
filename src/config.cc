@@ -14,6 +14,7 @@
 
 namespace s28 {
 
+
 namespace {
 
 #define DEF_MASK(m, mm)   if (s == m) { mask |= mm; continue; }
@@ -133,6 +134,7 @@ KeySym_t keysym(parser::Parslet_t &p) {
             continue;
         }
         KeySym_t res = parse_key_sym(key_descr.str());
+
 //        std::cout << res.text << " mask=" << res.mask << " key="
 //            << res.key << std::endl;
         return res;

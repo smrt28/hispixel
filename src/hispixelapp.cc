@@ -11,6 +11,8 @@
 #include "error.h"
 #include "hispixelapp.h"
 
+//#define DEBUG_LOG_KEY_EVENTS
+
 namespace s28 {
 
 class TerminalContext {
@@ -21,7 +23,39 @@ public:
 
 namespace {
 
+#ifdef DEBUG_LOG_KEY_EVENTS
+std::string gtkkey_mask(guint m) {
+    std::ostringstream oss;
+    if (m & GDK_MOD1_MASK) oss << " mod1";
+    if (m & GDK_MOD2_MASK) oss << " mod2";
+    if (m & GDK_MOD3_MASK) oss << " mod3";
+    if (m & GDK_MOD4_MASK) oss << " mod4";
+    if (m & GDK_MOD5_MASK) oss << " mod5";
+    if (m & GDK_CONTROL_MASK) oss << " ctl";
+    if (m & GDK_SHIFT_MASK) oss << " shift";
+
+    return oss.str();
+}
+#endif
+
 static const char * CONTEXT28_ID = "context28";
+
+
+class GOutputStreamGuard {
+public:
+    GOutputStreamGuard(GOutputStream * gss) : gss(gss) {}
+    ~GOutputStreamGuard() {
+        close();
+    }
+
+    void close() {
+        if (!gss) return;
+        GError *error = nullptr;
+        g_output_stream_close(gss, nullptr, &error);
+        gss = nullptr;
+    }
+    GOutputStream * gss = nullptr;
+};
 
 // recognize the user home directory
 std::string homedir() {
@@ -56,9 +90,9 @@ std::vector<std::string> get_config_files() {
 bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
     static guint total_mask =
         GDK_MOD1_MASK | // alt
-        GDK_MOD2_MASK |
+//      GDK_MOD2_MASK | //numlock
         GDK_MOD3_MASK |
-        GDK_MOD4_MASK |
+        GDK_MOD4_MASK | // win
         GDK_MOD5_MASK |
         GDK_CONTROL_MASK | // ctrl
         GDK_SHIFT_MASK; // shift
@@ -94,6 +128,10 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
             break;
         }
     }
+
+#ifdef DEBUG_LOG_KEY_EVENTS
+    std::cout << event->key.keyval << " " << gtkkey_mask(event->key.state)  <<std::endl;
+#endif
 
     switch (ac.type) {
         case Action_t::ACTION_BE_FIRST:
@@ -161,24 +199,27 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
             }
         case Action_t::ACTION_DUMP: {
             // not implemented yet
+
+            GOutputStream * gss = g_memory_output_stream_new (NULL, 0, realloc, free);
+            if (!gss) break;
+
+            GOutputStreamGuard guard(gss);
+
             gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
             GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), n);
 
-            if (!VTE_TERMINAL(terminal)) return FALSE;
+            if (!VTE_TERMINAL(terminal)) break;
+            GError *error = nullptr;
+            vte_terminal_write_contents_sync(VTE_TERMINAL(terminal),
+                    gss, VTE_WRITE_DEFAULT, nullptr, &error);
 
-            GtkAdjustment *adj = gtk_scrollable_get_vadjustment(GTK_SCROLLABLE(terminal));
-            std::cout << gtk_adjustment_get_value(adj) << std::endl;
+            if (error) break;
 
-//            vte_terminal_set_scrollback_lines;
-//            std::cout << gtk_adjustment_get_upper(adj) << std::endl;
-//scrollback-lines
-
-//            std::cout << vte_terminal_get_row_count(VTE_TERMINAL(terminal)) << std::endl;
-
-//            GArray *a = g_array_new (FALSE, FALSE, sizeof(VteCharAttributes));
-//            std::cout << vte_terminal_get_text_include_trailing_spaces(VTE_TERMINAL(terminal), 0, 0, 0);
-//            std::cout << vte_terminal_get_text_range(VTE_TERMINAL(terminal), 0, 0, 20, 0, nullptr, 0,a);
-//
+            char *data = (char *)g_memory_output_stream_get_data(G_MEMORY_OUTPUT_STREAM(gss));
+            size_t size = g_memory_output_stream_get_data_size(G_MEMORY_OUTPUT_STREAM(gss));
+            std::string s(data, size);
+            error = nullptr;
+            std::cout << s << std::endl;
             return TRUE;
             }
         case Action_t::ACTION_NONE:
