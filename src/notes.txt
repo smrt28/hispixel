@@ -8,3 +8,8 @@ https://gitlab.gnome.org/GNOME/glib/tree/master/gio/tests
 https://stackoverflow.com/questions/54131543/how-can-i-get-the-g-dbus-connection-signal-subscribe-function-to-tell-me-about-p
 https://developer.gnome.org/gio//2.40/GDBusConnection.html
 http://www.ccp4.ac.uk/dist/checkout/glib-2.34.3/gio/tests/gdbus-connection.c
+
+
+gdbus-codegen --generate-c-code hisbus --c-namespace HisPixel --interface-prefix com.hispixel. com.hispixel.GDBUS.xml
+
+https://github.com/chiehmin/gdbus_test

@@ -7,7 +7,7 @@
 #include <iostream>
 
 #include "regevent.h"
-#include "config.h"
+#include "config.hxx"
 #include "error.h"
 #include "hispixelapp.h"
 
@@ -197,6 +197,7 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
             if (n == 0) g_application_quit(G_APPLICATION(app));
             return FALSE;
             }
+#if 0
         case Action_t::ACTION_DUMP: {
             // not implemented yet
 
@@ -222,6 +223,7 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
             std::cout << s << std::endl;
             return TRUE;
             }
+#endif
         case Action_t::ACTION_NONE:
             return FALSE;
         default:
@@ -301,6 +303,14 @@ void HisPixelApp_t::update_tabbar() {
 }
 
 
+void HisPixelApp_t::selection_changed(VteTerminal *t) {
+    /*
+    GdkDisplay *display = gdk_display_get_default();
+    GtkClipboard *c = gtk_clipboard_get_for_display(display, GDK_SELECTION_PRIMARY);
+    std::string text = gtk_clipboard_wait_for_text(c);
+    std::cout << "sel: " << text << std::endl;
+    */
+}
 
 void HisPixelApp_t::open_tab() {
 
@@ -310,10 +320,10 @@ void HisPixelApp_t::open_tab() {
         RAISE(FAILED) << "vte_terminal_new failed";
     }
 
+    SignalRegister_t sr(this);
+    sr.reg_selection_changed(terminal);
+
     std::unique_ptr<TerminalContext> tc(new TerminalContext());
-
-
-
 
     // set scrollback-limit property (50000 default)
     vte_terminal_set_scrollback_lines(VTE_TERMINAL(terminal),

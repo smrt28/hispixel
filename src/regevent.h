@@ -48,6 +48,11 @@ public:
                 G_CALLBACK(page_removed), app);
     }
 
+    void reg_selection_changed(GtkWidget * terminal) {
+        g_signal_connect(terminal, "selection-changed",
+                G_CALLBACK(selection_changed), app);
+    }
+
 private:
 
     /**
@@ -88,6 +93,16 @@ private:
     {
         try {
             ((App_t *)_udata)->page_removed(notebook, child, page_num);
+        } catch(const std::exception &e) {
+            ((App_t *)_udata)->on_error(&e);
+        } catch(...) {
+            ((App_t *)_udata)->on_error(nullptr);
+        }
+    }
+
+    static void selection_changed(VteTerminal *t, gpointer _udata) {
+         try {
+            ((App_t *)_udata)->selection_changed(t);
         } catch(const std::exception &e) {
             ((App_t *)_udata)->on_error(&e);
         } catch(...) {

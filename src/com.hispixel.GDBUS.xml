@@ -1,0 +1,8 @@
+<node>
+    <interface name="com.hispixel.GDBUS">
+        <method name="Rpc">
+            <arg name="request" direction="in" type="s"/>
+            <arg name="response" direction="out" type="s"/>
+        </method>
+    </interface>
+</node>

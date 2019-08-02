@@ -4,7 +4,7 @@
 #include <gtk/gtk.h>
 #include <vte/vte.h>
 
-#include "config.h"
+#include "config.hxx"
 namespace s28 {
 
 class HisPixelApp_t {
@@ -24,6 +24,7 @@ public:
     void child_exited(VteTerminal *t, gint status);
     gboolean key_press_event(GtkWidget *widget, GdkEvent *event);
     void page_removed(GtkNotebook *notebook, GtkWidget *child, guint page_num);
+    void selection_changed(VteTerminal *t);
 
 
     /**
@@ -38,6 +39,8 @@ public:
 
 
 private:
+    typedef RegEvents_t<HisPixelApp_t> SignalRegister_t;
+
     void update_tabbar();
     std::string gtk_css();
     std::string tabbar_text();

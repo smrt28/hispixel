@@ -8,7 +8,7 @@
 #include <iostream>
 
 
-#include "config.h"
+#include "config.hxx"
 #include "parslet.h"
 #include "valuecast.h"
 
