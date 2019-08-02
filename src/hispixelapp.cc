@@ -114,6 +114,15 @@ bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
 
 } // namespace
 
+
+std::string HisPixelApp_t::rpc(std::string s) {
+
+            gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
+            std::ostringstream oss;
+            oss << n;
+            return oss.str();
+}
+
 gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
 {
     typedef s28::Config_t::Action_t Action_t;

@@ -27,6 +27,9 @@ public:
     void selection_changed(VteTerminal *t);
 
 
+    std::string rpc(std::string s);
+
+
     /**
      * Handle exception thrown in the GTK signal handler
      */

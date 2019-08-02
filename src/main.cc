@@ -38,25 +38,14 @@ const char * app_name() {
 }
 
 gboolean on_rpc(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
-        const gchar *greeting, gpointer user_data)
+        const gchar *greeting, gpointer _udata)
 {
-    std::cout << "hi" << std::endl;
+    HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
+    std::string s = hispixel->rpc(greeting);
+
+    his_pixel_gdbus_complete_rpc(interface, invocation, s.c_str());
     return TRUE;
 }
-
-void on_name_acquired(GDBusConnection *connection, const gchar *name, gpointer user_data) {
-    HisPixelGDBUS *interface;
-    GError *error = nullptr;
-    interface = his_pixel_gdbus_skeleton_new();
-    g_signal_connect (interface, "handle-rpc", G_CALLBACK (on_rpc), NULL);
-
-    g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection,
-            std::string(app_name()).c_str(), &error);
-
-
-    error = nullptr;
-}
-
 
 void activate(GtkApplication* app, gpointer _udata)
 {
@@ -65,12 +54,8 @@ void activate(GtkApplication* app, gpointer _udata)
     HisPixelGDBUS *interface;
     GError *error = nullptr;
     interface = his_pixel_gdbus_skeleton_new();
-    g_signal_connect (interface, "handle-rpc", G_CALLBACK (on_rpc), NULL);
+    g_signal_connect (interface, "handle-rpc", G_CALLBACK (on_rpc), _udata);
     g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection, "/com/hispixel", &error);
-
-    //g_bus_own_name(G_BUS_TYPE_SESSION, app_name(), G_BUS_NAME_OWNER_FLAGS_NONE, NULL,
-    //        on_name_acquired, NULL, NULL, NULL);
-
 
     HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
     hispixel->activate(app);
