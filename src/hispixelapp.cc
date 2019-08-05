@@ -14,7 +14,7 @@
 //#define DEBUG_LOG_KEY_EVENTS
 
 namespace s28 {
-
+const char * app_name();
 class TerminalContext {
 public:
     TerminalContext() : a(rand()) {}
@@ -116,11 +116,46 @@ bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
 
 
 std::string HisPixelApp_t::rpc(std::string s) {
+    GOutputStream * gss = g_memory_output_stream_new (NULL, 0, realloc, free);
+    if (!gss) return std::string();
 
-            gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
-            std::ostringstream oss;
-            oss << n;
-            return oss.str();
+    GOutputStreamGuard guard(gss);
+
+
+    gint current = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
+    if (s == "n") {
+        std::ostringstream oss;
+        oss << current;
+        return oss.str();
+    }
+
+    gint n;
+
+    if (s == "first") {
+        n = 0;
+    } else {
+        n = atoi(s.c_str()) - 1;
+    }
+
+    if (n < 0) return std::string();
+
+    if (current == n) {
+        return "err: cant dump current tab";
+    }
+
+    GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), n);
+
+    if (!VTE_TERMINAL(terminal)) return std::string();
+    GError *error = nullptr;
+    vte_terminal_write_contents_sync(VTE_TERMINAL(terminal),
+            gss, VTE_WRITE_DEFAULT, nullptr, &error);
+
+    if (error) return std::string();
+
+    char *data = (char *)g_memory_output_stream_get_data(G_MEMORY_OUTPUT_STREAM(gss));
+    size_t size = g_memory_output_stream_get_data_size(G_MEMORY_OUTPUT_STREAM(gss));
+    return std::string(data, size);
+
 }
 
 gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
@@ -206,33 +241,7 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
             if (n == 0) g_application_quit(G_APPLICATION(app));
             return FALSE;
             }
-#if 0
-        case Action_t::ACTION_DUMP: {
-            // not implemented yet
 
-            GOutputStream * gss = g_memory_output_stream_new (NULL, 0, realloc, free);
-            if (!gss) break;
-
-            GOutputStreamGuard guard(gss);
-
-            gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
-            GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), n);
-
-            if (!VTE_TERMINAL(terminal)) break;
-            GError *error = nullptr;
-            vte_terminal_write_contents_sync(VTE_TERMINAL(terminal),
-                    gss, VTE_WRITE_DEFAULT, nullptr, &error);
-
-            if (error) break;
-
-            char *data = (char *)g_memory_output_stream_get_data(G_MEMORY_OUTPUT_STREAM(gss));
-            size_t size = g_memory_output_stream_get_data_size(G_MEMORY_OUTPUT_STREAM(gss));
-            std::string s(data, size);
-            error = nullptr;
-            std::cout << s << std::endl;
-            return TRUE;
-            }
-#endif
         case Action_t::ACTION_NONE:
             return FALSE;
         default:
@@ -357,11 +366,24 @@ void HisPixelApp_t::open_tab() {
     argv[0] = strdup("/bin/bash"); // TODO: get shell be getpwuid()
     argv[1] = 0;
 
+    char **envv = (char **)::malloc(sizeof(char * [2]));
+    if (envv) {
+        envv[0] = strdup((std::string("HISPIXEL_APP_ID=") + app_name()).c_str());
+        if (!envv[0]) {
+            envv = nullptr;
+            ::free(envv);
+        } else {
+            envv[1] = nullptr;
+        }
+    }
+
+
+
     vte_terminal_spawn_async(VTE_TERMINAL(terminal),
         VTE_PTY_DEFAULT, /* VtePtyFlags pty_flags */
         NULL, /* const char *working_directory */
         argv, /* char **argv */
-        NULL, /* char **envv */
+        envv, /* char **envv */
         G_SPAWN_SEARCH_PATH,    /* GSpawnFlags spawn_flags */
         NULL, /* GSpawnChildSetupFunc child_setup */
         NULL, /* gpointer child_setup_data */
@@ -372,8 +394,14 @@ void HisPixelApp_t::open_tab() {
         NULL  /* GError **error */
         );
 
+
+
     // vte_terminal_spawn_async doesn't thow, so this is safe
     ::free(argv[0]);
+    if (envv) {
+        ::free(envv[0]);
+        ::free(envv);
+    }
 
     g_object_set_data(G_OBJECT(terminal), CONTEXT28_ID, tc.get());
 

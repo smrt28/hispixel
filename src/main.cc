@@ -13,7 +13,6 @@
 #include "hisbus.h"
 
 namespace s28 {
-namespace {
 
 const char * app_name() {
     static std::string name;
@@ -24,6 +23,9 @@ const char * app_name() {
     }
     return name.c_str();
 }
+
+namespace {
+
 
 gboolean on_rpc(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
         const gchar *greeting, gpointer _udata)
@@ -68,8 +70,6 @@ int run(int argc, char **argv, char** envp)
         if (g_signal_connect(app, "activate", G_CALLBACK (activate), &hispixel) <= 0) {
             RAISE(FATAL) << "g_signal_connect failed";
         }
-
-
 
         // run GTK application
         status = g_application_run (G_APPLICATION (app), argc, argv);
