@@ -15,18 +15,6 @@
 namespace s28 {
 namespace {
 
-/*
-static void signal_cb(GDBusConnection *connection,
-        const gchar *sender_name,const gchar *object_path,
-        const gchar *interface_name,const gchar *signal_name,
-        GVariant *parameters,gpointer user_data)
-{
-    printf("%s: %s.%s %s\n",object_path,interface_name,signal_name,
-        g_variant_print(parameters,TRUE));
-}
-
-*/
-
 const char * app_name() {
     static std::string name;
     if (name.empty()) {
@@ -103,16 +91,6 @@ int run(int argc, char **argv, char** envp)
 
 int main(int argc, char **argv, char** envp)
 {
-    /*
-    if (argc == 2) {
-        GtkApplication *app;
-        app = gtk_application_new (argv[1], G_APPLICATION_HANDLES_COMMAND_LINE);
-        g_signal_connect(app, "activate", G_CALLBACK (activate2), nullptr);
-        g_application_run (G_APPLICATION (app), 0, 0);
-
-        return 0;
-    }
-*/
     std::cout << s28::app_name() << std::endl;
 
     try {
