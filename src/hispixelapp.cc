@@ -6,6 +6,9 @@
 
 #include <iostream>
 
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
 #include "regevent.h"
 #include "config.hxx"
 #include "error.h"
@@ -116,6 +119,14 @@ bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
 
 
 std::string HisPixelApp_t::rpc(std::string s) {
+    std::string callfrom;
+    std::vector<std::string> v;
+    boost::split(v, s, boost::is_any_of(" "));
+    if (v.size() == 2) {
+        callfrom = v[1];
+        s = v[0];
+    }
+
     GOutputStream * gss = g_memory_output_stream_new (NULL, 0, realloc, free);
     if (!gss) return std::string();
 
@@ -139,7 +150,7 @@ std::string HisPixelApp_t::rpc(std::string s) {
 
     if (n < 0) return std::string();
 
-    if (current == n) {
+    if (callfrom == app_name() && current == n) {
         return "err: cant dump current tab";
     }
 

@@ -91,7 +91,7 @@ int run(int argc, char **argv, char** envp)
 
 int main(int argc, char **argv, char** envp)
 {
-    std::cout << s28::app_name() << std::endl;
+    //std::cout << s28::app_name() << std::endl;
 
     try {
         return s28::run(argc, argv, envp);
