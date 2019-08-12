@@ -26,7 +26,6 @@ const char * app_name() {
 
 namespace {
 
-
 gboolean on_rpc(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
         const gchar *greeting, gpointer _udata)
 {
@@ -91,8 +90,6 @@ int run(int argc, char **argv, char** envp)
 
 int main(int argc, char **argv, char** envp)
 {
-    //std::cout << s28::app_name() << std::endl;
-
     try {
         return s28::run(argc, argv, envp);
     } catch (...) {
