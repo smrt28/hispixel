@@ -13,16 +13,26 @@
 #include "config.hxx"
 #include "error.h"
 #include "hispixelapp.h"
+#include "envfactory.h"
 
 //#define DEBUG_LOG_KEY_EVENTS
 
 namespace s28 {
 const char * app_name();
 class TerminalContext {
+    static int id_counter;
 public:
-    TerminalContext() : a(rand()) {}
-    int a;
+    TerminalContext() {
+        id_counter ++;
+        id = id_counter;
+    }
+
+    int get_id() const { return id; }
+private:
+    int id;
 };
+
+int TerminalContext::id_counter = 0;
 
 namespace {
 
@@ -42,7 +52,6 @@ std::string gtkkey_mask(guint m) {
 #endif
 
 static const char * CONTEXT28_ID = "context28";
-
 
 class GOutputStreamGuard {
 public:
@@ -119,10 +128,16 @@ bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
 
 
 std::string HisPixelApp_t::rpc(std::string s) {
+    if (s.empty()) return std::string();
+
+    // vte_terminal_feed
+
     std::string callfrom;
     std::vector<std::string> v;
     boost::split(v, s, boost::is_any_of(" "));
     if (v.size() == 2) {
+
+
         callfrom = v[1];
         s = v[0];
     }
@@ -332,7 +347,7 @@ void HisPixelApp_t::update_tabbar() {
 }
 
 
-void HisPixelApp_t::selection_changed(VteTerminal *t) {
+void HisPixelApp_t::selection_changed(VteTerminal *) {
     /*
     GdkDisplay *display = gdk_display_get_default();
     GtkClipboard *c = gtk_clipboard_get_for_display(display, GDK_SELECTION_PRIMARY);
@@ -343,6 +358,8 @@ void HisPixelApp_t::selection_changed(VteTerminal *t) {
 
 void HisPixelApp_t::open_tab() {
 
+    std::unique_ptr<TerminalContext> tc(new TerminalContext());
+
     GtkWidget * terminal = vte_terminal_new();
 
     if (!terminal) {
@@ -352,7 +369,6 @@ void HisPixelApp_t::open_tab() {
     SignalRegister_t sr(this);
     sr.reg_selection_changed(terminal);
 
-    std::unique_ptr<TerminalContext> tc(new TerminalContext());
 
     // set scrollback-limit property (50000 default)
     vte_terminal_set_scrollback_lines(VTE_TERMINAL(terminal),
@@ -372,29 +388,18 @@ void HisPixelApp_t::open_tab() {
     // we need to register for the child-exited signal
     evts.reg_child_exited(terminal);
 
-    // Not sure if this is needed. Maybe const_cast would be sufficiend here...
-    char *argv[2];
-    argv[0] = strdup("/bin/bash"); // TODO: get shell be getpwuid()
-    argv[1] = 0;
+    ArgsFactory argv;
+    argv.add(config.get<std::string>("command"));
 
-    char **envv = (char **)::malloc(sizeof(char * [2]));
-    if (envv) {
-        envv[0] = strdup((std::string("HISPIXEL_APP_ID=") + app_name()).c_str());
-        if (!envv[0]) {
-            envv = nullptr;
-            ::free(envv);
-        } else {
-            envv[1] = nullptr;
-        }
-    }
-
-
+    ArgsFactory envv;
+    envv.add("HISPIXEL_APP_ID", app_name());
+    envv.add("HISPIXEL_APP_TID", std::to_string(tc->get_id()));
 
     vte_terminal_spawn_async(VTE_TERMINAL(terminal),
         VTE_PTY_DEFAULT, /* VtePtyFlags pty_flags */
         NULL, /* const char *working_directory */
-        argv, /* char **argv */
-        envv, /* char **envv */
+        argv.build(), /* char **argv */
+        envv.build(), /* char **envv */
         G_SPAWN_SEARCH_PATH,    /* GSpawnFlags spawn_flags */
         NULL, /* GSpawnChildSetupFunc child_setup */
         NULL, /* gpointer child_setup_data */
@@ -404,15 +409,6 @@ void HisPixelApp_t::open_tab() {
         NULL, /* GPid *child_pid */
         NULL  /* GError **error */
         );
-
-
-
-    // vte_terminal_spawn_async doesn't thow, so this is safe
-    ::free(argv[0]);
-    if (envv) {
-        ::free(envv[0]);
-        ::free(envv);
-    }
 
     g_object_set_data(G_OBJECT(terminal), CONTEXT28_ID, tc.get());
 

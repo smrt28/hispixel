@@ -18,3 +18,21 @@ $ ../configure
 $ make
 
 ```
+
+
+## Commands
+Dump terminal number 1 history:
+
+```
+qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.Rpc 1
+```
+
+Dump first terminal history
+```
+qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.Rpc first
+```
+
+Get current tab number
+```
+qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.Rpc n
+```
