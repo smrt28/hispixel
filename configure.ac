@@ -38,19 +38,14 @@ CXXFLAGS="-W -Wall -Wextra -Wconversion"
 
 AC_SUBST(MALLOC_LIB)
 
-#AC_SUBST(VERSION_INFO)
-
 PKG_PROG_PKG_CONFIG
 
 
 HISPIXEL_DEPS="gtk+-3.0 >= 3.0.0, vte-2.91, gio-2.0"
 PKG_CHECK_MODULES([HISPIXEL], [${HISPIXEL_DEPS}])
 
-#PKG_CHECK_MODULES([GTK], [gtk+-3.0 >= 3.0.0])
-
 AX_BOOST_BASE([1.50], , [AC_MSG_ERROR([boost libraries missing])])
 AX_BOOST_IOSTREAMS
-#AX_BOOST_THREAD
 
 
 #check boost system
@@ -58,7 +53,7 @@ AC_LANG_CPLUSPLUS
 AC_CHECK_HEADER([boost/system/error_code.hpp], [], AC_MSG_ERROR([boost system headers is missing], 1))                                     
 AC_CHECK_LIB(boost_system-mt, main, , [
     AC_CHECK_LIB(boost_system, main, , [                                                                                                   
-        AC_MSG_ERROR([boost system library is missing], 1)])])  
+        AC_MSG_ERROR([boost system library is missing], 1)])])
 
 # check for boost threads
 AC_LANG_CPLUSPLUS
@@ -68,6 +63,8 @@ AC_CHECK_LIB(boost_thread-mt, main, , [
         AC_MSG_ERROR([boost thread library missing], 1)])])
 
 
+
+AC_CHECK_PROG(GDBUSCODEGEN, gdbus-codegen, gdbus-codegen)
 
 # Write config.status and the Makefile
 AC_CONFIG_FILES([Makefile src/Makefile src/gtest/Makefile version])
