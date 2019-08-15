@@ -34,7 +34,6 @@ public:
             ACTION_FOCUS_NEXT,
             ACTION_FOCUS_PREV,
             ACTION_CLOSE_LAST,
-            ACTION_DUMP,
             ACTION_BE_FIRST
         };
 

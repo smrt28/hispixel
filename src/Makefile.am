@@ -6,8 +6,6 @@ AM_CXXFLAGS = -std=c++11
 AM_CPPFLAGS = -I@top_builddir@ -I$(top_srcdir)/include                         \
 			   @HISPIXEL_CFLAGS@ -g
 
-
-
 AM_LDFLAGS = @HISPIXEL_LIBS@
 
 bin_PROGRAMS = hispixel testpixel
