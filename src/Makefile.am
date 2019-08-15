@@ -18,3 +18,8 @@ testpixel_CPPFLAGS = -I$(top_srcdir)/src/gtest/include @HISPIXEL_CFLAGS@
 testpixel_LDADD = gtest/libgtest_main.a gtest/libgtest.a -lpthread -lcrypt
 testpixel_SOURCES = test.cc
 
+$(top_srcdir)/src/hisbus.h: hisbus.c
+
+$(top_srcdir)/src/hisbus.c: com.hispixel.GDBUS.xml
+	gdbus-codegen --generate-c-code hisbus --c-namespace HisPixel --interface-prefix com.hispixel. $(top_srcdir)/src/com.hispixel.GDBUS.xml \
+		--output-directory $(top_srcdir)/src
