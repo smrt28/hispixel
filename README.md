@@ -20,19 +20,19 @@ $ make
 ```
 
 
-## Commands
+## Remote control commands
 Dump terminal number 1 history:
 
 ```
-qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.Rpc 1
+qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.VteDump 1
 ```
 
 Dump first terminal history
 ```
-qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.Rpc first
+qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.VteDump first
 ```
 
-Get current tab number
+Run ls command in terminal number 2
 ```
-qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.Rpc n
+qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.Feed "2 ls"
 ```
