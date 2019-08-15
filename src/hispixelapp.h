@@ -28,6 +28,7 @@ public:
 
 
     std::string rpc(std::string s);
+    void feed(std::string s);
 
 
     /**

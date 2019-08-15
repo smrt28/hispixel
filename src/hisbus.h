@@ -29,7 +29,12 @@ struct _HisPixelGDBUSIface
 {
   GTypeInterface parent_iface;
 
-  gboolean (*handle_rpc) (
+  gboolean (*handle_feed) (
+    HisPixelGDBUS *object,
+    GDBusMethodInvocation *invocation,
+    const gchar *arg_request);
+
+  gboolean (*handle_vte_dump) (
     HisPixelGDBUS *object,
     GDBusMethodInvocation *invocation,
     const gchar *arg_request);
@@ -43,31 +48,56 @@ guint his_pixel_gdbus_override_properties (GObjectClass *klass, guint property_i
 
 
 /* D-Bus method call completion functions: */
-void his_pixel_gdbus_complete_rpc (
+void his_pixel_gdbus_complete_vte_dump (
     HisPixelGDBUS *object,
     GDBusMethodInvocation *invocation,
     const gchar *response);
 
+void his_pixel_gdbus_complete_feed (
+    HisPixelGDBUS *object,
+    GDBusMethodInvocation *invocation,
+    gint response);
+
 
 
 /* D-Bus method calls: */
-void his_pixel_gdbus_call_rpc (
+void his_pixel_gdbus_call_vte_dump (
     HisPixelGDBUS *proxy,
     const gchar *arg_request,
     GCancellable *cancellable,
     GAsyncReadyCallback callback,
     gpointer user_data);
 
-gboolean his_pixel_gdbus_call_rpc_finish (
+gboolean his_pixel_gdbus_call_vte_dump_finish (
     HisPixelGDBUS *proxy,
     gchar **out_response,
     GAsyncResult *res,
     GError **error);
 
-gboolean his_pixel_gdbus_call_rpc_sync (
+gboolean his_pixel_gdbus_call_vte_dump_sync (
     HisPixelGDBUS *proxy,
     const gchar *arg_request,
     gchar **out_response,
+    GCancellable *cancellable,
+    GError **error);
+
+void his_pixel_gdbus_call_feed (
+    HisPixelGDBUS *proxy,
+    const gchar *arg_request,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data);
+
+gboolean his_pixel_gdbus_call_feed_finish (
+    HisPixelGDBUS *proxy,
+    gint *out_response,
+    GAsyncResult *res,
+    GError **error);
+
+gboolean his_pixel_gdbus_call_feed_sync (
+    HisPixelGDBUS *proxy,
+    const gchar *arg_request,
+    gint *out_response,
     GCancellable *cancellable,
     GError **error);
 

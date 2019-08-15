@@ -164,7 +164,7 @@ _g_value_equal (const GValue *a, const GValue *b)
 
 /* ---- Introspection data for com.hispixel.GDBUS ---- */
 
-static const _ExtendedGDBusArgInfo _his_pixel_gdbus_method_info_rpc_IN_ARG_request =
+static const _ExtendedGDBusArgInfo _his_pixel_gdbus_method_info_vte_dump_IN_ARG_request =
 {
   {
     -1,
@@ -175,13 +175,13 @@ static const _ExtendedGDBusArgInfo _his_pixel_gdbus_method_info_rpc_IN_ARG_reque
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo * const _his_pixel_gdbus_method_info_rpc_IN_ARG_pointers[] =
+static const _ExtendedGDBusArgInfo * const _his_pixel_gdbus_method_info_vte_dump_IN_ARG_pointers[] =
 {
-  &_his_pixel_gdbus_method_info_rpc_IN_ARG_request,
+  &_his_pixel_gdbus_method_info_vte_dump_IN_ARG_request,
   NULL
 };
 
-static const _ExtendedGDBusArgInfo _his_pixel_gdbus_method_info_rpc_OUT_ARG_response =
+static const _ExtendedGDBusArgInfo _his_pixel_gdbus_method_info_vte_dump_OUT_ARG_response =
 {
   {
     -1,
@@ -192,28 +192,76 @@ static const _ExtendedGDBusArgInfo _his_pixel_gdbus_method_info_rpc_OUT_ARG_resp
   FALSE
 };
 
-static const _ExtendedGDBusArgInfo * const _his_pixel_gdbus_method_info_rpc_OUT_ARG_pointers[] =
+static const _ExtendedGDBusArgInfo * const _his_pixel_gdbus_method_info_vte_dump_OUT_ARG_pointers[] =
 {
-  &_his_pixel_gdbus_method_info_rpc_OUT_ARG_response,
+  &_his_pixel_gdbus_method_info_vte_dump_OUT_ARG_response,
   NULL
 };
 
-static const _ExtendedGDBusMethodInfo _his_pixel_gdbus_method_info_rpc =
+static const _ExtendedGDBusMethodInfo _his_pixel_gdbus_method_info_vte_dump =
 {
   {
     -1,
-    (gchar *) "Rpc",
-    (GDBusArgInfo **) &_his_pixel_gdbus_method_info_rpc_IN_ARG_pointers,
-    (GDBusArgInfo **) &_his_pixel_gdbus_method_info_rpc_OUT_ARG_pointers,
+    (gchar *) "VteDump",
+    (GDBusArgInfo **) &_his_pixel_gdbus_method_info_vte_dump_IN_ARG_pointers,
+    (GDBusArgInfo **) &_his_pixel_gdbus_method_info_vte_dump_OUT_ARG_pointers,
     NULL
   },
-  "handle-rpc",
+  "handle-vte-dump",
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo _his_pixel_gdbus_method_info_feed_IN_ARG_request =
+{
+  {
+    -1,
+    (gchar *) "request",
+    (gchar *) "s",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _his_pixel_gdbus_method_info_feed_IN_ARG_pointers[] =
+{
+  &_his_pixel_gdbus_method_info_feed_IN_ARG_request,
+  NULL
+};
+
+static const _ExtendedGDBusArgInfo _his_pixel_gdbus_method_info_feed_OUT_ARG_response =
+{
+  {
+    -1,
+    (gchar *) "response",
+    (gchar *) "i",
+    NULL
+  },
+  FALSE
+};
+
+static const _ExtendedGDBusArgInfo * const _his_pixel_gdbus_method_info_feed_OUT_ARG_pointers[] =
+{
+  &_his_pixel_gdbus_method_info_feed_OUT_ARG_response,
+  NULL
+};
+
+static const _ExtendedGDBusMethodInfo _his_pixel_gdbus_method_info_feed =
+{
+  {
+    -1,
+    (gchar *) "Feed",
+    (GDBusArgInfo **) &_his_pixel_gdbus_method_info_feed_IN_ARG_pointers,
+    (GDBusArgInfo **) &_his_pixel_gdbus_method_info_feed_OUT_ARG_pointers,
+    NULL
+  },
+  "handle-feed",
   FALSE
 };
 
 static const _ExtendedGDBusMethodInfo * const _his_pixel_gdbus_method_info_pointers[] =
 {
-  &_his_pixel_gdbus_method_info_rpc,
+  &_his_pixel_gdbus_method_info_vte_dump,
+  &_his_pixel_gdbus_method_info_feed,
   NULL
 };
 
@@ -271,7 +319,8 @@ his_pixel_gdbus_override_properties (GObjectClass *klass, guint property_id_begi
 /**
  * HisPixelGDBUSIface:
  * @parent_iface: The parent interface.
- * @handle_rpc: Handler for the #HisPixelGDBUS::handle-rpc signal.
+ * @handle_feed: Handler for the #HisPixelGDBUS::handle-feed signal.
+ * @handle_vte_dump: Handler for the #HisPixelGDBUS::handle-vte-dump signal.
  *
  * Virtual table for the D-Bus interface <link linkend="gdbus-interface-com-hispixel-GDBUS.top_of_page">com.hispixel.GDBUS</link>.
  */
@@ -284,21 +333,44 @@ his_pixel_gdbus_default_init (HisPixelGDBUSIface *iface)
 {
   /* GObject signals for incoming D-Bus method calls: */
   /**
-   * HisPixelGDBUS::handle-rpc:
+   * HisPixelGDBUS::handle-vte-dump:
    * @object: A #HisPixelGDBUS.
    * @invocation: A #GDBusMethodInvocation.
    * @arg_request: Argument passed by remote caller.
    *
-   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-com-hispixel-GDBUS.Rpc">Rpc()</link> D-Bus method.
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-com-hispixel-GDBUS.VteDump">VteDump()</link> D-Bus method.
    *
-   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call his_pixel_gdbus_complete_rpc() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call his_pixel_gdbus_complete_vte_dump() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
    *
    * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
    */
-  g_signal_new ("handle-rpc",
+  g_signal_new ("handle-vte-dump",
     G_TYPE_FROM_INTERFACE (iface),
     G_SIGNAL_RUN_LAST,
-    G_STRUCT_OFFSET (HisPixelGDBUSIface, handle_rpc),
+    G_STRUCT_OFFSET (HisPixelGDBUSIface, handle_vte_dump),
+    g_signal_accumulator_true_handled,
+    NULL,
+    g_cclosure_marshal_generic,
+    G_TYPE_BOOLEAN,
+    2,
+    G_TYPE_DBUS_METHOD_INVOCATION, G_TYPE_STRING);
+
+  /**
+   * HisPixelGDBUS::handle-feed:
+   * @object: A #HisPixelGDBUS.
+   * @invocation: A #GDBusMethodInvocation.
+   * @arg_request: Argument passed by remote caller.
+   *
+   * Signal emitted when a remote caller is invoking the <link linkend="gdbus-method-com-hispixel-GDBUS.Feed">Feed()</link> D-Bus method.
+   *
+   * If a signal handler returns %TRUE, it means the signal handler will handle the invocation (e.g. take a reference to @invocation and eventually call his_pixel_gdbus_complete_feed() or e.g. g_dbus_method_invocation_return_error() on it) and no order signal handlers will run. If no signal handler handles the invocation, the %G_DBUS_ERROR_UNKNOWN_METHOD error is returned.
+   *
+   * Returns: %TRUE if the invocation was handled, %FALSE to let other signal handlers run.
+   */
+  g_signal_new ("handle-feed",
+    G_TYPE_FROM_INTERFACE (iface),
+    G_SIGNAL_RUN_LAST,
+    G_STRUCT_OFFSET (HisPixelGDBUSIface, handle_feed),
     g_signal_accumulator_true_handled,
     NULL,
     g_cclosure_marshal_generic,
@@ -309,21 +381,21 @@ his_pixel_gdbus_default_init (HisPixelGDBUSIface *iface)
 }
 
 /**
- * his_pixel_gdbus_call_rpc:
+ * his_pixel_gdbus_call_vte_dump:
  * @proxy: A #HisPixelGDBUSProxy.
  * @arg_request: Argument to pass with the method invocation.
  * @cancellable: (nullable): A #GCancellable or %NULL.
  * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
  * @user_data: User data to pass to @callback.
  *
- * Asynchronously invokes the <link linkend="gdbus-method-com-hispixel-GDBUS.Rpc">Rpc()</link> D-Bus method on @proxy.
+ * Asynchronously invokes the <link linkend="gdbus-method-com-hispixel-GDBUS.VteDump">VteDump()</link> D-Bus method on @proxy.
  * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
- * You can then call his_pixel_gdbus_call_rpc_finish() to get the result of the operation.
+ * You can then call his_pixel_gdbus_call_vte_dump_finish() to get the result of the operation.
  *
- * See his_pixel_gdbus_call_rpc_sync() for the synchronous, blocking version of this method.
+ * See his_pixel_gdbus_call_vte_dump_sync() for the synchronous, blocking version of this method.
  */
 void
-his_pixel_gdbus_call_rpc (
+his_pixel_gdbus_call_vte_dump (
     HisPixelGDBUS *proxy,
     const gchar *arg_request,
     GCancellable *cancellable,
@@ -331,7 +403,7 @@ his_pixel_gdbus_call_rpc (
     gpointer user_data)
 {
   g_dbus_proxy_call (G_DBUS_PROXY (proxy),
-    "Rpc",
+    "VteDump",
     g_variant_new ("(s)",
                    arg_request),
     G_DBUS_CALL_FLAGS_NONE,
@@ -342,18 +414,18 @@ his_pixel_gdbus_call_rpc (
 }
 
 /**
- * his_pixel_gdbus_call_rpc_finish:
+ * his_pixel_gdbus_call_vte_dump_finish:
  * @proxy: A #HisPixelGDBUSProxy.
  * @out_response: (out): Return location for return parameter or %NULL to ignore.
- * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to his_pixel_gdbus_call_rpc().
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to his_pixel_gdbus_call_vte_dump().
  * @error: Return location for error or %NULL.
  *
- * Finishes an operation started with his_pixel_gdbus_call_rpc().
+ * Finishes an operation started with his_pixel_gdbus_call_vte_dump().
  *
  * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
  */
 gboolean
-his_pixel_gdbus_call_rpc_finish (
+his_pixel_gdbus_call_vte_dump_finish (
     HisPixelGDBUS *proxy,
     gchar **out_response,
     GAsyncResult *res,
@@ -372,21 +444,21 @@ _out:
 }
 
 /**
- * his_pixel_gdbus_call_rpc_sync:
+ * his_pixel_gdbus_call_vte_dump_sync:
  * @proxy: A #HisPixelGDBUSProxy.
  * @arg_request: Argument to pass with the method invocation.
  * @out_response: (out): Return location for return parameter or %NULL to ignore.
  * @cancellable: (nullable): A #GCancellable or %NULL.
  * @error: Return location for error or %NULL.
  *
- * Synchronously invokes the <link linkend="gdbus-method-com-hispixel-GDBUS.Rpc">Rpc()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ * Synchronously invokes the <link linkend="gdbus-method-com-hispixel-GDBUS.VteDump">VteDump()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
  *
- * See his_pixel_gdbus_call_rpc() for the asynchronous version of this method.
+ * See his_pixel_gdbus_call_vte_dump() for the asynchronous version of this method.
  *
  * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
  */
 gboolean
-his_pixel_gdbus_call_rpc_sync (
+his_pixel_gdbus_call_vte_dump_sync (
     HisPixelGDBUS *proxy,
     const gchar *arg_request,
     gchar **out_response,
@@ -395,7 +467,7 @@ his_pixel_gdbus_call_rpc_sync (
 {
   GVariant *_ret;
   _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
-    "Rpc",
+    "VteDump",
     g_variant_new ("(s)",
                    arg_request),
     G_DBUS_CALL_FLAGS_NONE,
@@ -413,23 +485,148 @@ _out:
 }
 
 /**
- * his_pixel_gdbus_complete_rpc:
+ * his_pixel_gdbus_call_feed:
+ * @proxy: A #HisPixelGDBUSProxy.
+ * @arg_request: Argument to pass with the method invocation.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @callback: A #GAsyncReadyCallback to call when the request is satisfied or %NULL.
+ * @user_data: User data to pass to @callback.
+ *
+ * Asynchronously invokes the <link linkend="gdbus-method-com-hispixel-GDBUS.Feed">Feed()</link> D-Bus method on @proxy.
+ * When the operation is finished, @callback will be invoked in the <link linkend="g-main-context-push-thread-default">thread-default main loop</link> of the thread you are calling this method from.
+ * You can then call his_pixel_gdbus_call_feed_finish() to get the result of the operation.
+ *
+ * See his_pixel_gdbus_call_feed_sync() for the synchronous, blocking version of this method.
+ */
+void
+his_pixel_gdbus_call_feed (
+    HisPixelGDBUS *proxy,
+    const gchar *arg_request,
+    GCancellable *cancellable,
+    GAsyncReadyCallback callback,
+    gpointer user_data)
+{
+  g_dbus_proxy_call (G_DBUS_PROXY (proxy),
+    "Feed",
+    g_variant_new ("(s)",
+                   arg_request),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    callback,
+    user_data);
+}
+
+/**
+ * his_pixel_gdbus_call_feed_finish:
+ * @proxy: A #HisPixelGDBUSProxy.
+ * @out_response: (out): Return location for return parameter or %NULL to ignore.
+ * @res: The #GAsyncResult obtained from the #GAsyncReadyCallback passed to his_pixel_gdbus_call_feed().
+ * @error: Return location for error or %NULL.
+ *
+ * Finishes an operation started with his_pixel_gdbus_call_feed().
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+his_pixel_gdbus_call_feed_finish (
+    HisPixelGDBUS *proxy,
+    gint *out_response,
+    GAsyncResult *res,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_finish (G_DBUS_PROXY (proxy), res, error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(i)",
+                 out_response);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * his_pixel_gdbus_call_feed_sync:
+ * @proxy: A #HisPixelGDBUSProxy.
+ * @arg_request: Argument to pass with the method invocation.
+ * @out_response: (out): Return location for return parameter or %NULL to ignore.
+ * @cancellable: (nullable): A #GCancellable or %NULL.
+ * @error: Return location for error or %NULL.
+ *
+ * Synchronously invokes the <link linkend="gdbus-method-com-hispixel-GDBUS.Feed">Feed()</link> D-Bus method on @proxy. The calling thread is blocked until a reply is received.
+ *
+ * See his_pixel_gdbus_call_feed() for the asynchronous version of this method.
+ *
+ * Returns: (skip): %TRUE if the call succeded, %FALSE if @error is set.
+ */
+gboolean
+his_pixel_gdbus_call_feed_sync (
+    HisPixelGDBUS *proxy,
+    const gchar *arg_request,
+    gint *out_response,
+    GCancellable *cancellable,
+    GError **error)
+{
+  GVariant *_ret;
+  _ret = g_dbus_proxy_call_sync (G_DBUS_PROXY (proxy),
+    "Feed",
+    g_variant_new ("(s)",
+                   arg_request),
+    G_DBUS_CALL_FLAGS_NONE,
+    -1,
+    cancellable,
+    error);
+  if (_ret == NULL)
+    goto _out;
+  g_variant_get (_ret,
+                 "(i)",
+                 out_response);
+  g_variant_unref (_ret);
+_out:
+  return _ret != NULL;
+}
+
+/**
+ * his_pixel_gdbus_complete_vte_dump:
  * @object: A #HisPixelGDBUS.
  * @invocation: (transfer full): A #GDBusMethodInvocation.
  * @response: Parameter to return.
  *
- * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-com-hispixel-GDBUS.Rpc">Rpc()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-com-hispixel-GDBUS.VteDump">VteDump()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
  *
  * This method will free @invocation, you cannot use it afterwards.
  */
 void
-his_pixel_gdbus_complete_rpc (
+his_pixel_gdbus_complete_vte_dump (
     HisPixelGDBUS *object,
     GDBusMethodInvocation *invocation,
     const gchar *response)
 {
   g_dbus_method_invocation_return_value (invocation,
     g_variant_new ("(s)",
+                   response));
+}
+
+/**
+ * his_pixel_gdbus_complete_feed:
+ * @object: A #HisPixelGDBUS.
+ * @invocation: (transfer full): A #GDBusMethodInvocation.
+ * @response: Parameter to return.
+ *
+ * Helper function used in service implementations to finish handling invocations of the <link linkend="gdbus-method-com-hispixel-GDBUS.Feed">Feed()</link> D-Bus method. If you instead want to finish handling an invocation by returning an error, use g_dbus_method_invocation_return_error() or similar.
+ *
+ * This method will free @invocation, you cannot use it afterwards.
+ */
+void
+his_pixel_gdbus_complete_feed (
+    HisPixelGDBUS *object,
+    GDBusMethodInvocation *invocation,
+    gint response)
+{
+  g_dbus_method_invocation_return_value (invocation,
+    g_variant_new ("(i)",
                    response));
 }
 

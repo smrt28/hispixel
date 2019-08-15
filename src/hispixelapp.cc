@@ -14,6 +14,7 @@
 #include "error.h"
 #include "hispixelapp.h"
 #include "envfactory.h"
+#include "parslet.h"
 
 //#define DEBUG_LOG_KEY_EVENTS
 
@@ -126,6 +127,27 @@ bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
 
 } // namespace
 
+
+void HisPixelApp_t::feed(std::string s) {
+    parser::Parslet_t p(s);
+    std::string n = parser::word(p).str();
+    parser::ltrim(p);
+    int tindex = boost::lexical_cast<int>(n);
+    GOutputStream * gss = g_memory_output_stream_new (NULL, 0, realloc, free);
+    if (!gss) {
+        RAISE(OOM) << "g_memory_output_stream_new";
+    }
+
+    GOutputStreamGuard guard(gss);
+
+    GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), tindex - 1);
+    if (!terminal) {
+        RAISE(NOT_FOUND) << "gtk_notebook_get_nth_page";
+    }
+
+    vte_terminal_feed_child(VTE_TERMINAL(terminal), p.begin(), p.size());
+    vte_terminal_feed_child(VTE_TERMINAL(terminal), "\n", 1);
+}
 
 std::string HisPixelApp_t::rpc(std::string s) {
     if (s.empty()) return std::string();

@@ -1,8 +1,12 @@
 <node>
     <interface name="com.hispixel.GDBUS">
-        <method name="Rpc">
+        <method name="VteDump">
             <arg name="request" direction="in" type="s"/>
             <arg name="response" direction="out" type="s"/>
+        </method>
+        <method name="Feed">
+            <arg name="request" direction="in" type="s"/>
+            <arg name="response" direction="out" type="i"/>
         </method>
     </interface>
 </node>

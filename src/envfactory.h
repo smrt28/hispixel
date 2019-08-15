@@ -9,7 +9,7 @@ namespace s28 {
 class ArgsFactory {
 public:
     ~ArgsFactory() {
-        if (env) reset();
+        if (!env) reset();
     }
 
     void add(std::string key, std::string val) {

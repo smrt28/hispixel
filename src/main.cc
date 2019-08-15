@@ -31,10 +31,24 @@ gboolean on_rpc(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
 {
     HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
     std::string s = hispixel->rpc(greeting);
-
-    his_pixel_gdbus_complete_rpc(interface, invocation, s.c_str());
+    his_pixel_gdbus_complete_vte_dump(interface, invocation, s.c_str());
     return TRUE;
 }
+
+gboolean on_feed(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
+        const gchar *text, gpointer _udata)
+{
+    HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
+    int rv = 0;
+    try {
+        hispixel->feed(text);
+    } catch(...) {
+        rv = 1;
+    }
+    his_pixel_gdbus_complete_feed(interface, invocation, rv);
+    return TRUE;
+}
+
 
 void activate(GtkApplication* app, gpointer _udata)
 {
@@ -43,7 +57,8 @@ void activate(GtkApplication* app, gpointer _udata)
     HisPixelGDBUS *interface;
     GError *error = nullptr;
     interface = his_pixel_gdbus_skeleton_new();
-    g_signal_connect (interface, "handle-rpc", G_CALLBACK (on_rpc), _udata);
+    g_signal_connect (interface, "handle-vte-dump", G_CALLBACK (on_rpc), _udata);
+    g_signal_connect (interface, "handle-feed", G_CALLBACK (on_feed), _udata);
     g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection, "/com/hispixel", &error);
 
     HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
