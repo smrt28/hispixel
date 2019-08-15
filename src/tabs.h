@@ -70,8 +70,8 @@ public:
 
     std::string get_name() const;
 
-    const Tab operator++() const { return next(); }
-    const Tab operator++(int) const { return next(); }
+    const Tab operator++() const { return *const_cast<Tab *>(this) = next(); }
+    const Tab operator++(int) const { return *const_cast<Tab *>(this) = next(); }
     const Tab operator*() const { return *this; }
 
 

@@ -345,10 +345,9 @@ std::string HisPixelApp_t::tabbar_text() {
 
     std::ostringstream oss;
     Tab current = t.current();
-    for (int i = 0; i < n; i++) {
+    for (auto tt: t) {
         std::string name;
-        Tab tt = t.at(i);
-        if (i == current.index()) {
+        if (tt.index() == current.index()) {
             oss << "<span foreground=\"#ffffff\"";
             oss << " font_weight=\"bold\">"; // the selected tab is bold
             oss << "[" << tt.get_name() << "]"; // tab number
