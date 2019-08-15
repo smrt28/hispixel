@@ -23,7 +23,7 @@ Tab Tabs::current() {
     return at(c);
 }
 
-Tab Tab::next() {
+Tab Tab::next() const {
     return tabs->at(order + 1);
 }
 

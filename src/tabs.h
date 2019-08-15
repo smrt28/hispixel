@@ -70,13 +70,8 @@ public:
 
     std::string get_name() const;
 
-    const Tab operator++() const { return *const_cast<Tab *>(this) = next(); }
-    const Tab operator++(int) const { return *const_cast<Tab *>(this) = next(); }
-    const Tab operator*() const { return *this; }
 
-
-    Tab next();
-    const Tab next() const { return const_cast<Tab *>(this)->next(); }
+    Tab next() const;
 
 private:
     Tabs *tabs;
@@ -94,14 +89,34 @@ public:
     Tab current();
     int size();
 
-    typedef const Tab const_iterator;
+    template<typename TAB>
+    class Iterator {
+        public:
+        Iterator(Tab t) : t(t) {}
+
+        TAB operator*() { return t; }
+        TAB operator++() { t = t.next(); return t; }
+        TAB operator->() { return t; }
+
+        bool operator==(Iterator it) const {
+            return *it == t;
+        }
+
+        bool operator!=(Iterator it) const {
+            return !(*this == it);
+        }
+    private:
+        Tab t;
+    };
+
+    typedef Iterator<const Tab> const_iterator;
 
     const_iterator begin() const {
-        return at(0);
+        return const_iterator(at(0));
     }
 
     const_iterator end() const {
-        return Tab(const_cast<Tabs *>(this), nullptr, -1);
+        return const_iterator(Tab(const_cast<Tabs *>(this), nullptr, -1));
     }
 
 public:
