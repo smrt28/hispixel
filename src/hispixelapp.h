@@ -29,6 +29,7 @@ public:
 
     std::string rpc(std::string s);
     void feed(std::string s);
+    void set_name(std::string s);
 
 
     /**

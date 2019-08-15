@@ -15,23 +15,12 @@
 #include "hispixelapp.h"
 #include "envfactory.h"
 #include "parslet.h"
+#include "tabs.h"
 
 //#define DEBUG_LOG_KEY_EVENTS
 
 namespace s28 {
 const char * app_name();
-class TerminalContext {
-    static int id_counter;
-public:
-    TerminalContext() {
-        id_counter ++;
-        id = id_counter;
-    }
-
-    int get_id() const { return id; }
-private:
-    int id;
-};
 
 int TerminalContext::id_counter = 0;
 
@@ -149,17 +138,30 @@ void HisPixelApp_t::feed(std::string s) {
     vte_terminal_feed_child(VTE_TERMINAL(terminal), "\n", 1);
 }
 
+void HisPixelApp_t::set_name(std::string s) {
+    parser::Parslet_t p(s);
+    std::string n = parser::word(p).str();
+    parser::ltrim(p);
+    int tindex = boost::lexical_cast<int>(n);
+
+    Tabs tt(tabs);
+    Tab t = tt.at(tindex - 1);
+    TerminalContext *tc = t.get_context();
+
+    if (tc) {
+        tc->set_name(p.str());
+        update_tabbar();
+    }
+}
+
+
 std::string HisPixelApp_t::rpc(std::string s) {
     if (s.empty()) return std::string();
-
-    // vte_terminal_feed
 
     std::string callfrom;
     std::vector<std::string> v;
     boost::split(v, s, boost::is_any_of(" "));
     if (v.size() == 2) {
-
-
         callfrom = v[1];
         s = v[0];
     }
@@ -336,22 +338,23 @@ void HisPixelApp_t::child_exited(VteTerminal *t, gint /*status*/) {
 
 
 std::string HisPixelApp_t::tabbar_text() {
+    Tabs t(tabs);
     // get number of tabs
-    gint n = gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));
+    gint n = t.size();
     if (n <= 0) return std::string();
 
-    // selected tab number
-    gint c = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
-
     std::ostringstream oss;
+    Tab current = t.current();
     for (int i = 0; i < n; i++) {
-        if (i == c) {
+        std::string name;
+        Tab tt = t.at(i);
+        if (i == current.index()) {
             oss << "<span foreground=\"#ffffff\"";
             oss << " font_weight=\"bold\">"; // the selected tab is bold
-            oss << "[" << i+1 << "]"; // tab number
+            oss << "[" << tt.get_name() << "]"; // tab number
             oss << "</span>";
         } else {
-            oss << "[" << i+1 << "]";
+            oss << "[" << tt.get_name() << "]";
         }
     }
     return oss.str();
@@ -442,7 +445,6 @@ void HisPixelApp_t::open_tab() {
     }
 
     tc.release();
-
 
     gtk_widget_show(terminal);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);

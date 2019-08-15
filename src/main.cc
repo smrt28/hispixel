@@ -50,6 +50,22 @@ gboolean on_feed(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
 }
 
 
+gboolean on_set_name(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
+        const gchar *text, gpointer _udata)
+{
+    HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
+    int rv = 0;
+    try {
+        hispixel->set_name(text);
+    } catch(...) {
+        rv = 1;
+    }
+    his_pixel_gdbus_complete_set_name(interface, invocation, rv);
+    return TRUE;
+}
+
+
+
 void activate(GtkApplication* app, gpointer _udata)
 {
     GDBusConnection * connection = g_application_get_dbus_connection(G_APPLICATION(app));
@@ -59,6 +75,7 @@ void activate(GtkApplication* app, gpointer _udata)
     interface = his_pixel_gdbus_skeleton_new();
     g_signal_connect (interface, "handle-vte-dump", G_CALLBACK (on_rpc), _udata);
     g_signal_connect (interface, "handle-feed", G_CALLBACK (on_feed), _udata);
+    g_signal_connect (interface, "handle-set-name", G_CALLBACK (on_set_name), _udata);
     g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection, "/com/hispixel", &error);
 
     HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;

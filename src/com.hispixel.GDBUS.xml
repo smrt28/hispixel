@@ -8,5 +8,9 @@
             <arg name="request" direction="in" type="s"/>
             <arg name="response" direction="out" type="i"/>
         </method>
+        <method name="SetName">
+            <arg name="request" direction="in" type="s"/>
+            <arg name="response" direction="out" type="i"/>
+        </method>
     </interface>
 </node>
