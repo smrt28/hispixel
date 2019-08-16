@@ -49,7 +49,16 @@ private:
     void update_tabbar();
     std::string gtk_css();
     std::string tabbar_text();
-    void open_tab(const boost::optional<std::string> &name = boost::optional<std::string>());
+
+    struct TabConfig {
+        TabConfig() {}
+        TabConfig(const std::string &name) : name(name) {}
+
+        const boost::optional<std::string> name;
+        bool focus = false;
+    };
+
+    void open_tab(TabConfig tabconfig = TabConfig());
 
     // main arguments (not needed yet)
     int argc;

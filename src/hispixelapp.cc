@@ -141,7 +141,7 @@ void HisPixelApp_t::feed(std::string s) {
 void HisPixelApp_t::set_name(std::string s) {
     parser::Parslet_t p(s);
     std::string n = parser::word(p).str(); // first word specs the tab
-    parser::ltrim(p);
+    parser::trim(p);
 
     Tabs tt(tabs);
     Tab t;
@@ -152,23 +152,14 @@ void HisPixelApp_t::set_name(std::string s) {
         t = tt.find(n);
     }
 
-    parser::rtrim(p);
-
-    // with one argument, open new tab
-    if (!t.is_valid() && p.empty()) {
-        open_tab(n);
-        return;
-    }
-
-    if (p.empty()) return; // no now tab name specified
-    if (tt.find(p.str()).is_valid()) return; // the tab of this name already exists
+    if (!t.is_valid()) return;
 
     TerminalContext *tc = t.get_context();
 
-    if (tc) {
-        tc->set_name(p.str());
-        update_tabbar();
-    }
+    if (!tc) return;
+
+    tc->set_name(p.str());
+    update_tabbar();
 }
 
 
@@ -341,10 +332,10 @@ void HisPixelApp_t::selection_changed(VteTerminal *) {
     */
 }
 
-void HisPixelApp_t::open_tab(const boost::optional<std::string> &tabname) {
+void HisPixelApp_t::open_tab(TabConfig tabconfig) {
 
     std::unique_ptr<TerminalContext> tc(new TerminalContext());
-    if (tabname) tc->set_name(*tabname);
+    if (tabconfig.name) tc->set_name(*tabconfig.name);
 
     GtkWidget * terminal = vte_terminal_new();
 
@@ -413,7 +404,8 @@ void HisPixelApp_t::open_tab(const boost::optional<std::string> &tabname) {
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
     update_tabbar();
 
-    gtk_widget_grab_focus(terminal);
+    if (tabconfig.focus)
+        gtk_widget_grab_focus(terminal);
 }
 
 

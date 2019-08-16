@@ -1,3 +1,6 @@
+
+#include <stdlib.h>
+#include <set>
 #include "tabs.h"
 
 namespace s28 {
@@ -74,6 +77,5 @@ Tab Tabs::find(const std::string &name) const {
 
     return Tab(const_cast<Tabs *>(this), nullptr, -1);
 }
-
 
 }

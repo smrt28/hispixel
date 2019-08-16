@@ -16,6 +16,7 @@ public:
     TerminalContext() {
         id_counter ++;
         id = id_counter;
+        name = std::to_string(id);
     }
 
     int get_id() const { return id; }
@@ -141,6 +142,7 @@ public:
 
     Tab find(const std::string &name) const;
 
+    std::string suggest_tab_name() const;
 public:
     GtkWidget *tabs;
 };
