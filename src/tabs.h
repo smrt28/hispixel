@@ -4,8 +4,12 @@
 #include <gtk/gtk.h>
 #include <string>
 #include <boost/optional.hpp>
+#include <iterator>
 
 namespace s28 {
+/**
+ * Metadata hold by every terminal widget
+ */
 class TerminalContext {
     static int id_counter;
 public:
@@ -34,8 +38,12 @@ private:
 
 class Tabs;
 
+/**
+ * Tab widget wrap
+ */
 class Tab {
 public:
+    Tab() : tabs(nullptr), terminal(nullptr), order(-1) {}
     Tab(Tabs * tabs, GtkWidget *terminal, int order_arg) :
         tabs(tabs),
         terminal(terminal)
@@ -54,6 +62,7 @@ public:
     bool is_valid() const {
         if (!terminal) return false;
         if (order < 0) return false;
+        if (!tabs) return false;
         return true;
     }
 
@@ -67,11 +76,14 @@ public:
 
     TerminalContext * get_context();
     const TerminalContext * get_context() const { return const_cast<Tab *>(this)->get_context(); }
-
-    std::string get_name() const;
-
+    std::string get_name(bool *has_name = nullptr) const;
 
     Tab next() const;
+    Tab prev() const;
+
+    int set_order(int n);
+
+    void focus();
 
 private:
     Tabs *tabs;
@@ -79,32 +91,36 @@ private:
     int order;
 };
 
+
+/**
+ * Notebook widget wrap
+ */
 class Tabs {
 public:
     Tabs(GtkWidget *tabs) : tabs(tabs) {}
+
     Tab at(int i);
-    const Tab at(int i) const {
-        return const_cast<Tabs *>(this)->at(i);
-    }
-    Tab current();
-    int size();
+    int index_of(GtkWidget *) const;
+    void remove(int i);
+    void remove(GtkWidget *);
+    const Tab at(int i) const { return const_cast<Tabs *>(this)->at(i); }
+    int current_index() const;
+    Tab current() { return at(current_index()); }
+    const Tab current() const { return at(current_index()); }
+    int size() const;
+
+    bool empty() const { return size() == 0; }
 
     template<typename TAB>
-    class Iterator {
-        public:
+    class Iterator : public std::iterator<std::forward_iterator_tag, TAB> {
+    public:
         Iterator(Tab t) : t(t) {}
-
         TAB operator*() { return t; }
-        TAB operator++() { t = t.next(); return t; }
         TAB operator->() { return t; }
-
-        bool operator==(Iterator it) const {
-            return *it == t;
-        }
-
-        bool operator!=(Iterator it) const {
-            return !(*this == it);
-        }
+        Iterator operator++() { t = t.next(); return *this; }
+        Iterator operator++(int) { Tab rv = t; t = t.next(); return Iterator(rv); }
+        bool operator==(Iterator it) const { return *it == t; }
+        bool operator!=(Iterator it) const { return !(*this == it); }
     private:
         Tab t;
     };
@@ -118,6 +134,10 @@ public:
     const_iterator end() const {
         return const_iterator(Tab(const_cast<Tabs *>(this), nullptr, -1));
     }
+
+    GtkWidget * raw() const { return tabs; }
+
+    Tab find(const std::string &name) const;
 
 public:
     GtkWidget *tabs;

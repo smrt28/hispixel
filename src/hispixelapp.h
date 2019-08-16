@@ -49,7 +49,7 @@ private:
     void update_tabbar();
     std::string gtk_css();
     std::string tabbar_text();
-    void open_tab();
+    void open_tab(const boost::optional<std::string> &name = boost::optional<std::string>());
 
     // main arguments (not needed yet)
     int argc;

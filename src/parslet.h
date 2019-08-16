@@ -353,7 +353,7 @@ inline std::pair<std::string, std::string> eq(Parslet_t &p) {
  */
 inline Parslet_t word(Parslet_t &p) {
     ltrim(p);
-    if (!isalnum(*p)) {
+    if (!isgraph(*p)) {
         throw Error_t<EXPECT>();
     }
     Parslet_t rv = p;

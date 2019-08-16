@@ -140,12 +140,29 @@ void HisPixelApp_t::feed(std::string s) {
 
 void HisPixelApp_t::set_name(std::string s) {
     parser::Parslet_t p(s);
-    std::string n = parser::word(p).str();
+    std::string n = parser::word(p).str(); // first word specs the tab
     parser::ltrim(p);
-    int tindex = boost::lexical_cast<int>(n);
 
     Tabs tt(tabs);
-    Tab t = tt.at(tindex - 1);
+    Tab t;
+
+    if (n == "-") { // set current tab name
+        t = tt.current();
+    } else { // rename
+        t = tt.find(n);
+    }
+
+    parser::rtrim(p);
+
+    // with one argument, open new tab
+    if (!t.is_valid() && p.empty()) {
+        open_tab(n);
+        return;
+    }
+
+    if (p.empty()) return; // no now tab name specified
+    if (tt.find(p.str()).is_valid()) return; // the tab of this name already exists
+
     TerminalContext *tc = t.get_context();
 
     if (tc) {
@@ -227,71 +244,34 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
     std::cout << event->key.keyval << " " << gtkkey_mask(event->key.state)  <<std::endl;
 #endif
 
+    Tabs tt(tabs);
+
     switch (ac.type) {
         case Action_t::ACTION_BE_FIRST:
-            {
-            gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
-            GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), n);
-            if (!terminal) return TRUE;
-
-            gtk_notebook_reorder_child(GTK_NOTEBOOK(tabs), terminal, ac.data);
+            tt.current().set_order(ac.data);
             update_tabbar();
             return TRUE;
-            }
         case Action_t::ACTION_OPENTAB:
             open_tab();
             return TRUE;
         case Action_t::ACTION_FOCUS:
-            // switching tabs...
-            gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), ac.data - 1);
+            tt.at(ac.data - 1).focus();
             update_tabbar();
             return TRUE;
-        case Action_t::ACTION_FOCUS_NEXT: {
-            // get current tab index + 1
-            gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs)) + 1;
-
-            // get total number of tabs
-            gint total = gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));
-
-            // switch from the last tab to the first
-            if (n >= total) n = 0;
-            gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), n);
-
-            // update tabbar
+        case Action_t::ACTION_FOCUS_NEXT:
+            tt.current().next().focus();
             update_tabbar();
             return TRUE;
-            }
-        case Action_t::ACTION_FOCUS_PREV: {
-            // get current tab
-            gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
-
-            // get total number of tabs
-            gint total = gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));
-
-            if (n == 0) {
-                // jump form the first to the last
-                n = total - 1;
-            } else {
-                // jump to the next tab
-                n -= 1;
-            }
-
-            // switch tabs
-            gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), n);
-
-            // and update tabbar
+        case Action_t::ACTION_FOCUS_PREV:
+            tt.current().prev().focus();
             update_tabbar();
             return TRUE;
+        case Action_t::ACTION_CLOSE_LAST:
+            if (tt.empty()) {
+                g_application_quit(G_APPLICATION(app));
+                return TRUE;
             }
-            break;
-        case Action_t::ACTION_CLOSE_LAST: {
-            // If there is a key binding for "close_last" defined, HisPixel doesn't exit
-            // with the last tab, but it waits for pressing the "close_last" key to confirm exit.
-            gint n = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs)) + 1;
-            if (n == 0) g_application_quit(G_APPLICATION(app));
             return FALSE;
-            }
-
         case Action_t::ACTION_NONE:
             return FALSE;
         default:
@@ -307,9 +287,6 @@ void HisPixelApp_t::on_error(const std::exception *e) {
     } else {
         std::cerr << "HisPixelApp general error"  << std::endl;
     }
-
-    // Is it a good idea to force exit here? Probably not...
-    // g_application_quit(G_APPLICATION(app)); 
 }
 
 void HisPixelApp_t::page_removed(GtkNotebook * /*notebook*/,
@@ -321,17 +298,11 @@ void HisPixelApp_t::page_removed(GtkNotebook * /*notebook*/,
 }
 
 void HisPixelApp_t::child_exited(VteTerminal *t, gint /*status*/) {
-    // get index of the tab which has been closed
-    gint n = gtk_notebook_page_num(GTK_NOTEBOOK(tabs), GTK_WIDGET(t));
-
-    // just ignore errors
-    if (n < 0) return;
-
-    // close the tab
-    gtk_notebook_remove_page(GTK_NOTEBOOK(tabs), n);
+    Tabs tt(tabs);
+    tt.remove(GTK_WIDGET(t));
 
     // exit the app if there is no tab reminding
-    if (!config.has_close_last && gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs)) == 0) {
+    if (!config.has_close_last && tt.empty()) {
         g_application_quit(G_APPLICATION(app));
     }
 }
@@ -346,14 +317,18 @@ std::string HisPixelApp_t::tabbar_text() {
     std::ostringstream oss;
     Tab current = t.current();
     for (auto tt: t) {
-        std::string name;
+        bool hasname;
+        std::string name = tt.get_name(&hasname);
         if (tt.index() == current.index()) {
             oss << "<span foreground=\"#ffffff\"";
             oss << " font_weight=\"bold\">"; // the selected tab is bold
-            oss << "[" << tt.get_name() << "]"; // tab number
+            oss << "[" << name << "]"; // tab number
             oss << "</span>";
         } else {
-            oss << "[" << tt.get_name() << "]";
+            oss << "<span foreground=\"#555555\"";
+            oss << " font_weight=\"bold\">"; // the selected tab is bold
+            oss << "[" << name << "]"; // tab number
+            oss << "</span>";
         }
     }
     return oss.str();
@@ -380,9 +355,10 @@ void HisPixelApp_t::selection_changed(VteTerminal *) {
     */
 }
 
-void HisPixelApp_t::open_tab() {
+void HisPixelApp_t::open_tab(const boost::optional<std::string> &tabname) {
 
     std::unique_ptr<TerminalContext> tc(new TerminalContext());
+    if (tabname) tc->set_name(*tabname);
 
     GtkWidget * terminal = vte_terminal_new();
 
