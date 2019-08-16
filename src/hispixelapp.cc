@@ -175,13 +175,10 @@ void HisPixelApp_t::set_name(std::string s) {
 std::string HisPixelApp_t::rpc(std::string s) {
     if (s.empty()) return std::string();
 
+    Tabs tt(tabs);
+
     std::string callfrom;
     std::vector<std::string> v;
-    boost::split(v, s, boost::is_any_of(" "));
-    if (v.size() == 2) {
-        callfrom = v[1];
-        s = v[0];
-    }
 
     GOutputStream * gss = g_memory_output_stream_new (NULL, 0, realloc, free);
     if (!gss) return std::string();
@@ -189,28 +186,17 @@ std::string HisPixelApp_t::rpc(std::string s) {
     GOutputStreamGuard guard(gss);
 
 
-    gint current = gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
-    if (s == "n") {
-        std::ostringstream oss;
-        oss << current;
-        return oss.str();
-    }
-
-    gint n;
-
-    if (s == "first") {
-        n = 0;
+    Tab t;
+    if (s == "-") {
+        t = tt.current();
     } else {
-        n = atoi(s.c_str()) - 1;
+        t = tt.find(s);
     }
 
-    if (n < 0) return std::string();
+    if (!t.is_valid()) return "";
 
-    if (callfrom == app_name() && current == n) {
-        return "err: cant dump current tab";
-    }
 
-    GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), n);
+    GtkWidget * terminal = t.raw();
 
     if (!VTE_TERMINAL(terminal)) return std::string();
     GError *error = nullptr;

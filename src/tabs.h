@@ -85,6 +85,8 @@ public:
 
     void focus();
 
+    GtkWidget *raw() const { return terminal; }
+
 private:
     Tabs *tabs;
     GtkWidget *terminal;
