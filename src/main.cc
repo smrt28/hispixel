@@ -11,6 +11,7 @@
 #include "error.h"
 #include "hispixelapp.h"
 #include "hisbus.h"
+#include "dbushelper.h"
 
 namespace s28 {
 
@@ -35,37 +36,6 @@ gboolean on_rpc(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
     return TRUE;
 }
 
-gboolean on_feed(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
-        const gchar *text, gpointer _udata)
-{
-    HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
-    int rv = 0;
-    try {
-        hispixel->feed(text);
-    } catch(...) {
-        rv = 1;
-    }
-    his_pixel_gdbus_complete_feed(interface, invocation, rv);
-    return TRUE;
-}
-
-
-gboolean on_set_name(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
-        const gchar *text, gpointer _udata)
-{
-    HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
-    int rv = 0;
-    try {
-        hispixel->set_name(text);
-    } catch(...) {
-        rv = 1;
-    }
-    his_pixel_gdbus_complete_set_name(interface, invocation, rv);
-    return TRUE;
-}
-
-
-
 void activate(GtkApplication* app, gpointer _udata)
 {
     GDBusConnection * connection = g_application_get_dbus_connection(G_APPLICATION(app));
@@ -73,12 +43,20 @@ void activate(GtkApplication* app, gpointer _udata)
     HisPixelGDBUS *interface;
     GError *error = nullptr;
     interface = his_pixel_gdbus_skeleton_new();
-    g_signal_connect (interface, "handle-vte-dump", G_CALLBACK (on_rpc), _udata);
-    g_signal_connect (interface, "handle-feed", G_CALLBACK (on_feed), _udata);
-    g_signal_connect (interface, "handle-set-name", G_CALLBACK (on_set_name), _udata);
-    g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection, "/com/hispixel", &error);
 
     HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
+
+    g_signal_connect (interface, "handle-vte-dump", G_CALLBACK (on_rpc), _udata);
+//    g_signal_connect (interface, "handle-feed", G_CALLBACK (on_feed), _udata);
+//    g_signal_connect (interface, "handle-set-name", G_CALLBACK (on_set_name), _udata);
+//    g_signal_connect (interface, "handle-focus", G_CALLBACK (on_focus), _udata);
+
+    callback::reg(interface, "handle-focus", &HisPixelApp_t::focus, hispixel);
+    callback::reg(interface, "handle-feed", &HisPixelApp_t::feed, hispixel);
+    callback::reg(interface, "handle-set-name", &HisPixelApp_t::set_name, hispixel);
+
+    g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection, "/com/hispixel", &error);
+
     hispixel->activate(app);
 }
 

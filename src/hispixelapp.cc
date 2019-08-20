@@ -117,6 +117,12 @@ bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
 } // namespace
 
 
+void HisPixelApp_t::focus(std::string s) {
+    Tabs(tabs).find(s).focus();
+    update_tabbar();
+}
+
+
 void HisPixelApp_t::feed(std::string s) {
     parser::Parslet_t p(s);
     std::string n = parser::word(p).str();
