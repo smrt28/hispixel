@@ -122,6 +122,11 @@ void HisPixelApp_t::focus(std::string s) {
     update_tabbar();
 }
 
+/*
+std::string HisPixelApp_t::info(std::string s) {
+
+}
+*/
 
 void HisPixelApp_t::feed(std::string s) {
     parser::Parslet_t p(s);
@@ -153,16 +158,8 @@ void HisPixelApp_t::set_name(std::string s) {
     Tabs tt(tabs);
     Tab t;
 
-    if (p.empty()) {
-        t = tt.current();
-        new_name = old_name;
-    } else if (old_name == "-") { // set current tab name
-        t = tt.current();
-        new_name = p.str();
-    } else { // rename
-        t = tt.find(old_name);
-        new_name = p.str();
-    }
+    t = tt.find(old_name);
+    new_name = p.str();
 
     if (!t.is_valid()) return;
 
@@ -261,6 +258,10 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
                 return TRUE;
             }
             return FALSE;
+        case Action_t::ACTION_TOGLE_TABBAR:
+            tabbar_visible = !tabbar_visible;
+            update_tabbar(true);
+            return TRUE;
         case Action_t::ACTION_NONE:
             return FALSE;
         default:
@@ -323,9 +324,16 @@ std::string HisPixelApp_t::tabbar_text() {
     return oss.str();
 }
 
-void HisPixelApp_t::update_tabbar() {
-    // tabbar is not visible, update is not needed
-    if (!tabbar_visible) return;
+void HisPixelApp_t::update_tabbar(bool togle) {
+    // tabbar is hidden, update is not needed
+    if (!tabbar_visible) {
+        if (togle) gtk_widget_hide(label);
+        return;
+    }
+
+    if (tabbar_visible && togle) {
+        gtk_widget_show(label);
+    }
 
     // get the tab-bar content
     std::string s = tabbar_text();
@@ -414,7 +422,7 @@ void HisPixelApp_t::open_tab(TabConfig tabconfig) {
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);
     gtk_notebook_next_page (GTK_NOTEBOOK(tabs));
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
-    update_tabbar();
+    update_tabbar(true);
 
     if (tabconfig.focus)
         gtk_widget_grab_focus(terminal);
@@ -486,28 +494,20 @@ void HisPixelApp_t::activate(GtkApplication* theApp) {
     box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
     if (!box) RAISE(FATAL) << "gtk_box_new failed";
 
-    if (tabbar_visible) {
-        // the tabbar is a GTK label. Crete the label...
-        label = gtk_label_new("");
-        if (!label) RAISE(FATAL) << "gtk_label_new failed";
+    // the tabbar is a GTK label. Crete the label...
+    label = gtk_label_new("");
+    if (!label) RAISE(FATAL) << "gtk_label_new failed";
 
-        gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
-        gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
-        gtk_widget_set_halign(label, GTK_ALIGN_START);
+    gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+    gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_LEFT);
+    gtk_widget_set_halign(label, GTK_ALIGN_START);
 
-        // ...and put it to top/bottom
-        if (config.get<bool>("tabbar_on_bottom")) {
-            gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
-            gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
-        } else {
-            gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
-            gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
-        }
-
-        // ...and show it
-        gtk_widget_show(label);
+    // put tabbar to top/bottom
+    if (config.get<bool>("tabbar_on_bottom")) {
+        gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
+        gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
     } else {
-        // ...show the box only
+        gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
         gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
     }
 

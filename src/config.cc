@@ -169,6 +169,9 @@ Config_t::Action_t string_to_action(parser::Parslet_t &p) {
     if (s == "close_last") { // exits the app when there is no tab open
         return Action_t(Action_t::ACTION_CLOSE_LAST);
     }
+    if (s == "togle_tabbar") {
+        return Action_t(Action_t::ACTION_TOGLE_TABBAR);
+    }
     if (s == "swap_1") { return Action_t(Action_t::ACTION_BE_FIRST, 0); }
     if (s == "swap_2") { return Action_t(Action_t::ACTION_BE_FIRST, 1); }
     if (s == "swap_3") { return Action_t(Action_t::ACTION_BE_FIRST, 2); }

@@ -31,6 +31,7 @@ public:
     void feed(std::string s);
     void set_name(std::string s);
     void focus(std::string s);
+    std::string info(std::string s);
 
 
     /**
@@ -47,7 +48,8 @@ public:
 private:
     typedef RegEvents_t<HisPixelApp_t> SignalRegister_t;
 
-    void update_tabbar();
+    // togle = true if tabbar visibility changed
+    void update_tabbar(bool togle = false);
     std::string gtk_css();
     std::string tabbar_text();
 
@@ -76,6 +78,7 @@ private:
     GtkCssProvider *provider = nullptr;
 
     bool tabbar_visible = true;
+    bool tabbar_need_update = true;
 
     // Config map
     s28::Config_t config;

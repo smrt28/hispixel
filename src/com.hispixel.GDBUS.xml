@@ -15,12 +15,20 @@
             <arg name="response" direction="out" type="i"/>
         </method>
 
+        <!-- Args: new terminal name -->
         <method name="New">
             <arg name="request" direction="in" type="s"/>
             <arg name="response" direction="out" type="i"/>
         </method>
 
+        <!-- Args: terminal name -->
         <method name="Focus">
+            <arg name="request" direction="in" type="s"/>
+            <arg name="response" direction="out" type="i"/>
+        </method>
+
+        <!-- Args: HISPIXEL_APP_TID -->
+        <method name="Info">
             <arg name="request" direction="in" type="s"/>
             <arg name="response" direction="out" type="i"/>
         </method>

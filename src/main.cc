@@ -51,6 +51,7 @@ void activate(GtkApplication* app, gpointer _udata)
     callback::reg(interface, "handle-focus", &HisPixelApp_t::focus, hispixel);
     callback::reg(interface, "handle-feed", &HisPixelApp_t::feed, hispixel);
     callback::reg(interface, "handle-set-name", &HisPixelApp_t::set_name, hispixel);
+//    callback::reg(interface, "handle-info", &HisPixelApp_t::info, hispixel);
 
     g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection, "/com/hispixel", &error);
 

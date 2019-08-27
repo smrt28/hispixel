@@ -209,6 +209,14 @@ public:
     }
 
     /**
+     * @return the first parslet character
+     */
+    int first() const {
+        if (eit > it) return *it;
+        return eof;
+    }
+
+    /**
      * Shifts the last parslet character
      * @return false if the parslet is empty
      */

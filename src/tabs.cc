@@ -3,6 +3,7 @@
 #include <set>
 #include "tabs.h"
 #include "error.h"
+#include "parslet.h"
 
 namespace s28 {
 
@@ -45,6 +46,13 @@ std::string Tab::get_name(bool *has_name) const {
     return tc->get_name();
 }
 
+
+int Tab::get_id() const {
+    const TerminalContext * tc = get_context();
+    if (!tc) return -1;
+    return tc->get_id();
+}
+
 void Tabs::remove(int i) {
     gtk_notebook_remove_page(GTK_NOTEBOOK(tabs), i);
 }
@@ -72,8 +80,21 @@ void Tab::focus() {
 
 
 Tab Tabs::find(const std::string &name) const {
-    for (auto t: *this) {
-        if (t.get_name() == name) return t;
+    if (name.empty()) return Tab(const_cast<Tabs *>(this), nullptr, -1);
+    if (name == "{}") return current();
+
+    parser::Parslet_t p(name);
+
+    if (p.first() == '{' && p.last() == '}') {
+        p.next(); p.shift();
+        int id = atoi(p.str().c_str());
+        for (auto t: *this) {
+            if (t.get_id() == id) return t;
+        }
+    } else {
+        for (auto t: *this) {
+            if (t.get_name() == name) return t;
+        }
     }
 
     return Tab(const_cast<Tabs *>(this), nullptr, -1);
@@ -83,6 +104,7 @@ void TerminalContext::set_name(const std::string &s) {
     if (s.empty()) RAISE(COMMAND_ARG) << "empty";
     if (s.size() > 20) RAISE(COMMAND_ARG) << "too long";
     for (char c: s) {
+        if (c == '{' || c == '}') RAISE(COMMAND_ARG) << "invalid character";
         if (isspace(c)) RAISE(COMMAND_ARG) << "space character";
         if (!isgraph(c)) RAISE(COMMAND_ARG) << "not printable";
     }
