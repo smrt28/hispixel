@@ -146,16 +146,22 @@ void HisPixelApp_t::feed(std::string s) {
 
 void HisPixelApp_t::set_name(std::string s) {
     parser::Parslet_t p(s);
-    std::string n = parser::word(p).str(); // first word specs the tab
+    std::string old_name = parser::word(p).str(); // first word specs the tab
     parser::trim(p);
 
+    std::string new_name;
     Tabs tt(tabs);
     Tab t;
 
-    if (n == "-") { // set current tab name
+    if (p.empty()) {
         t = tt.current();
+        new_name = old_name;
+    } else if (old_name == "-") { // set current tab name
+        t = tt.current();
+        new_name = p.str();
     } else { // rename
-        t = tt.find(n);
+        t = tt.find(old_name);
+        new_name = p.str();
     }
 
     if (!t.is_valid()) return;
@@ -164,7 +170,7 @@ void HisPixelApp_t::set_name(std::string s) {
 
     if (!tc) return;
 
-    tc->set_name(p.str());
+    tc->set_name(new_name);
     update_tabbar();
 }
 

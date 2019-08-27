@@ -1,7 +1,8 @@
-
+#include <ctype.h>
 #include <stdlib.h>
 #include <set>
 #include "tabs.h"
+#include "error.h"
 
 namespace s28 {
 
@@ -76,6 +77,16 @@ Tab Tabs::find(const std::string &name) const {
     }
 
     return Tab(const_cast<Tabs *>(this), nullptr, -1);
+}
+
+void TerminalContext::set_name(const std::string &s) {
+    if (s.empty()) RAISE(COMMAND_ARG) << "empty";
+    if (s.size() > 20) RAISE(COMMAND_ARG) << "too long";
+    for (char c: s) {
+        if (isspace(c)) RAISE(COMMAND_ARG) << "space character";
+        if (!isgraph(c)) RAISE(COMMAND_ARG) << "not printable";
+    }
+    name = s;
 }
 
 }

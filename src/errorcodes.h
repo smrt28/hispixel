@@ -18,6 +18,7 @@ namespace errcode {
     static const int CONFIG = 804;
     static const int PARSER = 805;
     static const int OOM = 806;
+    static const int COMMAND_ARG = 807;
 } // namespace errorcode
 
 } // namespace s28

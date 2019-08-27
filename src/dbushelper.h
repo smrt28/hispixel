@@ -7,7 +7,6 @@ namespace callback {
     class RouteBase {
         public:
             virtual void call(std::string) = 0;
-
     };
 
     template<typename FN>
@@ -36,7 +35,6 @@ namespace callback {
 
     template<typename FN>
     void reg(HisPixelGDBUS *interface, const char *handle, FN fn, HisPixelApp_t *hp) {
-
         Route<FN> *route = new Route<FN>();
         route->fn = fn;
         route->hispixel = hp;

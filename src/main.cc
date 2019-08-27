@@ -47,9 +47,6 @@ void activate(GtkApplication* app, gpointer _udata)
     HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
 
     g_signal_connect (interface, "handle-vte-dump", G_CALLBACK (on_rpc), _udata);
-//    g_signal_connect (interface, "handle-feed", G_CALLBACK (on_feed), _udata);
-//    g_signal_connect (interface, "handle-set-name", G_CALLBACK (on_set_name), _udata);
-//    g_signal_connect (interface, "handle-focus", G_CALLBACK (on_focus), _udata);
 
     callback::reg(interface, "handle-focus", &HisPixelApp_t::focus, hispixel);
     callback::reg(interface, "handle-feed", &HisPixelApp_t::feed, hispixel);

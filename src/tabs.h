@@ -29,9 +29,7 @@ public:
         return *name;
     }
 
-    void set_name(const std::string &s) {
-        name = s;
-    }
+    void set_name(const std::string &s);
 private:
     boost::optional<std::string> name;
     int id;
