@@ -1,6 +1,8 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <set>
+#include <boost/lexical_cast.hpp>
+
 #include "tabs.h"
 #include "error.h"
 #include "parslet.h"
@@ -40,10 +42,24 @@ std::string Tab::get_name(bool *has_name) const {
     const TerminalContext * tc = get_context();
     if (!tc || !tc->has_name()) {
         if (has_name) *has_name = false;
-        return std::to_string(order + 1);;
+        if (tc) {
+            return std::to_string(tc->get_id());
+        }
+
+        return "?";
     }
     if (has_name) *has_name = true;
     return tc->get_name();
+}
+
+std::string Tab::get_name_hr(bool *has_name_arg) const {
+    bool has_name;
+    std::string rv = get_name(&has_name);
+    if (has_name_arg) *has_name_arg = has_name;
+    if (!has_name) {
+        return std::string("*") + rv;
+    }
+    return rv;
 }
 
 
@@ -80,21 +96,27 @@ void Tab::focus() {
 
 
 Tab Tabs::find(const std::string &name) const {
-    if (name.empty()) return Tab(const_cast<Tabs *>(this), nullptr, -1);
-    if (name == "{}") return current();
+    try {
+        if (name.empty()) return Tab(const_cast<Tabs *>(this), nullptr, -1);
+        if (name == "{}") return current();
 
-    parser::Parslet_t p(name);
+        parser::Parslet_t p(name);
 
-    if (p.first() == '{' && p.last() == '}') {
-        p.next(); p.shift();
-        int id = atoi(p.str().c_str());
-        for (auto t: *this) {
-            if (t.get_id() == id) return t;
+        if (p.first() == '{' && p.last() == '}') {
+            p.next(); p.shift();
+            int id = boost::lexical_cast<int>(p.str());
+            for (auto t: *this) {
+                if (t.get_id() == id)
+                    return t;
+            }
+        } else {
+            for (auto t: *this) {
+                if (t.get_name() == name)
+                    return t;
+            }
         }
-    } else {
-        for (auto t: *this) {
-            if (t.get_name() == name) return t;
-        }
+    } catch(const std::exception &e) {
+        // ...
     }
 
     return Tab(const_cast<Tabs *>(this), nullptr, -1);
@@ -104,7 +126,7 @@ void TerminalContext::set_name(const std::string &s) {
     if (s.empty()) RAISE(COMMAND_ARG) << "empty";
     if (s.size() > 20) RAISE(COMMAND_ARG) << "too long";
     for (char c: s) {
-        if (c == '{' || c == '}') RAISE(COMMAND_ARG) << "invalid character";
+        if (c == '{' || c == '}' || c == '*') RAISE(COMMAND_ARG) << "invalid character";
         if (isspace(c)) RAISE(COMMAND_ARG) << "space character";
         if (!isgraph(c)) RAISE(COMMAND_ARG) << "not printable";
     }

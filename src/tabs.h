@@ -17,8 +17,6 @@ public:
         id_counter ++;
         // TODO: handle overflow
         id = id_counter;
-
-        name = std::to_string(id);
     }
 
     int get_id() const { return id; }
@@ -78,6 +76,8 @@ public:
     TerminalContext * get_context();
     const TerminalContext * get_context() const { return const_cast<Tab *>(this)->get_context(); }
     std::string get_name(bool *has_name = nullptr) const;
+    std::string get_name_hr(bool *has_name = nullptr) const;
+
     int get_id() const;
 
     Tab next() const;

@@ -309,13 +309,22 @@ std::string HisPixelApp_t::tabbar_text() {
     for (auto tt: t) {
         bool hasname;
         std::string name = tt.get_name(&hasname);
+        std::string color1, color2;
+        if (hasname) {
+            color2 = "555555";
+            color1 = "ffffff";
+
+        } else {
+            color2 = "772277";
+            color1 = "ff44ff";
+        }
         if (tt.index() == current.index()) {
-            oss << "<span foreground=\"#ffffff\"";
+            oss << "<span foreground=\"#" << color1 << "\"";
             oss << " font_weight=\"bold\">"; // the selected tab is bold
             oss << "[" << name << "]"; // tab number
             oss << "</span>";
         } else {
-            oss << "<span foreground=\"#555555\"";
+            oss << "<span foreground=\"#" << color2 << "\"";
             oss << " font_weight=\"bold\">"; // the selected tab is bold
             oss << "[" << name << "]"; // tab number
             oss << "</span>";
