@@ -128,6 +128,13 @@ std::string HisPixelApp_t::info(std::string s) {
 }
 */
 
+void HisPixelApp_t::handle_open_tab(std::string s) {
+    TabConfig tc;
+    tc.name = s;
+    tc.focus = false;
+    open_tab(tc);
+}
+
 void HisPixelApp_t::feed(std::string s) {
     parser::Parslet_t p(s);
     std::string n = parser::word(p).str();
@@ -427,14 +434,18 @@ void HisPixelApp_t::open_tab(TabConfig tabconfig) {
 
     tc.release();
 
+    Tab current = Tabs(tabs).current();
+
     gtk_widget_show(terminal);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);
     gtk_notebook_next_page (GTK_NOTEBOOK(tabs));
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
-    update_tabbar(true);
 
     if (tabconfig.focus)
         gtk_widget_grab_focus(terminal);
+    else
+        current.focus();
+    update_tabbar(true);
 }
 
 

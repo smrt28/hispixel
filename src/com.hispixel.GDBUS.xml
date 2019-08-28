@@ -16,7 +16,7 @@
         </method>
 
         <!-- Args: new terminal name -->
-        <method name="New">
+        <method name="OpenTab">
             <arg name="request" direction="in" type="s"/>
             <arg name="response" direction="out" type="i"/>
         </method>

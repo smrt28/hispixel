@@ -32,6 +32,7 @@ public:
     void set_name(std::string s);
     void focus(std::string s);
     std::string info(std::string s);
+    void handle_open_tab(std::string s);
 
 
     /**
@@ -57,8 +58,8 @@ private:
         TabConfig() {}
         TabConfig(const std::string &name) : name(name) {}
 
-        const boost::optional<std::string> name;
-        bool focus = false;
+        boost::optional<std::string> name;
+        bool focus = true;
     };
 
     void open_tab(TabConfig tabconfig = TabConfig());
