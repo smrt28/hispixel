@@ -123,6 +123,11 @@ int daemonise() {
     if (pid != 0) {
         _exit(0);
     }
+
+    close(STDIN_FILENO);
+    close(STDOUT_FILENO);
+    close(STDERR_FILENO);
+
     return pid;
 }
 
@@ -133,7 +138,6 @@ int main(int argc, char **argv, char** envp)
         pipe(s28::PLOCK);
         if (daemonise()) {
             char buf[1];
-            setsid();
             read(s28::PLOCK[0], buf, 1);
             std::cout << s28::app_name() << std::endl;
             return 0;
