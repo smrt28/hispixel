@@ -27,6 +27,8 @@ const char * app_name() {
 
 namespace {
 
+int PLOCK[2];
+
 gboolean on_rpc(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
         const gchar *greeting, gpointer _udata)
 {
@@ -35,6 +37,12 @@ gboolean on_rpc(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
     his_pixel_gdbus_complete_vte_dump(interface, invocation, s.c_str());
     return TRUE;
 }
+
+
+void startup(GApplication *, gpointer) {
+    write(PLOCK[1], " ", 1);
+}
+
 
 void activate(GtkApplication* app, gpointer _udata)
 {
@@ -52,11 +60,14 @@ void activate(GtkApplication* app, gpointer _udata)
     callback::reg(interface, "handle-feed", &HisPixelApp_t::feed, hispixel);
     callback::reg(interface, "handle-set-name", &HisPixelApp_t::set_name, hispixel);
     callback::reg(interface, "handle-open-tab", &HisPixelApp_t::handle_open_tab, hispixel);
+
+
 //    callback::reg(interface, "handle-info", &HisPixelApp_t::info, hispixel);
 
     g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection, "/com/hispixel", &error);
 
     hispixel->activate(app);
+
 }
 
 
@@ -74,6 +85,7 @@ int run(int argc, char **argv, char** envp)
             RAISE(FATAL) << "unable to create GTK application instance";
         }
 
+        g_signal_connect(app, "startup", G_CALLBACK(startup), nullptr);
         // connect the app and the callbacks
         if (g_signal_connect(app, "activate", G_CALLBACK (activate), &hispixel) <= 0) {
             RAISE(FATAL) << "g_signal_connect failed";
@@ -95,12 +107,39 @@ int run(int argc, char **argv, char** envp)
 } // namespace
 } // namespace s28
 
+int daemonise() {
+    // Fork, allowing the parent process to terminate.
+    pid_t pid = fork();
+    if (pid != 0) {
+        return pid;
+    }
 
+    // Start a new session for the daemon.
+   setsid();
+
+    // Fork again, allowing the parent process to terminate.
+    signal(SIGHUP, SIG_IGN);
+    pid=fork();
+    if (pid != 0) {
+        _exit(0);
+    }
+    return pid;
+}
 
 int main(int argc, char **argv, char** envp)
 {
     try {
-        return s28::run(argc, argv, envp);
+        s28::app_name();
+        pipe(s28::PLOCK);
+        if (daemonise()) {
+            char buf[1];
+            setsid();
+            read(s28::PLOCK[0], buf, 1);
+            std::cout << s28::app_name() << std::endl;
+            return 0;
+        } else {
+            return s28::run(argc, argv, envp);
+        }
     } catch (...) {
         std::cout << "fatal error" << std::endl;
     }

@@ -1,6 +1,8 @@
 #ifndef DBUSHELPER_H
 #define DBUSHELPER_H
 
+#include "error.h"
+
 namespace s28 {
 
 namespace callback {
@@ -22,11 +24,15 @@ namespace callback {
 
     gboolean i_s_call(HisPixelGDBUS *, GDBusMethodInvocation *invocation, const gchar *text, gpointer rawroute) {
         RouteBase *route = (RouteBase *)rawroute;
-        int rv = 0;
+        int rv = 1;
         try {
             route->call(std::string(text));
+            rv = 0;
+        } catch(const Error_t &e) {
+            std::cout << e.code() << ":" << e.what() << std::endl;
+        } catch(const std::exception &e) {
+            std::cout << e.what() << std::endl;
         } catch(...) {
-            rv = 1;
         }
         g_dbus_method_invocation_return_value (invocation, g_variant_new ("(i)", rv));
 

@@ -23,6 +23,7 @@ Tab Tabs::at(int i) {
 TerminalContext * Tab::get_context() {
     if (!terminal) return nullptr;
     TerminalContext *tc = (TerminalContext *)g_object_get_data(G_OBJECT(terminal), CONTEXT28_ID);
+    if (!tc) RAISE(FATAL) << "missing terminal context";
     return tc;
 }
 
@@ -40,7 +41,7 @@ Tab Tab::prev() const {
 
 std::string Tab::get_name(bool *has_name) const {
     const TerminalContext * tc = get_context();
-    if (!tc || !tc->has_name()) {
+    if (!tc->has_name()) {
         if (has_name) *has_name = false;
         if (tc) {
             return std::to_string(tc->get_id());
@@ -64,9 +65,7 @@ std::string Tab::get_name_hr(bool *has_name_arg) const {
 
 
 int Tab::get_id() const {
-    const TerminalContext * tc = get_context();
-    if (!tc) return -1;
-    return tc->get_id();
+    return get_context()->get_id();
 }
 
 void Tabs::remove(int i) {
@@ -94,6 +93,13 @@ void Tab::focus() {
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs->raw()), order);
 }
 
+void Tab::set_name(const std::string &s) {
+    if (tabs->find(s)) {
+        RAISE(EXISTS) << "the tab [" << s << "] already exists";
+    }
+
+    get_context()->set_name(s);
+}
 
 Tab Tabs::find(const std::string &name) const {
     try {
@@ -126,7 +132,6 @@ void TerminalContext::set_name(const std::string &s) {
     if (s.empty()) RAISE(COMMAND_ARG) << "empty";
     if (s.size() > 20) RAISE(COMMAND_ARG) << "too long";
     for (char c: s) {
-        if (c == '{' || c == '}' || c == '*') RAISE(COMMAND_ARG) << "invalid character";
         if (isspace(c)) RAISE(COMMAND_ARG) << "space character";
         if (!isgraph(c)) RAISE(COMMAND_ARG) << "not printable";
     }

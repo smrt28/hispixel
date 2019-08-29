@@ -170,11 +170,8 @@ void HisPixelApp_t::set_name(std::string s) {
 
     if (!t.is_valid()) return;
 
-    TerminalContext *tc = t.get_context();
 
-    if (!tc) return;
-
-    tc->set_name(new_name);
+    t.set_name(new_name);
     update_tabbar();
 }
 

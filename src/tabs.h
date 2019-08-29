@@ -83,6 +83,7 @@ public:
     Tab next() const;
     Tab prev() const;
 
+    void set_name(const std::string &s);
     int set_order(int n);
 
     void focus();
