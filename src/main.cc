@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <boost/program_options.hpp>
 #include <iostream>
 
 #include "regevent.h"
@@ -27,7 +28,7 @@ const char * app_name() {
 
 namespace {
 
-int PLOCK[2];
+int PLOCK[2] = { -1, -1 };
 
 gboolean on_rpc(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
         const gchar *greeting, gpointer _udata)
@@ -40,7 +41,7 @@ gboolean on_rpc(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
 
 
 void startup(GApplication *, gpointer) {
-    write(PLOCK[1], " ", 1);
+    if (PLOCK[1] != -1) write(PLOCK[1], " ", 1);
 }
 
 
@@ -133,16 +134,38 @@ int daemonise() {
 
 int main(int argc, char **argv, char** envp)
 {
+    using namespace boost::program_options;
+    options_description desc{"Options"};
+    desc.add_options()
+        ("help,h", "Help screen")
+        ("daemonize,d", "Run in background")
+        ;
+
+
+    s28::app_name();
+
     try {
-        s28::app_name();
-        pipe(s28::PLOCK);
-        if (daemonise()) {
-            char buf[1];
-            read(s28::PLOCK[0], buf, 1);
-            std::cout << s28::app_name() << std::endl;
-            return 0;
+        variables_map vm;
+        store(parse_command_line(argc, argv, desc), vm);
+        notify(vm);
+
+        if (vm.count("help")) {
+            std::cout << desc << '\n';
+            return 1;
+        }
+
+        if (vm.count("daemonize")) {
+            pipe(s28::PLOCK);
+            if (daemonise()) {
+                char buf[1];
+                read(s28::PLOCK[0], buf, 1);
+                std::cout << s28::app_name() << std::endl;
+                return 0;
+            } else {
+                return s28::run(1, argv, envp);
+            }
         } else {
-            return s28::run(argc, argv, envp);
+            return s28::run(1, argv, envp);
         }
     } catch (...) {
         std::cout << "fatal error" << std::endl;

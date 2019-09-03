@@ -62,6 +62,13 @@ AC_CHECK_LIB(boost_thread-mt, main, , [
     AC_CHECK_LIB(boost_thread, main, , [ 
         AC_MSG_ERROR([boost thread library missing], 1)])])
 
+# check for boost threads
+AC_LANG_CPLUSPLUS
+AC_CHECK_HEADER([boost/program_options.hpp], [], AC_MSG_ERROR([boost program_options missing], 1))
+AC_CHECK_LIB(boost_program_options-mt, main, , [ 
+    AC_CHECK_LIB(boost_program_options, main, , [ 
+        AC_MSG_ERROR([boost program_options library missing], 1)])])
+
 
 
 AC_CHECK_PROG(GDBUSCODEGEN, gdbus-codegen, gdbus-codegen)

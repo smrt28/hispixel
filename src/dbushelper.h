@@ -30,6 +30,7 @@ namespace callback {
             rv = 0;
         } catch(const Error_t &e) {
             std::cout << e.code() << ":" << e.what() << std::endl;
+            rv = e.code();
         } catch(const std::exception &e) {
             std::cout << e.what() << std::endl;
         } catch(...) {

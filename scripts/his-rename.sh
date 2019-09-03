@@ -8,5 +8,6 @@ else
 fi
 
 RV=$(qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.SetName "$ARGS")
+echo $RV
 
 exit $RV

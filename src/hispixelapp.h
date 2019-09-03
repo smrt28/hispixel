@@ -31,7 +31,6 @@ public:
     void feed(std::string s);
     void set_name(std::string s);
     void focus(std::string s);
-    std::string info(std::string s);
     void handle_open_tab(std::string s);
 
 
@@ -45,15 +44,6 @@ public:
      */
     void read_config();
 
-
-private:
-    typedef RegEvents_t<HisPixelApp_t> SignalRegister_t;
-
-    // togle = true if tabbar visibility changed
-    void update_tabbar(bool togle = false);
-    std::string gtk_css();
-    std::string tabbar_text();
-
     struct TabConfig {
         TabConfig() {}
         TabConfig(const std::string &name) : name(name) {}
@@ -63,6 +53,15 @@ private:
     };
 
     void open_tab(TabConfig tabconfig = TabConfig());
+
+private:
+    typedef RegEvents_t<HisPixelApp_t> SignalRegister_t;
+
+    // togle = true if tabbar visibility changed
+    void update_tabbar(bool togle = false);
+    std::string gtk_css();
+    std::string tabbar_text();
+
 
     // main arguments (not needed yet)
     int argc;

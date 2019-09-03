@@ -122,12 +122,6 @@ void HisPixelApp_t::focus(std::string s) {
     update_tabbar();
 }
 
-/*
-std::string HisPixelApp_t::info(std::string s) {
-
-}
-*/
-
 void HisPixelApp_t::handle_open_tab(std::string s) {
     TabConfig tc;
     tc.name = s;
@@ -368,7 +362,14 @@ void HisPixelApp_t::selection_changed(VteTerminal *) {
 void HisPixelApp_t::open_tab(TabConfig tabconfig) {
 
     std::unique_ptr<TerminalContext> tc(new TerminalContext());
-    if (tabconfig.name) tc->set_name(*tabconfig.name);
+    if (tabconfig.name) {
+        Tabs tt(tabs);
+        if (!tt.find(*tabconfig.name).is_valid()) {
+            tc->set_name(*tabconfig.name);
+        } else {
+            RAISE(EXISTS) << "tab of this name already exists";
+        }
+    }
 
     GtkWidget * terminal = vte_terminal_new();
 
