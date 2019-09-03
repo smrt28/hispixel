@@ -3,6 +3,7 @@
 #include <set>
 #include <boost/lexical_cast.hpp>
 
+#include <vte/vte.h>
 #include "tabs.h"
 #include "error.h"
 #include "parslet.h"
@@ -99,6 +100,12 @@ void Tab::set_name(const std::string &s) {
     }
 
     get_context()->set_name(s);
+}
+
+void Tab::feed(const std::string &s) {
+    if (!is_valid()) return;
+    vte_terminal_feed_child(VTE_TERMINAL(terminal), s.c_str(), s.size());
+    vte_terminal_feed_child(VTE_TERMINAL(terminal), "\n", 1);
 }
 
 Tab Tabs::find(const std::string &name) const {

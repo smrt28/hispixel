@@ -5,6 +5,8 @@
 #include <vte/vte.h>
 
 #include "config.hxx"
+#include "tabs.h"
+#include "regevent.h"
 namespace s28 {
 
 class HisPixelApp_t {
@@ -28,11 +30,12 @@ public:
 
 
     std::string rpc(std::string s);
-    void feed(std::string s);
+    void handle_feed(std::string s);
     void set_name(std::string s);
-    void focus(std::string s);
     void handle_open_tab(std::string s);
 
+
+    Tabs get_tabs() { return Tabs(tabs); }
 
     /**
      * Handle exception thrown in the GTK signal handler
@@ -53,12 +56,12 @@ public:
     };
 
     void open_tab(TabConfig tabconfig = TabConfig());
+    // togle = true if tabbar visibility changed
+    void update_tabbar(bool togle = false);
 
 private:
     typedef RegEvents_t<HisPixelApp_t> SignalRegister_t;
 
-    // togle = true if tabbar visibility changed
-    void update_tabbar(bool togle = false);
     std::string gtk_css();
     std::string tabbar_text();
 

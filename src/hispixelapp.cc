@@ -117,11 +117,6 @@ bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
 } // namespace
 
 
-void HisPixelApp_t::focus(std::string s) {
-    Tabs(tabs).find(s).focus();
-    update_tabbar();
-}
-
 void HisPixelApp_t::handle_open_tab(std::string s) {
     TabConfig tc;
     tc.name = s;
@@ -129,25 +124,14 @@ void HisPixelApp_t::handle_open_tab(std::string s) {
     open_tab(tc);
 }
 
-void HisPixelApp_t::feed(std::string s) {
+void HisPixelApp_t::handle_feed(std::string s) {
+    Tabs tt(tabs);
     parser::Parslet_t p(s);
-    std::string n = parser::word(p).str();
     parser::ltrim(p);
-    int tindex = boost::lexical_cast<int>(n);
-    GOutputStream * gss = g_memory_output_stream_new (NULL, 0, realloc, free);
-    if (!gss) {
-        RAISE(OOM) << "g_memory_output_stream_new";
-    }
-
-    GOutputStreamGuard guard(gss);
-
-    GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), tindex - 1);
-    if (!terminal) {
-        RAISE(NOT_FOUND) << "gtk_notebook_get_nth_page";
-    }
-
-    vte_terminal_feed_child(VTE_TERMINAL(terminal), p.begin(), p.size());
-    vte_terminal_feed_child(VTE_TERMINAL(terminal), "\n", 1);
+    Tab t = tt.find(parser::word(p).str());
+    p.expect_char(' ');
+    if (!t) RAISE(NOT_FOUND) << "tab not found";
+    t.feed(p.str());
 }
 
 void HisPixelApp_t::set_name(std::string s) {
@@ -163,7 +147,6 @@ void HisPixelApp_t::set_name(std::string s) {
     new_name = p.str();
 
     if (!t.is_valid()) return;
-
 
     t.set_name(new_name);
     update_tabbar();

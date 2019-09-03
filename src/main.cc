@@ -13,6 +13,7 @@
 #include "hispixelapp.h"
 #include "hisbus.h"
 #include "dbushelper.h"
+#include "dbushandler.h"
 
 namespace s28 {
 
@@ -29,6 +30,7 @@ const char * app_name() {
 namespace {
 
 int PLOCK[2] = { -1, -1 };
+typedef std::pair<HisPixelApp_t *, DbusHandler *> UserData;
 
 gboolean on_rpc(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
         const gchar *greeting, gpointer _udata)
@@ -41,7 +43,11 @@ gboolean on_rpc(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
 
 
 void startup(GApplication *, gpointer) {
-    if (PLOCK[1] != -1) write(PLOCK[1], " ", 1);
+    if (PLOCK[1] != -1) {
+        write(PLOCK[1], " ", 1);
+        ::close(PLOCK[1]);
+        PLOCK[1] = -1;
+    }
 }
 
 
@@ -53,22 +59,21 @@ void activate(GtkApplication* app, gpointer _udata)
     GError *error = nullptr;
     interface = his_pixel_gdbus_skeleton_new();
 
-    HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
+    UserData *udata = (UserData *)_udata;
+
+    HisPixelApp_t *hispixel = udata->first;
+    DbusHandler *dbhandler = udata->second;
 
     g_signal_connect (interface, "handle-vte-dump", G_CALLBACK (on_rpc), _udata);
 
-    callback::reg(interface, "handle-focus", &HisPixelApp_t::focus, hispixel);
-    callback::reg(interface, "handle-feed", &HisPixelApp_t::feed, hispixel);
+    callback::reg(interface, "handle-focus", &DbusHandler::focus, dbhandler);
+
+    callback::reg(interface, "handle-feed", &HisPixelApp_t::handle_feed, hispixel);
     callback::reg(interface, "handle-set-name", &HisPixelApp_t::set_name, hispixel);
     callback::reg(interface, "handle-open-tab", &HisPixelApp_t::handle_open_tab, hispixel);
 
-
-//    callback::reg(interface, "handle-info", &HisPixelApp_t::info, hispixel);
-
     g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection, "/com/hispixel", &error);
-
     hispixel->activate(app);
-
 }
 
 
@@ -77,6 +82,8 @@ int run(int argc, char **argv, char** envp)
     int status;
     try {
         HisPixelApp_t hispixel(argc, argv, envp);
+        DbusHandler dbushelper(hispixel);
+
         hispixel.read_config();
 
         // create GTK application
@@ -87,8 +94,11 @@ int run(int argc, char **argv, char** envp)
         }
 
         g_signal_connect(app, "startup", G_CALLBACK(startup), nullptr);
+
+        UserData userdata(&hispixel, &dbushelper);
+
         // connect the app and the callbacks
-        if (g_signal_connect(app, "activate", G_CALLBACK (activate), &hispixel) <= 0) {
+        if (g_signal_connect(app, "activate", G_CALLBACK (activate), &userdata) <= 0) {
             RAISE(FATAL) << "g_signal_connect failed";
         }
 
@@ -158,10 +168,14 @@ int main(int argc, char **argv, char** envp)
             pipe(s28::PLOCK);
             if (daemonise()) {
                 char buf[1];
+                ::close(s28::PLOCK[1]);
                 read(s28::PLOCK[0], buf, 1);
+                ::close(s28::PLOCK[0]);
                 std::cout << s28::app_name() << std::endl;
                 return 0;
             } else {
+                ::close(s28::PLOCK[0]);
+                s28::PLOCK[0] = -1;
                 return s28::run(1, argv, envp);
             }
         } else {

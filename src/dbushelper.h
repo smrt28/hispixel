@@ -11,12 +11,12 @@ namespace callback {
             virtual void call(std::string) = 0;
     };
 
-    template<typename FN>
+    template<typename FN, typename Handler>
     class Route : public RouteBase {
     public:
         virtual ~Route() {}
         FN fn;
-        HisPixelApp_t *hispixel;
+        Handler *hispixel;
         void call(std::string s) {
             (hispixel ->* fn)(s);
         }
@@ -40,9 +40,9 @@ namespace callback {
         return TRUE;
     }
 
-    template<typename FN>
-    void reg(HisPixelGDBUS *interface, const char *handle, FN fn, HisPixelApp_t *hp) {
-        Route<FN> *route = new Route<FN>();
+    template<typename FN, typename Handler>
+    void reg(HisPixelGDBUS *interface, const char *handle, FN fn, Handler *hp) {
+        Route<FN, Handler> *route = new Route<FN, Handler>();
         route->fn = fn;
         route->hispixel = hp;
         g_signal_connect(interface, handle, G_CALLBACK(i_s_call), (gpointer)route);

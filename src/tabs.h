@@ -87,6 +87,7 @@ public:
     int set_order(int n);
 
     void focus();
+    void feed(const std::string &s);
 
     GtkWidget *raw() const { return terminal; }
 
@@ -145,7 +146,7 @@ public:
     Tab find(const std::string &name) const;
 
     std::string suggest_tab_name() const;
-public:
+private:
     GtkWidget *tabs;
 };
 } // namespace s28
