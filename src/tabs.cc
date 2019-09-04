@@ -54,17 +54,6 @@ std::string Tab::get_name(bool *has_name) const {
     return tc->get_name();
 }
 
-std::string Tab::get_name_hr(bool *has_name_arg) const {
-    bool has_name;
-    std::string rv = get_name(&has_name);
-    if (has_name_arg) *has_name_arg = has_name;
-    if (!has_name) {
-        return std::string("*") + rv;
-    }
-    return rv;
-}
-
-
 int Tab::get_id() const {
     return get_context()->get_id();
 }

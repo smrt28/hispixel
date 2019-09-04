@@ -64,13 +64,14 @@ void activate(GtkApplication* app, gpointer _udata)
     HisPixelApp_t *hispixel = udata->first;
     DbusHandler *dbhandler = udata->second;
 
-    g_signal_connect (interface, "handle-vte-dump", G_CALLBACK (on_rpc), _udata);
+    g_signal_connect (interface, "handle-vte-dump", G_CALLBACK (on_rpc), hispixel);
 
     callback::reg(interface, "handle-focus", &DbusHandler::focus, dbhandler);
+    callback::reg(interface, "handle-feed", &DbusHandler::feed, dbhandler);
+    callback::reg(interface, "handle-open-tab", &DbusHandler::opentab, dbhandler);
 
-    callback::reg(interface, "handle-feed", &HisPixelApp_t::handle_feed, hispixel);
-    callback::reg(interface, "handle-set-name", &HisPixelApp_t::set_name, hispixel);
-    callback::reg(interface, "handle-open-tab", &HisPixelApp_t::handle_open_tab, hispixel);
+    //callback::reg(interface, "handle-set-name", &HisPixelApp_t::set_name, hispixel);
+    callback::reg(interface, "handle-set-name", &DbusHandler::rename, dbhandler);
 
     g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection, "/com/hispixel", &error);
     hispixel->activate(app);

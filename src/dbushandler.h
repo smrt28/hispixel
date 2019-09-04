@@ -10,6 +10,9 @@ class DbusHandler {
 public:
     DbusHandler(HisPixelApp_t &hispixel);
     void focus(std::string s);
+    void feed(std::string s);
+    void opentab(std::string s);
+    void rename(std::string s);
 
 
 private:

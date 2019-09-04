@@ -28,12 +28,7 @@ public:
     void page_removed(GtkNotebook *notebook, GtkWidget *child, guint page_num);
     void selection_changed(VteTerminal *t);
 
-
     std::string rpc(std::string s);
-    void handle_feed(std::string s);
-    void set_name(std::string s);
-    void handle_open_tab(std::string s);
-
 
     Tabs get_tabs() { return Tabs(tabs); }
 

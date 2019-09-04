@@ -117,42 +117,6 @@ bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
 } // namespace
 
 
-void HisPixelApp_t::handle_open_tab(std::string s) {
-    TabConfig tc;
-    tc.name = s;
-    tc.focus = false;
-    open_tab(tc);
-}
-
-void HisPixelApp_t::handle_feed(std::string s) {
-    Tabs tt(tabs);
-    parser::Parslet_t p(s);
-    parser::ltrim(p);
-    Tab t = tt.find(parser::word(p).str());
-    p.expect_char(' ');
-    if (!t) RAISE(NOT_FOUND) << "tab not found";
-    t.feed(p.str());
-}
-
-void HisPixelApp_t::set_name(std::string s) {
-    parser::Parslet_t p(s);
-    std::string old_name = parser::word(p).str(); // first word specs the tab
-    parser::trim(p);
-
-    std::string new_name;
-    Tabs tt(tabs);
-    Tab t;
-
-    t = tt.find(old_name);
-    new_name = p.str();
-
-    if (!t.is_valid()) return;
-
-    t.set_name(new_name);
-    update_tabbar();
-}
-
-
 std::string HisPixelApp_t::rpc(std::string s) {
     if (s.empty()) return std::string();
 
@@ -343,14 +307,18 @@ void HisPixelApp_t::selection_changed(VteTerminal *) {
 }
 
 void HisPixelApp_t::open_tab(TabConfig tabconfig) {
-
+    Tabs tt(tabs);
     std::unique_ptr<TerminalContext> tc(new TerminalContext());
     if (tabconfig.name) {
-        Tabs tt(tabs);
         if (!tt.find(*tabconfig.name).is_valid()) {
             tc->set_name(*tabconfig.name);
         } else {
             RAISE(EXISTS) << "tab of this name already exists";
+        }
+    } else {
+        // ensure unique tab name/id
+        while (tt.find(std::to_string(tc->get_id()))) {
+            tc.reset(new TerminalContext());
         }
     }
 
