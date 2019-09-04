@@ -3,7 +3,7 @@
 #include "parslet.h"
 
 namespace s28 {
-DbusHandler::DbusHandler(HisPixelApp_t &hispixel) :
+DbusHandler::DbusHandler(HisPixelApp &hispixel) :
     hispixel(hispixel)
 {}
 
@@ -26,7 +26,7 @@ void DbusHandler::feed(std::string s) {
 
 
 void DbusHandler::opentab(std::string s) {
-    HisPixelApp_t::TabConfig tc;
+    HisPixelApp::TabConfig tc;
     tc.name = s;
     tc.focus = false;
     hispixel.open_tab(tc);

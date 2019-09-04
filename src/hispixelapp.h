@@ -9,15 +9,15 @@
 #include "regevent.h"
 namespace s28 {
 
-class HisPixelApp_t {
+class HisPixelApp {
 public:
-    HisPixelApp_t(int argc, char **argv, char** envp) :
+    HisPixelApp(int argc, char **argv, char** envp) :
         argc(argc),
         argv(argv),
         envp(envp)
     {}
 
-    ~HisPixelApp_t();
+    ~HisPixelApp();
 
     /**
      * GTK signal hanlders
@@ -55,7 +55,7 @@ public:
     void update_tabbar(bool togle = false);
 
 private:
-    typedef RegEvents_t<HisPixelApp_t> SignalRegister_t;
+    typedef RegEvents_t<HisPixelApp> SignalRegister_t;
 
     std::string gtk_css();
     std::string tabbar_text();

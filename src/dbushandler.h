@@ -4,11 +4,11 @@
 #include <string>
 
 namespace s28 {
-class HisPixelApp_t;
+class HisPixelApp;
 
 class DbusHandler {
 public:
-    DbusHandler(HisPixelApp_t &hispixel);
+    DbusHandler(HisPixelApp &hispixel);
     void focus(std::string s);
     void feed(std::string s);
     void opentab(std::string s);
@@ -16,7 +16,7 @@ public:
 
 
 private:
-    HisPixelApp_t &hispixel;
+    HisPixelApp &hispixel;
 };
 
 } // namespace s28

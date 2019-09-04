@@ -117,7 +117,7 @@ bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
 } // namespace
 
 
-std::string HisPixelApp_t::rpc(std::string s) {
+std::string HisPixelApp::rpc(std::string s) {
     if (s.empty()) return std::string();
 
     Tabs tt(tabs);
@@ -156,7 +156,7 @@ std::string HisPixelApp_t::rpc(std::string s) {
 
 }
 
-gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
+gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
 {
     typedef s28::Config_t::Action_t Action_t;
     Action_t ac;
@@ -216,7 +216,7 @@ gboolean HisPixelApp_t::key_press_event(GtkWidget *, GdkEvent *event)
 }
 
 
-void HisPixelApp_t::on_error(const std::exception *e) {
+void HisPixelApp::on_error(const std::exception *e) {
     if (e) {
         std::cerr << "HisPixelApp error: " << e->what() << std::endl;
     } else {
@@ -224,7 +224,7 @@ void HisPixelApp_t::on_error(const std::exception *e) {
     }
 }
 
-void HisPixelApp_t::page_removed(GtkNotebook * /*notebook*/,
+void HisPixelApp::page_removed(GtkNotebook * /*notebook*/,
         GtkWidget * child, guint /*page_num*/)
 {
     TerminalContext *tc = (TerminalContext *)g_object_get_data(G_OBJECT(child), CONTEXT28_ID);
@@ -232,7 +232,7 @@ void HisPixelApp_t::page_removed(GtkNotebook * /*notebook*/,
     update_tabbar();
 }
 
-void HisPixelApp_t::child_exited(VteTerminal *t, gint /*status*/) {
+void HisPixelApp::child_exited(VteTerminal *t, gint /*status*/) {
     Tabs tt(tabs);
     tt.remove(GTK_WIDGET(t));
 
@@ -243,7 +243,7 @@ void HisPixelApp_t::child_exited(VteTerminal *t, gint /*status*/) {
 }
 
 
-std::string HisPixelApp_t::tabbar_text() {
+std::string HisPixelApp::tabbar_text() {
     Tabs t(tabs);
     // get number of tabs
     gint n = t.size();
@@ -278,7 +278,7 @@ std::string HisPixelApp_t::tabbar_text() {
     return oss.str();
 }
 
-void HisPixelApp_t::update_tabbar(bool togle) {
+void HisPixelApp::update_tabbar(bool togle) {
     // tabbar is hidden, update is not needed
     if (!tabbar_visible) {
         if (togle) gtk_widget_hide(label);
@@ -297,7 +297,7 @@ void HisPixelApp_t::update_tabbar(bool togle) {
 }
 
 
-void HisPixelApp_t::selection_changed(VteTerminal *) {
+void HisPixelApp::selection_changed(VteTerminal *) {
     /*
     GdkDisplay *display = gdk_display_get_default();
     GtkClipboard *c = gtk_clipboard_get_for_display(display, GDK_SELECTION_PRIMARY);
@@ -306,7 +306,7 @@ void HisPixelApp_t::selection_changed(VteTerminal *) {
     */
 }
 
-void HisPixelApp_t::open_tab(TabConfig tabconfig) {
+void HisPixelApp::open_tab(TabConfig tabconfig) {
     Tabs tt(tabs);
     std::unique_ptr<TerminalContext> tc(new TerminalContext());
     if (tabconfig.name) {
@@ -344,7 +344,7 @@ void HisPixelApp_t::open_tab(TabConfig tabconfig) {
 
     vte_terminal_set_font (VTE_TERMINAL(terminal), font_description);
 
-    RegEvents_t<HisPixelApp_t> evts(this);
+    RegEvents_t<HisPixelApp> evts(this);
 
     // when the terminal exits it has to be removed from tab-bar, so
     // we need to register for the child-exited signal
@@ -398,7 +398,7 @@ void HisPixelApp_t::open_tab(TabConfig tabconfig) {
 }
 
 
-std::string HisPixelApp_t::gtk_css() {
+std::string HisPixelApp::gtk_css() {
     // create the CSS style according to the hispixel.conf
     std::ostringstream oss;
     GdkRGBA clor = config.get<GdkRGBA>("tabbar_bg_color");
@@ -411,7 +411,7 @@ std::string HisPixelApp_t::gtk_css() {
 }
 
 
-void HisPixelApp_t::activate(GtkApplication* theApp) {
+void HisPixelApp::activate(GtkApplication* theApp) {
     app = theApp;
 
 
@@ -419,7 +419,7 @@ void HisPixelApp_t::activate(GtkApplication* theApp) {
     if (!window) RAISE(FATAL) << "gtk_application_window_new failed";
 
     // event weapper
-    RegEvents_t<HisPixelApp_t> evts(this);
+    RegEvents_t<HisPixelApp> evts(this);
 
     // register window key_press signal callbacks
     evts.reg_key_press_event(window);
@@ -495,7 +495,7 @@ void HisPixelApp_t::activate(GtkApplication* theApp) {
     update_tabbar();
 }
 
-HisPixelApp_t::~HisPixelApp_t() {
+HisPixelApp::~HisPixelApp() {
     if (window) {
         gtk_widget_hide(window);
         gtk_widget_destroy(window);
@@ -511,7 +511,7 @@ HisPixelApp_t::~HisPixelApp_t() {
     }
 }
 
-void HisPixelApp_t::read_config() {
+void HisPixelApp::read_config() {
     // try to read config file from several possible paths
     if (!config.init(s28::get_config_files())) {
         // no config found. Print warning and continue with default config values.

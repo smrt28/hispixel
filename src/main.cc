@@ -30,12 +30,12 @@ const char * app_name() {
 namespace {
 
 int PLOCK[2] = { -1, -1 };
-typedef std::pair<HisPixelApp_t *, DbusHandler *> UserData;
+typedef std::pair<HisPixelApp *, DbusHandler *> UserData;
 
 gboolean on_rpc(HisPixelGDBUS *interface, GDBusMethodInvocation *invocation,
         const gchar *greeting, gpointer _udata)
 {
-    HisPixelApp_t *hispixel = (HisPixelApp_t *)_udata;
+    HisPixelApp *hispixel = (HisPixelApp *)_udata;
     std::string s = hispixel->rpc(greeting);
     his_pixel_gdbus_complete_vte_dump(interface, invocation, s.c_str());
     return TRUE;
@@ -61,7 +61,7 @@ void activate(GtkApplication* app, gpointer _udata)
 
     UserData *udata = (UserData *)_udata;
 
-    HisPixelApp_t *hispixel = udata->first;
+    HisPixelApp *hispixel = udata->first;
     DbusHandler *dbhandler = udata->second;
 
     g_signal_connect (interface, "handle-vte-dump", G_CALLBACK (on_rpc), hispixel);
@@ -70,7 +70,7 @@ void activate(GtkApplication* app, gpointer _udata)
     callback::reg(interface, "handle-feed", &DbusHandler::feed, dbhandler);
     callback::reg(interface, "handle-open-tab", &DbusHandler::opentab, dbhandler);
 
-    //callback::reg(interface, "handle-set-name", &HisPixelApp_t::set_name, hispixel);
+    //callback::reg(interface, "handle-set-name", &HisPixelApp::set_name, hispixel);
     callback::reg(interface, "handle-set-name", &DbusHandler::rename, dbhandler);
 
     g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection, "/com/hispixel", &error);
@@ -82,7 +82,7 @@ int run(int argc, char **argv, char** envp)
 {
     int status;
     try {
-        HisPixelApp_t hispixel(argc, argv, envp);
+        HisPixelApp hispixel(argc, argv, envp);
         DbusHandler dbushelper(hispixel);
 
         hispixel.read_config();
