@@ -3,18 +3,20 @@
 #include "parslet.h"
 
 namespace s28 {
+
 DbusHandler::DbusHandler(HisPixelApp &hispixel) :
     hispixel(hispixel)
 {}
 
-void DbusHandler::focus(std::string s) {
+std::string DbusHandler::focus(std::string s) {
     Tabs tt = hispixel.get_tabs();
     tt.find(s).focus();
     hispixel.update_tabbar();
+    return "0";
 }
 
 
-void DbusHandler::feed(std::string s) {
+std::string DbusHandler::feed(std::string s) {
     Tabs tt = hispixel.get_tabs();
     parser::Parslet_t p(s);
     parser::ltrim(p);
@@ -22,17 +24,19 @@ void DbusHandler::feed(std::string s) {
     if (!t) RAISE(NOT_FOUND) << "tab not found";
     p.expect_char(' ');
     t.feed(p.str());
+    return "0";
 }
 
 
-void DbusHandler::opentab(std::string s) {
+std::string DbusHandler::opentab(std::string s) {
     HisPixelApp::TabConfig tc;
     tc.name = s;
     tc.focus = false;
     hispixel.open_tab(tc);
+    return "0";
 }
 
-void DbusHandler::rename(std::string s) {
+std::string DbusHandler::rename(std::string s) {
     parser::Parslet_t p(s);
     std::string old_name = parser::word(p).str(); // first word specs the tab
     parser::trim(p);
@@ -44,10 +48,18 @@ void DbusHandler::rename(std::string s) {
     t = tt.find(old_name);
     new_name = p.str();
 
-    if (!t.is_valid()) return;
+    if (!t.is_valid()) {
+        RAISE(NOT_FOUND) << "tab not found";
+    }
 
     t.set_name(new_name);
     hispixel.update_tabbar();
+    return "0";
+}
+
+std::string DbusHandler::dump(std::string s) {
+    Tabs tt = hispixel.get_tabs();
+    return tt.find(s).dump();
 }
 
 } // namespace s28

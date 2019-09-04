@@ -87,6 +87,7 @@ public:
 
     void focus();
     void feed(const std::string &s);
+    std::string dump();
 
     GtkWidget *raw() const { return terminal; }
 

@@ -58,6 +58,45 @@ int Tab::get_id() const {
     return get_context()->get_id();
 }
 
+namespace {
+class GOutputStreamGuard {
+public:
+    GOutputStreamGuard(GOutputStream * gss) : gss(gss) {}
+    ~GOutputStreamGuard() {
+        close();
+    }
+
+    void close() {
+        if (!gss) return;
+        GError *error = nullptr;
+        g_output_stream_close(gss, nullptr, &error);
+        gss = nullptr;
+    }
+    GOutputStream * gss = nullptr;
+};
+}
+
+
+std::string Tab::dump() {
+    if (!is_valid()) RAISE(NOT_FOUND) << "invalid tab";
+
+    GOutputStream * gss = g_memory_output_stream_new (NULL, 0, realloc, free);
+    if (!gss) return std::string();
+
+    GOutputStreamGuard guard(gss);
+
+    if (!VTE_TERMINAL(terminal)) RAISE(NOT_FOUND) << "invalid tab; unitialized vte";
+    GError *error = nullptr;
+    vte_terminal_write_contents_sync(VTE_TERMINAL(terminal),
+            gss, VTE_WRITE_DEFAULT, nullptr, &error);
+
+    if (error) RAISE(FAILED) << "vte_terminal_write_contents_sync:";
+
+    char *data = (char *)g_memory_output_stream_get_data(G_MEMORY_OUTPUT_STREAM(gss));
+    size_t size = g_memory_output_stream_get_data_size(G_MEMORY_OUTPUT_STREAM(gss));
+    return std::string(data, size);
+}
+
 void Tabs::remove(int i) {
     gtk_notebook_remove_page(GTK_NOTEBOOK(tabs), i);
 }

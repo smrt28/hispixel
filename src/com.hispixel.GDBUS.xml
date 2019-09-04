@@ -7,30 +7,30 @@
 
         <method name="Feed">
             <arg name="request" direction="in" type="s"/>
-            <arg name="response" direction="out" type="i"/>
+            <arg name="response" direction="out" type="s"/>
         </method>
 
         <method name="SetName">
             <arg name="request" direction="in" type="s"/>
-            <arg name="response" direction="out" type="i"/>
+            <arg name="response" direction="out" type="s"/>
         </method>
 
         <!-- Args: new terminal name -->
         <method name="OpenTab">
             <arg name="request" direction="in" type="s"/>
-            <arg name="response" direction="out" type="i"/>
+            <arg name="response" direction="out" type="s"/>
         </method>
 
         <!-- Args: terminal name -->
         <method name="Focus">
             <arg name="request" direction="in" type="s"/>
-            <arg name="response" direction="out" type="i"/>
+            <arg name="response" direction="out" type="s"/>
         </method>
 
         <!-- Args: HISPIXEL_APP_TID -->
         <method name="Info">
             <arg name="request" direction="in" type="s"/>
-            <arg name="response" direction="out" type="i"/>
+            <arg name="response" direction="out" type="s"/>
         </method>
     </interface>
 </node>
