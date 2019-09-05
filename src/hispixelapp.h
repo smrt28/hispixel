@@ -27,9 +27,6 @@ public:
     gboolean key_press_event(GtkWidget *widget, GdkEvent *event);
     void page_removed(GtkNotebook *notebook, GtkWidget *child, guint page_num);
     void selection_changed(VteTerminal *t);
-
-    std::string rpc(std::string s);
-
     Tabs get_tabs() { return Tabs(tabs); }
 
     /**

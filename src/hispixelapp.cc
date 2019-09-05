@@ -116,46 +116,6 @@ bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
 
 } // namespace
 
-
-std::string HisPixelApp::rpc(std::string s) {
-    if (s.empty()) return std::string();
-
-    Tabs tt(tabs);
-
-    std::string callfrom;
-    std::vector<std::string> v;
-
-    GOutputStream * gss = g_memory_output_stream_new (NULL, 0, realloc, free);
-    if (!gss) return std::string();
-
-    GOutputStreamGuard guard(gss);
-
-
-    Tab t;
-    if (s == "-") {
-        t = tt.current();
-    } else {
-        t = tt.find(s);
-    }
-
-    if (!t.is_valid()) return "";
-
-
-    GtkWidget * terminal = t.raw();
-
-    if (!VTE_TERMINAL(terminal)) return std::string();
-    GError *error = nullptr;
-    vte_terminal_write_contents_sync(VTE_TERMINAL(terminal),
-            gss, VTE_WRITE_DEFAULT, nullptr, &error);
-
-    if (error) return std::string();
-
-    char *data = (char *)g_memory_output_stream_get_data(G_MEMORY_OUTPUT_STREAM(gss));
-    size_t size = g_memory_output_stream_get_data_size(G_MEMORY_OUTPUT_STREAM(gss));
-    return std::string(data, size);
-
-}
-
 gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
 {
     typedef s28::Config_t::Action_t Action_t;
