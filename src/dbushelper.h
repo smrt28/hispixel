@@ -24,18 +24,20 @@ namespace callback {
 
     gboolean call(HisPixelGDBUS *, GDBusMethodInvocation *invocation, const gchar *text, gpointer rawroute) {
         RouteBase *route = (RouteBase *)rawroute;
+        std::ostringstream oss;
         std::string rv;
         try {
             rv = route->call(std::string(text));
+            oss << "200:ok" << std::endl << rv;
         } catch(const Error_t &e) {
-            std::cout << e.code() << ":" << e.what() << std::endl;
-            rv = std::to_string(e.code());
+            oss << e.code() << ":" << e.what();
         } catch(const std::exception &e) {
-            std::cout << e.what() << std::endl;
-            rv = "1";
+            oss << 500  << ":" << e.what();
         } catch(...) {
+            oss << 500  << ":" << "fatal";
         }
-        g_dbus_method_invocation_return_value (invocation, g_variant_new ("(s)", rv.c_str()));
+
+        g_dbus_method_invocation_return_value (invocation, g_variant_new ("(s)", oss.str().c_str()));
 
         return TRUE;
     }
