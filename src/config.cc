@@ -243,9 +243,10 @@ bool Config_t::init(const std::string &file) {
     std::ifstream f(file);
     if (!f) return false; // return false if can't open config file
     std::string line;
-    int n = 1;
+    int n = 0;
     // iterate config file lines
     while (std::getline(f, line)) {
+        ++n; // line counter
         try {
             parse_config_line(line);
         } catch(const std::exception &e) {
@@ -253,8 +254,8 @@ bool Config_t::init(const std::string &file) {
         } catch(...) {
             RAISE(CONFIG) << errmsg_prefix << n;
         }
-        ++n; // line counter
     }
+    if (n == 0) return false;
     return true;
 }
 
