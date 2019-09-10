@@ -34,7 +34,9 @@ typedef std::pair<HisPixelApp *, DbusHandler *> UserData;
 
 void startup(GApplication *, gpointer) {
     if (PLOCK[1] != -1) {
-        write(PLOCK[1], " ", 1);
+        if (write(PLOCK[1], " ", 1) != 1) {
+            // ... can't do anything here
+        }
         ::close(PLOCK[1]);
         PLOCK[1] = -1;
     }
@@ -53,6 +55,7 @@ void activate(GtkApplication* app, gpointer _udata)
     HisPixelApp *hispixel = udata->first;
     DbusHandler *dbhandler = udata->second;
 
+    // register his-* callbacks
     callback::reg(interface, "handle-vte-dump", &DbusHandler::dump, dbhandler);
     callback::reg(interface, "handle-focus", &DbusHandler::focus, dbhandler);
     callback::reg(interface, "handle-feed", &DbusHandler::feed, dbhandler);
@@ -60,13 +63,15 @@ void activate(GtkApplication* app, gpointer _udata)
     callback::reg(interface, "handle-set-name", &DbusHandler::rename, dbhandler);
 
     g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection, "/com/hispixel", &error);
+
+    // activate the app
     hispixel->activate(app);
 }
 
 
 int run(int argc, char **argv, char** envp)
 {
-    int status;
+    int status = 0;
     try {
         HisPixelApp hispixel(argc, argv, envp);
         DbusHandler dbushelper(hispixel);
@@ -152,11 +157,15 @@ int main(int argc, char **argv, char** envp)
         }
 
         if (vm.count("daemonize")) {
-            pipe(s28::PLOCK);
+            if (pipe(s28::PLOCK) == -1) {
+                RAISE(FATAL) << "pipe call failed";
+            }
             if (daemonise()) {
                 char buf[1];
                 ::close(s28::PLOCK[1]);
-                read(s28::PLOCK[0], buf, 1);
+                if (read(s28::PLOCK[0], buf, 1) != 1) {
+                    std::cerr << "warn: read from pipe failed" << std::endl;
+                }
                 ::close(s28::PLOCK[0]);
                 std::cout << s28::app_name() << std::endl;
                 return 0;
