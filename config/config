@@ -1,6 +1,8 @@
+# The config file should be at:
+#   ~/.config/hispixel or ~/.hispixel/config
+
 # hispixel default config values
 
-# switching tabs
 bindsym alt+1 focus 1
 bindsym alt+2 focus 2
 bindsym alt+3 focus 3
@@ -10,14 +12,10 @@ bindsym alt+6 focus 6
 bindsym alt+7 focus 7
 bindsym alt+8 focus 8
 bindsym alt+9 focus 9
-
-bindsym alt+left focus_prev
-bindsym alt+right focus_next
-
-# open new tab
 bindsym alt+ctrl+z opentab
+#bindsym alt+left focus_prev
+#bindsym alt+right focus_next
 
-# changing the tabs order
 bindsym ctrl+alt+1 swap_1
 bindsym ctrl+alt+2 swap_2
 bindsym ctrl+alt+3 swap_3
@@ -27,9 +25,8 @@ bindsym ctrl+alt+6 swap_6
 bindsym ctrl+alt+7 swap_7
 bindsym ctrl+alt+8 swap_8
 bindsym ctrl+alt+9 swap_9
+bindsym ctrl+alt+t togle_tabbar
 
-# if defined, hispixel window won't close with the last tab. close_last key would
-# close the remaining window
 bindsym ctrl+d close_last
 
 term_font = Terminus

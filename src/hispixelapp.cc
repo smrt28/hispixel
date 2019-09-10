@@ -73,17 +73,11 @@ std::string homedir() {
 
 // returns list of possible hispixel.conf file placements
 std::vector<std::string> get_config_files() {
-    static const char * HISPIXE_CFG = ".hispixel";
-    static const char * HISPIXE_CFG2 = "hispixel.conf";
     std::string h = homedir();
 
     std::vector<std::string> rv;
-    rv.push_back(h + "/" + HISPIXE_CFG); // ~ directory
-    rv.push_back(h + "/" + HISPIXE_CFG2);
-    rv.push_back(h + "/.config/" + HISPIXE_CFG); // ~/.config directory
-    rv.push_back(h + "/.config/" + HISPIXE_CFG2);
-    rv.push_back(std::string("/etc/") + HISPIXE_CFG); // /etc directory
-    rv.push_back(std::string("/etc/") + HISPIXE_CFG2);
+    rv.push_back(h + "/.hispixel/config");
+    rv.push_back(h + "/.config/hispixel"); // ~/.config directory
     return rv;
 }
 
@@ -475,7 +469,7 @@ void HisPixelApp::read_config() {
     // try to read config file from several possible paths
     if (!config.init(s28::get_config_files())) {
         // no config found. Print warning and continue with default config values.
-        std::cerr << "err: config file not found" << std::endl;
+        RAISE(NOT_FOUND) << "err: config file not found at ~/.hispixel/config or ~/.config/hispixel";
     }
 
     tabbar_visible = config.get<bool>("show_tabbar");

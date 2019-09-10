@@ -4,6 +4,8 @@
 #include <boost/lexical_cast.hpp>
 
 #include <vte/vte.h>
+#include <ctype.h>
+
 #include "tabs.h"
 #include "error.h"
 #include "parslet.h"
@@ -94,6 +96,8 @@ std::string Tab::dump() {
 
     char *data = (char *)g_memory_output_stream_get_data(G_MEMORY_OUTPUT_STREAM(gss));
     size_t size = g_memory_output_stream_get_data_size(G_MEMORY_OUTPUT_STREAM(gss));
+
+    while (size > 0 && ::isspace(data[size-1])) --size;
     return std::string(data, size);
 }
 
