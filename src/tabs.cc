@@ -97,7 +97,7 @@ std::string Tab::dump() {
     char *data = (char *)g_memory_output_stream_get_data(G_MEMORY_OUTPUT_STREAM(gss));
     size_t size = g_memory_output_stream_get_data_size(G_MEMORY_OUTPUT_STREAM(gss));
 
-    while (size > 0 && ::isspace(data[size-1])) --size;
+    while (size > 0 && ::isspace(data[size-1])) --size; // remove tailing space characters
     return std::string(data, size);
 }
 
