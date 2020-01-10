@@ -10,7 +10,7 @@ Terminal application
 ## Ubuntu 18.4
 
 ```
-$ sudo apt install autogen autoconf libtool pkgconf libvte-2.91-dev libgtk-3-dev
+$ sudo apt install autogen autoconf libtool pkgconf libvte-2.91-dev libgtk-3-dev libboost-all-dev
 $ autoreconf -if
 $ mkdir build
 $ cd build
