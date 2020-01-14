@@ -19,6 +19,16 @@ $ make
 
 ```
 
+## Config file
+
+The config file is read from:
+
+```
+~/.hispixel/config
+~/.config/hispixel
+```
+
+in this order
 
 ## Remote control commands
 Dump terminal number 1 history:
