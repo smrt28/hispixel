@@ -76,7 +76,7 @@ public:
     }
     GOutputStream * gss = nullptr;
 };
-}
+} // namespace
 
 
 std::string Tab::dump() {

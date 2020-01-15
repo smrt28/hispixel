@@ -290,6 +290,13 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     vte_terminal_set_scrollback_lines(VTE_TERMINAL(terminal),
             config.get<uint32_t>("scrollback_lines"));
 
+    // set audible bell
+    if (config.get<bool>("audible_bell")) {
+        vte_terminal_set_audible_bell(VTE_TERMINAL(terminal), TRUE);
+    } else {
+        vte_terminal_set_audible_bell(VTE_TERMINAL(terminal), FALSE);
+    }
+
     if (config.get<bool>("allow_bold")) {
         vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), TRUE);
     } else {

@@ -282,6 +282,7 @@ void Config_t::init_defaults() {
     config_map.set<bool>("tabbar_on_bottom", "false");
     config_map.set<uint32_t>("scrollback_lines", "50000");
     config_map.set<std::string>("command", "/bin/bash");
+    config_map.set<bool>("audible_bell", "false");
 }
 
 } // namespace s28
