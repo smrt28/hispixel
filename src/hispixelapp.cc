@@ -442,7 +442,16 @@ void HisPixelApp::activate(GtkApplication* theApp) {
     }
 
     // open the very first tab
-    open_tab();
+    TabConfig tc;
+    tc.focus = true;
+
+    for (uint32_t i = 0; i < config.get<uint32_t>("startup_tabs"); ++i) {
+            if (i > 50) {
+                    break; // prevent a "tab-bomb"
+            }
+            open_tab(tc);
+            tc.focus = false;
+    }
 
     // add the box container to the window
     gtk_container_add(GTK_CONTAINER (window), box);
