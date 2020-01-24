@@ -284,6 +284,7 @@ void Config_t::init_defaults() {
     config_map.set<std::string>("command", "/bin/bash");
     config_map.set<bool>("audible_bell", "false");
     config_map.set<uint32_t>("startup_tabs", "1");
+    config_map.set<bool>("auto_open_tabs", "false");
 }
 
 } // namespace s28

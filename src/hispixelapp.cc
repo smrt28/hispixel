@@ -140,9 +140,23 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
             open_tab();
             return TRUE;
         case Action_t::ACTION_FOCUS:
-            tt.at(ac.data - 1).focus();
-            update_tabbar();
-            return TRUE;
+            {
+                if (ac.data > 50) { // max 50 tabs
+                    break;
+                }
+
+                if (config.get<bool>("auto_open_tabs")) {
+                    int ts = tt.size();
+                    while (ts < ac.data) {
+                        open_tab();
+                        ts ++;
+                    }
+                }
+
+                tt.at(ac.data - 1).focus();
+                update_tabbar();
+                return TRUE;
+            }
         case Action_t::ACTION_FOCUS_NEXT:
             tt.current().next().focus();
             update_tabbar();
