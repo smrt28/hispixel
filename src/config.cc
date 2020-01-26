@@ -285,6 +285,8 @@ void Config_t::init_defaults() {
     config_map.set<bool>("audible_bell", "false");
     config_map.set<uint32_t>("startup_tabs", "1");
     config_map.set<bool>("auto_open_tabs", "false");
+    config_map.set<uint32_t>("window_width", "400");
+    config_map.set<uint32_t>("window_height", "300");
 }
 
 } // namespace s28

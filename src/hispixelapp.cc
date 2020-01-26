@@ -425,7 +425,9 @@ void HisPixelApp::activate(GtkApplication* theApp) {
     gtk_window_set_title (GTK_WINDOW (window), "HisPixel");
 
     // Don't care in i3 WM
-    gtk_window_set_default_size (GTK_WINDOW (window), 200, 400);
+    gtk_window_set_default_size (GTK_WINDOW (window),
+                    config.get<uint32_t>("window_width"),
+                    config.get<uint32_t>("window_height"));
 
     // create notebook widget - the "tabbed window".
     tabs = gtk_notebook_new();

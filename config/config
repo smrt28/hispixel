@@ -35,3 +35,5 @@ allow_bold = true
 show_tabbar = true
 tabbar_bg_color = "#303030"
 tabbar_on_bottom = false
+startup_tabs = 1
+auto_open_tabs = true
