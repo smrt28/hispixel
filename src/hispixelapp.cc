@@ -274,6 +274,18 @@ void HisPixelApp::selection_changed(VteTerminal *) {
     */
 }
 
+GdkRGBA CLR_GDK(uint32_t x) {
+#define CLR_R(x)   (((x) & 0xff0000) >> 16)
+#define CLR_G(x)   (((x) & 0x00ff00) >>  8)
+#define CLR_B(x)   (((x) & 0x0000ff) >>  0)
+	GdkRGBA res;
+	res.red = CLR_R(x);
+	res.green = CLR_G(x);
+	res.blue = CLR_B(x);
+	res.alpha = 0;
+	return res;
+}
+
 void HisPixelApp::open_tab(TabConfig tabconfig) {
     Tabs tt(tabs);
     std::unique_ptr<TerminalContext> tc(new TerminalContext());
@@ -316,6 +328,59 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     } else {
         vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), FALSE);
     }
+
+
+    /* Custom color scheme */
+#define TINYTERM_COLOR_BACKGROUND   "#000000"
+#define TINYTERM_COLOR_FOREGROUND   "#e5e5e5"
+/* black */
+#define TINYTERM_COLOR0     "#000000"
+#define TINYTERM_COLOR8     "#4d4d4d"
+/* red */
+#define TINYTERM_COLOR1     "#B22222"
+#define TINYTERM_COLOR9     "#ED2939"
+/* green */
+#define TINYTERM_COLOR2     "#00a000"
+#define TINYTERM_COLOR10    "#32cd32"
+/* yellow */
+#define TINYTERM_COLOR3     "#cdcd00"
+#define TINYTERM_COLOR11    "#ffff00"
+/* blue */
+#define TINYTERM_COLOR4     "#2346DF"
+#define TINYTERM_COLOR12    "#2b65ec"
+/* magenta */
+#define TINYTERM_COLOR5     "#AA00AA"
+#define TINYTERM_COLOR13    "#C154C1"
+/* cyan */
+#define TINYTERM_COLOR6     "#58C6ED"
+#define TINYTERM_COLOR14    "#00DFFF"
+/* white */
+#define TINYTERM_COLOR7     "#e5e5e5"
+#define TINYTERM_COLOR15    "#ffffff"
+
+    GdkRGBA color_palette[16];
+    GdkRGBA color_fg, color_bg;
+
+    gdk_rgba_parse(&color_fg, TINYTERM_COLOR_FOREGROUND);
+    gdk_rgba_parse(&color_bg, TINYTERM_COLOR_BACKGROUND);
+    gdk_rgba_parse(&color_palette[0], TINYTERM_COLOR0);
+    gdk_rgba_parse(&color_palette[1], TINYTERM_COLOR1);
+    gdk_rgba_parse(&color_palette[2], TINYTERM_COLOR2);
+    gdk_rgba_parse(&color_palette[3], TINYTERM_COLOR3);
+    gdk_rgba_parse(&color_palette[4], TINYTERM_COLOR4);
+    gdk_rgba_parse(&color_palette[5], TINYTERM_COLOR5);
+    gdk_rgba_parse(&color_palette[6], TINYTERM_COLOR6);
+    gdk_rgba_parse(&color_palette[7], TINYTERM_COLOR7);
+    gdk_rgba_parse(&color_palette[8], TINYTERM_COLOR8);
+    gdk_rgba_parse(&color_palette[9], TINYTERM_COLOR9);
+    gdk_rgba_parse(&color_palette[10], TINYTERM_COLOR10);
+    gdk_rgba_parse(&color_palette[11], TINYTERM_COLOR11);
+    gdk_rgba_parse(&color_palette[12], TINYTERM_COLOR12);
+    gdk_rgba_parse(&color_palette[13], TINYTERM_COLOR13);
+    gdk_rgba_parse(&color_palette[14], TINYTERM_COLOR14);
+    gdk_rgba_parse(&color_palette[15], TINYTERM_COLOR15);
+
+    vte_terminal_set_colors(VTE_TERMINAL(terminal), &color_fg, &color_bg, color_palette, 16);
 
     vte_terminal_set_font (VTE_TERMINAL(terminal), font_description);
 
