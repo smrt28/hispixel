@@ -361,24 +361,31 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     GdkRGBA color_palette[16];
     GdkRGBA color_fg, color_bg;
 
-    gdk_rgba_parse(&color_fg, TINYTERM_COLOR_FOREGROUND);
-    gdk_rgba_parse(&color_bg, TINYTERM_COLOR_BACKGROUND);
-    gdk_rgba_parse(&color_palette[0], TINYTERM_COLOR0);
-    gdk_rgba_parse(&color_palette[1], TINYTERM_COLOR1);
-    gdk_rgba_parse(&color_palette[2], TINYTERM_COLOR2);
-    gdk_rgba_parse(&color_palette[3], TINYTERM_COLOR3);
-    gdk_rgba_parse(&color_palette[4], TINYTERM_COLOR4);
-    gdk_rgba_parse(&color_palette[5], TINYTERM_COLOR5);
-    gdk_rgba_parse(&color_palette[6], TINYTERM_COLOR6);
-    gdk_rgba_parse(&color_palette[7], TINYTERM_COLOR7);
-    gdk_rgba_parse(&color_palette[8], TINYTERM_COLOR8);
-    gdk_rgba_parse(&color_palette[9], TINYTERM_COLOR9);
-    gdk_rgba_parse(&color_palette[10], TINYTERM_COLOR10);
-    gdk_rgba_parse(&color_palette[11], TINYTERM_COLOR11);
-    gdk_rgba_parse(&color_palette[12], TINYTERM_COLOR12);
-    gdk_rgba_parse(&color_palette[13], TINYTERM_COLOR13);
-    gdk_rgba_parse(&color_palette[14], TINYTERM_COLOR14);
-    gdk_rgba_parse(&color_palette[15], TINYTERM_COLOR15);
+    static const char *colors[] = {
+	"color_0",
+	"color_1",
+	"color_2",
+	"color_3",
+	"color_4",
+	"color_5",
+	"color_6",
+	"color_7",
+	"color_8",
+	"color_9",
+	"color_10",
+	"color_11",
+	"color_12",
+	"color_13",
+	"color_14",
+	"color_15",
+    } ;
+
+    for (int i = 0; i < 16; i++) {
+	    gdk_rgba_parse(&color_palette[i], config.get<std::string>(colors[i]).c_str());
+    }
+
+    gdk_rgba_parse(&color_fg, config.get<std::string>("color_fg").c_str());
+    gdk_rgba_parse(&color_bg, config.get<std::string>("color_bg").c_str());
 
     vte_terminal_set_colors(VTE_TERMINAL(terminal), &color_fg, &color_bg, color_palette, 16);
 

@@ -271,22 +271,44 @@ bool Config_t::init(const std::vector<std::string> &files) {
 }
 
 void Config_t::init_defaults() {
-    // hardcoded default config values
-    //
-    // On UBUNTU, the Mono font could be even better....
-    config_map.set<std::string>("term_font", "Terminus");
-    config_map.set<int>("term_font_size", "12");
-    config_map.set<bool>("allow_bold", "true");
-    config_map.set<bool>("show_tabbar", "true");
-    config_map.set<GdkRGBA>("tabbar_bg_color","#303030");
-    config_map.set<bool>("tabbar_on_bottom", "false");
-    config_map.set<uint32_t>("scrollback_lines", "50000");
-    config_map.set<std::string>("command", "/bin/bash");
-    config_map.set<bool>("audible_bell", "false");
-    config_map.set<uint32_t>("startup_tabs", "1");
-    config_map.set<bool>("auto_open_tabs", "false");
-    config_map.set<uint32_t>("window_width", "400");
-    config_map.set<uint32_t>("window_height", "300");
+	// hardcoded default config values
+	//
+	// On UBUNTU, the Mono font could be even better....
+	config_map.set<std::string>("term_font", "Terminus");
+	config_map.set<int>("term_font_size", "12");
+	config_map.set<bool>("allow_bold", "true");
+	config_map.set<bool>("show_tabbar", "true");
+	config_map.set<GdkRGBA>("tabbar_bg_color","#303030");
+	config_map.set<bool>("tabbar_on_bottom", "false");
+	config_map.set<uint32_t>("scrollback_lines", "50000");
+	config_map.set<std::string>("command", "/bin/bash");
+	config_map.set<bool>("audible_bell", "false");
+	config_map.set<uint32_t>("startup_tabs", "1");
+	config_map.set<bool>("auto_open_tabs", "false");
+	config_map.set<uint32_t>("window_width", "400");
+	config_map.set<uint32_t>("window_height", "300");
+
+
+	config_map.set<std::string>("color_bg", "#000000");
+	config_map.set<std::string>("color_fg", "#e5e5e5");
+	config_map.set<std::string>("color_0", "#000000");
+	config_map.set<std::string>("color_8", "#4d4d4d");
+	config_map.set<std::string>("color_1", "#B22222");
+	config_map.set<std::string>("color_9", "#ED2939");
+	config_map.set<std::string>("color_2", "#00a000");
+	config_map.set<std::string>("color_10", "#32cd32");
+	config_map.set<std::string>("color_3", "#cdcd00");
+	config_map.set<std::string>("color_11", "#ffff00");
+	config_map.set<std::string>("color_4", "#2346DF");
+	config_map.set<std::string>("color_12", "#2b65ec");
+	config_map.set<std::string>("color_5", "#AA00AA");
+	config_map.set<std::string>("color_13", "#C154C1");
+	config_map.set<std::string>("color_6", "#58C6ED");
+	config_map.set<std::string>("color_14", "#00DFFF");
+	config_map.set<std::string>("color_7", "#e5e5e5");
+	config_map.set<std::string>("color_15", "#ffffff");
+
+
 }
 
 } // namespace s28

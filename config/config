@@ -29,11 +29,53 @@ bindsym ctrl+alt+t togle_tabbar
 
 bindsym ctrl+d close_last
 
-term_font = Terminus
+#term_font = "Terminus (TTF)"
+#term_font = "Monospace"
+#term_font = "DejaVu Sans Mono"
+term_font = "DejaVu Sans Mono"
 term_font_size = 12
 allow_bold = true
 show_tabbar = true
-tabbar_bg_color = "#303030"
+tabbar_bg_color = "#000000"
 tabbar_on_bottom = false
 startup_tabs = 1
 auto_open_tabs = true
+
+
+
+color_bg =  "#000000"
+color_fg =  "#e5e5e5"
+
+# black 
+color_0 = "#000000"
+color_8 = "#4d4d4d"
+
+# red
+color_1   =  "#B22222"
+color_9    = "#ED2939"
+
+# green
+color_2 = "#00a000"
+color_10 = "#32cd32"
+
+# yellow
+color_3 = "#cdcd00"
+color_11 = "#ffff00"
+
+# blue
+color_4 = "#2346DF"
+color_12 = "#2b65ec"
+
+# magenta
+color_5 = "#AA00AA"
+color_13 = "#C154C1"
+
+# cyan
+color_6 =    "#58C6ED"
+color_14 =   "#00DFFF"
+
+# white
+color_7 =     "#e5e5e5"
+color_15 =    "#ffffff"
+
+
