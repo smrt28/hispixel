@@ -274,18 +274,6 @@ void HisPixelApp::selection_changed(VteTerminal *) {
     */
 }
 
-GdkRGBA CLR_GDK(uint32_t x) {
-#define CLR_R(x)   (((x) & 0xff0000) >> 16)
-#define CLR_G(x)   (((x) & 0x00ff00) >>  8)
-#define CLR_B(x)   (((x) & 0x0000ff) >>  0)
-	GdkRGBA res;
-	res.red = CLR_R(x);
-	res.green = CLR_G(x);
-	res.blue = CLR_B(x);
-	res.alpha = 0;
-	return res;
-}
-
 void HisPixelApp::open_tab(TabConfig tabconfig) {
     Tabs tt(tabs);
     std::unique_ptr<TerminalContext> tc(new TerminalContext());
@@ -329,66 +317,36 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
         vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), FALSE);
     }
 
-
-    /* Custom color scheme */
-#define TINYTERM_COLOR_BACKGROUND   "#000000"
-#define TINYTERM_COLOR_FOREGROUND   "#e5e5e5"
-/* black */
-#define TINYTERM_COLOR0     "#000000"
-#define TINYTERM_COLOR8     "#4d4d4d"
-/* red */
-#define TINYTERM_COLOR1     "#B22222"
-#define TINYTERM_COLOR9     "#ED2939"
-/* green */
-#define TINYTERM_COLOR2     "#00a000"
-#define TINYTERM_COLOR10    "#32cd32"
-/* yellow */
-#define TINYTERM_COLOR3     "#cdcd00"
-#define TINYTERM_COLOR11    "#ffff00"
-/* blue */
-#define TINYTERM_COLOR4     "#2346DF"
-#define TINYTERM_COLOR12    "#2b65ec"
-/* magenta */
-#define TINYTERM_COLOR5     "#AA00AA"
-#define TINYTERM_COLOR13    "#C154C1"
-/* cyan */
-#define TINYTERM_COLOR6     "#58C6ED"
-#define TINYTERM_COLOR14    "#00DFFF"
-/* white */
-#define TINYTERM_COLOR7     "#e5e5e5"
-#define TINYTERM_COLOR15    "#ffffff"
-
     GdkRGBA color_palette[16];
     GdkRGBA color_fg, color_bg;
 
     static const char *colors[] = {
-	"color_0",
-	"color_1",
-	"color_2",
-	"color_3",
-	"color_4",
-	"color_5",
-	"color_6",
-	"color_7",
-	"color_8",
-	"color_9",
-	"color_10",
-	"color_11",
-	"color_12",
-	"color_13",
-	"color_14",
-	"color_15",
+        "color_0",
+        "color_1",
+        "color_2",
+        "color_3",
+        "color_4",
+        "color_5",
+        "color_6",
+        "color_7",
+        "color_8",
+        "color_9",
+        "color_10",
+        "color_11",
+        "color_12",
+        "color_13",
+        "color_14",
+        "color_15",
     } ;
 
     for (int i = 0; i < 16; i++) {
-	    gdk_rgba_parse(&color_palette[i], config.get<std::string>(colors[i]).c_str());
+        color_palette[i] = config.get<GdkRGBA>(colors[i]);
     }
 
-    gdk_rgba_parse(&color_fg, config.get<std::string>("color_fg").c_str());
-    gdk_rgba_parse(&color_bg, config.get<std::string>("color_bg").c_str());
+    color_fg = config.get<GdkRGBA>("color_fg");
+    color_bg = config.get<GdkRGBA>("color_bg");
 
     vte_terminal_set_colors(VTE_TERMINAL(terminal), &color_fg, &color_bg, color_palette, 16);
-
     vte_terminal_set_font (VTE_TERMINAL(terminal), font_description);
 
     RegEvents_t<HisPixelApp> evts(this);

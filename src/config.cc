@@ -289,24 +289,24 @@ void Config_t::init_defaults() {
 	config_map.set<uint32_t>("window_height", "300");
 
 
-	config_map.set<std::string>("color_bg", "#000000");
-	config_map.set<std::string>("color_fg", "#e5e5e5");
-	config_map.set<std::string>("color_0", "#000000");
-	config_map.set<std::string>("color_8", "#4d4d4d");
-	config_map.set<std::string>("color_1", "#B22222");
-	config_map.set<std::string>("color_9", "#ED2939");
-	config_map.set<std::string>("color_2", "#00a000");
-	config_map.set<std::string>("color_10", "#32cd32");
-	config_map.set<std::string>("color_3", "#cdcd00");
-	config_map.set<std::string>("color_11", "#ffff00");
-	config_map.set<std::string>("color_4", "#2346DF");
-	config_map.set<std::string>("color_12", "#2b65ec");
-	config_map.set<std::string>("color_5", "#AA00AA");
-	config_map.set<std::string>("color_13", "#C154C1");
-	config_map.set<std::string>("color_6", "#58C6ED");
-	config_map.set<std::string>("color_14", "#00DFFF");
-	config_map.set<std::string>("color_7", "#e5e5e5");
-	config_map.set<std::string>("color_15", "#ffffff");
+	config_map.set<GdkRGBA>("color_bg", "#000000");
+	config_map.set<GdkRGBA>("color_fg", "#e5e5e5");
+	config_map.set<GdkRGBA>("color_0", "#000000");
+	config_map.set<GdkRGBA>("color_8", "#4d4d4d");
+	config_map.set<GdkRGBA>("color_1", "#B22222");
+	config_map.set<GdkRGBA>("color_9", "#ED2939");
+	config_map.set<GdkRGBA>("color_2", "#00a000");
+	config_map.set<GdkRGBA>("color_10", "#32cd32");
+	config_map.set<GdkRGBA>("color_3", "#cdcd00");
+	config_map.set<GdkRGBA>("color_11", "#ffff00");
+	config_map.set<GdkRGBA>("color_4", "#2346DF");
+	config_map.set<GdkRGBA>("color_12", "#2b65ec");
+	config_map.set<GdkRGBA>("color_5", "#AA00AA");
+	config_map.set<GdkRGBA>("color_13", "#C154C1");
+	config_map.set<GdkRGBA>("color_6", "#58C6ED");
+	config_map.set<GdkRGBA>("color_14", "#00DFFF");
+	config_map.set<GdkRGBA>("color_7", "#e5e5e5");
+	config_map.set<GdkRGBA>("color_15", "#ffffff");
 
 
 }
