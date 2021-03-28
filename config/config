@@ -42,7 +42,6 @@ startup_tabs = 1
 auto_open_tabs = true
 
 
-
 color_bg =  "#000000"
 color_fg =  "#e5e5e5"
 
@@ -77,5 +76,3 @@ color_14 =   "#00DFFF"
 # white
 color_7 =     "#e5e5e5"
 color_15 =    "#ffffff"
-
-

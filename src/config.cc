@@ -307,8 +307,6 @@ void Config_t::init_defaults() {
 	config_map.set<GdkRGBA>("color_14", "#00DFFF");
 	config_map.set<GdkRGBA>("color_7", "#e5e5e5");
 	config_map.set<GdkRGBA>("color_15", "#ffffff");
-
-
 }
 
 } // namespace s28
