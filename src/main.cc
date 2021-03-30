@@ -134,6 +134,11 @@ int daemonise() {
     return pid;
 }
 
+
+namespace s28 {
+        void dump_default_config();
+}
+
 int main(int argc, char **argv, char** envp)
 {
     using namespace boost::program_options;
@@ -141,6 +146,7 @@ int main(int argc, char **argv, char** envp)
     desc.add_options()
         ("help,h", "Help screen")
         ("daemonize,d", "Run in background")
+        ("dump-default-condif,D", "Dump default config")
         ;
 
 
@@ -154,6 +160,11 @@ int main(int argc, char **argv, char** envp)
         if (vm.count("help")) {
             std::cout << desc << '\n';
             return 1;
+        }
+
+        if (vm.count("dump-default-condif")) {
+                s28::dump_default_config();
+                return 0;
         }
 
         if (vm.count("daemonize")) {

@@ -270,43 +270,95 @@ bool Config_t::init(const std::vector<std::string> &files) {
     return false;
 }
 
+namespace {
+
+struct ConfigDumpator_t {
+        template<typename Dummy>
+        void set(std::string key, std::string val) {
+                std::cout << key << " = \"" << val << "\"" << std::endl;
+        }
+
+        template<typename Dummy>
+        void set(std::string key, std::string alias, std::string val) {
+                std::cout << alias << " = \"" << val << "\"" << " # " << key << std::endl;
+        }
+
+        void comment(const std::string &s) {
+                if (s.empty()) {
+                        std::cout << std::endl;
+                        return;
+                }
+                std::cout << "# " << s << std::endl;
+        }
+};
+
+template<typename Map>
+void setup_config_defualuts(Map &config_map) {
+        // hardcoded default config values
+        //
+        // On UBUNTU, the Mono font could be even better....
+        config_map.template set<std::string>("term_font", "Terminus");
+        config_map.template set<int>("term_font_size", "12");
+        config_map.template set<bool>("allow_bold", "true");
+        config_map.template set<bool>("show_tabbar", "true");
+        config_map.template set<GdkRGBA>("tabbar_bg_color","#303030");
+        config_map.template set<bool>("tabbar_on_bottom", "false");
+        config_map.template set<uint32_t>("scrollback_lines", "50000");
+        config_map.template set<std::string>("command", "/bin/bash");
+        config_map.template set<bool>("audible_bell", "false");
+        config_map.template set<uint32_t>("startup_tabs", "1");
+        config_map.template set<bool>("auto_open_tabs", "false");
+        config_map.template set<uint32_t>("window_width", "400");
+        config_map.template set<uint32_t>("window_height", "300");
+
+        config_map.comment("");
+        config_map.comment("Terminal font colors");
+
+        config_map.template set<GdkRGBA>("color_bg", "#000000");
+        config_map.template set<GdkRGBA>("color_fg", "#e5e5e5");
+
+        config_map.comment(""); config_map.comment("Black");
+        config_map.template set<GdkRGBA>("color_0", "color_black", "#000000");
+        config_map.template set<GdkRGBA>("color_8", "color_black_light", "#4d4d4d");
+
+        config_map.comment(""); config_map.comment("Red");
+        config_map.template set<GdkRGBA>("color_1", "color_red", "#B22222");
+        config_map.template set<GdkRGBA>("color_9", "color_red_light", "#ED2939");
+
+        config_map.comment(""); config_map.comment("Green");
+        config_map.template set<GdkRGBA>("color_2", "color_green", "#00a000");
+        config_map.template set<GdkRGBA>("color_10", "color_green_light", "#32cd32");
+
+        config_map.comment(""); config_map.comment("Yellow");
+        config_map.template set<GdkRGBA>("color_3", "color_yellow", "#cdcd00");
+        config_map.template set<GdkRGBA>("color_11", "color_yellow_light", "#ffff00");
+
+        config_map.comment(""); config_map.comment("Blue");
+        config_map.template set<GdkRGBA>("color_4", "color_blue", "#2346DF");
+        config_map.template set<GdkRGBA>("color_12", "color_blue_light", "#2b65ec");
+
+        config_map.comment(""); config_map.comment("Magenta");
+        config_map.template set<GdkRGBA>("color_5", "color_magenta", "#AA00AA");
+        config_map.template set<GdkRGBA>("color_13", "color_magenta_light", "#C154C1");
+
+        config_map.comment(""); config_map.comment("Cyan");
+        config_map.template set<GdkRGBA>("color_6", "color_cyan", "#58C6ED");
+        config_map.template set<GdkRGBA>("color_14", "color_cyan_light", "#00DFFF");
+
+        config_map.comment(""); config_map.comment("White");
+        config_map.template set<GdkRGBA>("color_7", "color_white", "#e5e5e5");
+        config_map.template set<GdkRGBA>("color_15", "color_white_light", "#ffffff");
+}
+
+} // namespace
+
+void dump_default_config() {
+        ConfigDumpator_t cd;
+        setup_config_defualuts(cd);
+}
+
 void Config_t::init_defaults() {
-	// hardcoded default config values
-	//
-	// On UBUNTU, the Mono font could be even better....
-	config_map.set<std::string>("term_font", "Terminus");
-	config_map.set<int>("term_font_size", "12");
-	config_map.set<bool>("allow_bold", "true");
-	config_map.set<bool>("show_tabbar", "true");
-	config_map.set<GdkRGBA>("tabbar_bg_color","#303030");
-	config_map.set<bool>("tabbar_on_bottom", "false");
-	config_map.set<uint32_t>("scrollback_lines", "50000");
-	config_map.set<std::string>("command", "/bin/bash");
-	config_map.set<bool>("audible_bell", "false");
-	config_map.set<uint32_t>("startup_tabs", "1");
-	config_map.set<bool>("auto_open_tabs", "false");
-	config_map.set<uint32_t>("window_width", "400");
-	config_map.set<uint32_t>("window_height", "300");
-
-
-	config_map.set<GdkRGBA>("color_bg", "#000000");
-	config_map.set<GdkRGBA>("color_fg", "#e5e5e5");
-	config_map.set<GdkRGBA>("color_0", "#000000");
-	config_map.set<GdkRGBA>("color_8", "#4d4d4d");
-	config_map.set<GdkRGBA>("color_1", "#B22222");
-	config_map.set<GdkRGBA>("color_9", "#ED2939");
-	config_map.set<GdkRGBA>("color_2", "#00a000");
-	config_map.set<GdkRGBA>("color_10", "#32cd32");
-	config_map.set<GdkRGBA>("color_3", "#cdcd00");
-	config_map.set<GdkRGBA>("color_11", "#ffff00");
-	config_map.set<GdkRGBA>("color_4", "#2346DF");
-	config_map.set<GdkRGBA>("color_12", "#2b65ec");
-	config_map.set<GdkRGBA>("color_5", "#AA00AA");
-	config_map.set<GdkRGBA>("color_13", "#C154C1");
-	config_map.set<GdkRGBA>("color_6", "#58C6ED");
-	config_map.set<GdkRGBA>("color_14", "#00DFFF");
-	config_map.set<GdkRGBA>("color_7", "#e5e5e5");
-	config_map.set<GdkRGBA>("color_15", "#ffffff");
+        setup_config_defualuts(config_map);
 }
 
 } // namespace s28
