@@ -98,6 +98,10 @@ public:
      * @return pointer to value object, if found.
      */
     Value_t * find(std::string key) {
+        auto ait = alias.find(key);
+        if (ait != alias.end()) {
+                key = ait->second;
+        }
         auto it = kv.find(key);
         if (it == kv.end()) return nullptr;
         return it->second;

@@ -547,11 +547,17 @@ HisPixelApp::~HisPixelApp() {
     }
 }
 
-void HisPixelApp::read_config() {
-    // try to read config file from several possible paths
-    if (!config.init(s28::get_config_files())) {
-        // no config found. Print warning and continue with default config values.
-        RAISE(NOT_FOUND) << "err: config file not found at ~/.hispixel/config or ~/.config/hispixel";
+void HisPixelApp::read_config(const char *cfg_file) {
+    if (cfg_file) {
+            if (!config.init(cfg_file)) {
+                    RAISE(NOT_FOUND) << "err: config file not found at " << cfg_file;
+            }
+    } else {
+            // try to read config file from several possible paths
+            if (!config.init(s28::get_config_files())) {
+                // no config found. Print warning and continue with default config values.
+                RAISE(NOT_FOUND) << "err: config file not found at ~/.hispixel/config or ~/.config/hispixel";
+            }
     }
 
     tabbar_visible = config.get<bool>("show_tabbar");

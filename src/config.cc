@@ -238,7 +238,7 @@ int Config_t::parse_config_line(const std::string &line) {
     return 0;
 }
 
-bool Config_t::init(const std::string &file) {
+bool Config_t::init_internal(const std::string &file) {
     static const std::string errmsg_prefix = "config file error at line: ";
     std::ifstream f(file);
     if (!f) return false; // return false if can't open config file
@@ -265,7 +265,7 @@ bool Config_t::init(const std::vector<std::string> &files) {
 
     // iterate all the file names and use the first which opens for reading
     for (std::string cfile: files) {
-        if (init(cfile)) return true;
+        if (init_internal(cfile)) return true;
     }
     return false;
 }

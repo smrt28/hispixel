@@ -69,14 +69,14 @@ void activate(GtkApplication* app, gpointer _udata)
 }
 
 
-int run(int argc, char **argv, char** envp)
+int run(int argc, char **argv, char** envp, const char *cfg_file)
 {
     int status = 0;
     try {
         HisPixelApp hispixel(argc, argv, envp);
         DbusHandler dbushelper(hispixel);
 
-        hispixel.read_config();
+        hispixel.read_config(cfg_file);
 
         // create GTK application
         GtkApplication *app;
@@ -142,13 +142,14 @@ namespace s28 {
 int main(int argc, char **argv, char** envp)
 {
     using namespace boost::program_options;
+    std::string cfg_file;
     options_description desc{"Options"};
     desc.add_options()
         ("help,h", "Help screen")
         ("daemonize,d", "Run in background")
         ("dump-default-config,D", "Dump default config")
+        ("config-file", value<std::string>(&cfg_file), "path to the config file")
         ;
-
 
     s28::app_name();
 
@@ -156,6 +157,13 @@ int main(int argc, char **argv, char** envp)
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
         notify(vm);
+        if (vm.count("config-file")) {
+                cfg_file = vm["config-file"].as<std::string>();
+        }
+        const char *c = nullptr;
+        if (!cfg_file.empty()) {
+                c = cfg_file.c_str();
+        }
 
         if (vm.count("help")) {
             std::cout << desc << '\n';
@@ -183,10 +191,10 @@ int main(int argc, char **argv, char** envp)
             } else {
                 ::close(s28::PLOCK[0]);
                 s28::PLOCK[0] = -1;
-                return s28::run(1, argv, envp);
+                return s28::run(1, argv, envp, c);
             }
         } else {
-            return s28::run(1, argv, envp);
+            return s28::run(1, argv, envp, c);
         }
     } catch (...) {
         std::cout << "fatal error" << std::endl;

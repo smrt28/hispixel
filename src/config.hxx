@@ -79,6 +79,11 @@ public:
      * @return true if config file read successfully
      */
     bool init(const std::vector<std::string> &files);
+    bool init(const std::string &file) {
+            std::vector<std::string> v;
+            v.push_back(file);
+            return init(v);
+    }
 
     typedef std::vector<KeyBinding_t> KeyBindings_t;
 
@@ -92,7 +97,7 @@ public:
 
 private:
     void init_defaults();
-    bool init(const std::string &config_file);
+    bool init_internal(const std::string &config_file);
     int parse_config_line(const std::string &line);
 
     AnyTypeMap_t config_map;

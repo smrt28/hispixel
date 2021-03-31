@@ -37,7 +37,7 @@ public:
     /**
      * Read and parse config file
      */
-    void read_config();
+    void read_config(const char *cfg_file = nullptr);
 
     struct TabConfig {
         TabConfig() {}
