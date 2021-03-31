@@ -7,7 +7,7 @@ Terminal application
 
 # Build
 
-## Ubuntu 18.4
+## Ubuntu 18.4/20.4
 
 ```
 $ sudo apt install autogen autoconf libtool pkgconf libvte-2.91-dev libgtk-3-dev libboost-all-dev qdbus
@@ -20,6 +20,12 @@ $ make
 ```
 
 ## Config file
+
+To create the default one:
+```
+$ mkdir -P ~/.hispixel/
+$ hispixel -D > ~/.hispixel/config
+```
 
 The config file is read from:
 
@@ -46,3 +52,13 @@ Run ls command in terminal number 2
 ```
 qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.Feed "2 ls"
 ```
+
+
+## Using his-commands
+source scripts/env.sh
+```
+$ . scripts/env.sh
+$ his-dump [term. name]
+```
+
+
