@@ -274,6 +274,19 @@ void HisPixelApp::selection_changed(VteTerminal *) {
     */
 }
 
+
+namespace {
+void apply_gama(gdouble &color, int gama) {
+        if (gama == 0) return;
+
+        gdouble diff = (color * gama) / 100.0;
+        color += diff;
+
+        if (color > 1) color = 1;
+        if (color < 0) color = 0;
+}
+}
+
 void HisPixelApp::open_tab(TabConfig tabconfig) {
     Tabs tt(tabs);
     std::unique_ptr<TerminalContext> tc(new TerminalContext());
@@ -339,8 +352,15 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
         "color_15",
     } ;
 
+    int gama = config.get<int>("gama");
     for (int i = 0; i < 16; i++) {
-        color_palette[i] = config.get<GdkRGBA>(colors[i]);
+        GdkRGBA c = config.get<GdkRGBA>(colors[i]);
+        if (gama != 0) {
+                apply_gama(c.red, gama);
+                apply_gama(c.green, gama);
+                apply_gama(c.blue, gama);
+        }
+        color_palette[i] = c;
     }
 
     color_fg = config.get<GdkRGBA>("color_fg");

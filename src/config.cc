@@ -314,6 +314,8 @@ void setup_config_defualuts(Map &config_map) {
         config_map.comment("");
         config_map.comment("Terminal font colors");
 
+        config_map.template set<int>("gama", "0");
+
         config_map.template set<GdkRGBA>("color_bg", "#000000");
         config_map.template set<GdkRGBA>("color_fg", "#e5e5e5");
 
