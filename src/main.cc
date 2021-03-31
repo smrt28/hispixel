@@ -146,7 +146,7 @@ int main(int argc, char **argv, char** envp)
     desc.add_options()
         ("help,h", "Help screen")
         ("daemonize,d", "Run in background")
-        ("dump-default-condif,D", "Dump default config")
+        ("dump-default-config,D", "Dump default config")
         ;
 
 
@@ -162,7 +162,7 @@ int main(int argc, char **argv, char** envp)
             return 1;
         }
 
-        if (vm.count("dump-default-condif")) {
+        if (vm.count("dump-default-config")) {
                 s28::dump_default_config();
                 return 0;
         }
