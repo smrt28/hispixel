@@ -479,9 +479,12 @@ void HisPixelApp::activate(GtkApplication* theApp) {
                     config.get<uint32_t>("window_width"),
                     config.get<uint32_t>("window_height"));
 
+    tabs2 = gtk_notebook_new();
+    if (!tabs2) RAISE(FATAL) << "gtk_notebook_new(2) failed";
+
     // create notebook widget - the "tabbed window".
     tabs = gtk_notebook_new();
-    if (!tabs) RAISE(FATAL) << "gtk_notebook_new failed";
+    if (!tabs) RAISE(FATAL) << "gtk_notebook_new(1) failed";
 
     // register page-removed event
     evts.reg_page_removed(tabs);
@@ -522,8 +525,23 @@ void HisPixelApp::activate(GtkApplication* theApp) {
     // add the box container to the window
     gtk_container_add(GTK_CONTAINER (window), box);
 
+    int sel = gtk_notebook_append_page(GTK_NOTEBOOK(tabs2), tabs, 0);
+    if (sel == -1) {
+        RAISE(FATAL) << "gtk_notebook_append_page";
+        return;
+    }
+
+    /*
+    gtk_widget_show(terminal);
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);
+    gtk_notebook_next_page (GTK_NOTEBOOK(tabs));
+    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
+    */
+
+
     // show everything
-    gtk_widget_show_all(GTK_WIDGET(tabs));
+    gtk_widget_show_all(GTK_WIDGET(tabs2));
+    gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs2), 0);
     gtk_widget_show(box);
     gtk_widget_show(window);
 

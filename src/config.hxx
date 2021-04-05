@@ -35,7 +35,8 @@ public:
             ACTION_FOCUS_PREV,
             ACTION_CLOSE_LAST,
             ACTION_BE_FIRST,
-            ACTION_TOGLE_TABBAR
+            ACTION_TOGLE_TABBAR,
+            ACTION_SET_WORKSPACE
         };
 
         Action_t() :

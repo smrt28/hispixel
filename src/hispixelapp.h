@@ -66,6 +66,7 @@ private:
     // GTK resources
     GtkApplication* app = nullptr;
     GtkWidget *label = nullptr;
+    GtkWidget *tabs2 = nullptr;
     GtkWidget *tabs = nullptr;
     GtkWidget *window = nullptr;
     GtkWidget *box = nullptr;

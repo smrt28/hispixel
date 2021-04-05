@@ -185,6 +185,11 @@ Config_t::Action_t string_to_action(parser::Parslet_t &p) {
     if (s == "swap_11") { return Action_t(Action_t::ACTION_BE_FIRST, 10); }
     if (s == "swap_12") { return Action_t(Action_t::ACTION_BE_FIRST, 11); }
 
+    if (s == "workspace_1") return Action_t(Action_t::ACTION_BE_FIRST, 0);
+    if (s == "workspace_2") return Action_t(Action_t::ACTION_BE_FIRST, 1);
+    if (s == "workspace_3") return Action_t(Action_t::ACTION_BE_FIRST, 2);
+    if (s == "workspace_4") return Action_t(Action_t::ACTION_BE_FIRST, 3);
+
     RAISE(UNKNOWN_ACTION) << "unknown config key: " << s;
     return Config_t::Action_t(); // not reachable (avoids compiler warning)
 }
