@@ -44,14 +44,6 @@ Tab Tab::prev() const {
 
 std::string Tab::get_name(bool *has_name) const {
     const TerminalContext * tc = get_context();
-    if (!tc->has_name()) {
-        if (has_name) *has_name = false;
-        if (tc) {
-            return std::to_string(tc->get_id());
-        }
-
-        return "?";
-    }
     if (has_name) *has_name = true;
     return tc->get_name();
 }
@@ -126,14 +118,6 @@ void Tab::focus() {
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs->raw()), order);
 }
 
-void Tab::set_name(const std::string &s) {
-    if (tabs->find(s)) {
-        RAISE(EXISTS) << "the tab [" << s << "] already exists";
-    }
-
-    get_context()->set_name(s);
-}
-
 void Tab::feed(const std::string &s) {
     if (!is_valid()) return;
     vte_terminal_feed_child(VTE_TERMINAL(terminal), s.c_str(), s.size());
@@ -165,16 +149,6 @@ Tab Tabs::find(const std::string &name) const {
     }
 
     return Tab(const_cast<Tabs *>(this), nullptr, -1);
-}
-
-void TerminalContext::set_name(const std::string &s) {
-    if (s.empty()) RAISE(COMMAND_ARG) << "empty";
-    if (s.size() > 20) RAISE(COMMAND_ARG) << "too long";
-    for (char c: s) {
-        if (isspace(c)) RAISE(COMMAND_ARG) << "space character";
-        if (!isgraph(c)) RAISE(COMMAND_ARG) << "not printable";
-    }
-    name = s;
 }
 
 }

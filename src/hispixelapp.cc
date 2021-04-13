@@ -233,9 +233,10 @@ std::string HisPixelApp::tabbar_text() {
 
     std::ostringstream oss;
     Tab current = t.current();
+    
     for (auto tt: t) {
-        bool hasname;
-        std::string name = tt.get_name(&hasname);
+        bool hasname = false;
+        std::string name = std::to_string(tt.index());
         std::string color1, color2;
         if (hasname) {
             color2 = "555555";
@@ -304,13 +305,8 @@ void apply_gama(gdouble &color, int gama) {
 void HisPixelApp::open_tab(TabConfig tabconfig) {
     Tabs tt(tabs);
     std::unique_ptr<TerminalContext> tc(new TerminalContext());
-    if (tabconfig.name) {
-        if (!tt.find(*tabconfig.name).is_valid()) {
-            tc->set_name(*tabconfig.name);
-        } else {
-            RAISE(EXISTS) << "tab of this name already exists";
-        }
-    } else {
+    {
+        //int n = gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));
         // ensure unique tab name/id
         while (tt.find(std::to_string(tc->get_id()))) {
             tc.reset(new TerminalContext());
@@ -537,7 +533,9 @@ void HisPixelApp::activate(GtkApplication* theApp) {
 
     int sel = gtk_notebook_append_page(GTK_NOTEBOOK(tabs2), tabs, 0);
     for (int i = 0; i < 9; ++i) {
-            gtk_notebook_append_page(GTK_NOTEBOOK(tabs2), gtk_notebook_new(), 0);
+            GtkWidget *t = gtk_notebook_new();
+            evts.reg_page_removed(t);
+            gtk_notebook_append_page(GTK_NOTEBOOK(tabs2), t, 0);
     }
 
 

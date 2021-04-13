@@ -36,6 +36,7 @@ std::string DbusHandler::opentab(std::string s) {
     return "0";
 }
 
+/*
 std::string DbusHandler::rename(std::string s) {
     parser::Parslet_t p(s);
     std::string old_name = parser::word(p).str(); // first word specs the tab
@@ -57,6 +58,7 @@ std::string DbusHandler::rename(std::string s) {
     return "0";
 }
 
+*/
 std::string DbusHandler::dump(std::string s) {
     Tabs tt = hispixel.get_tabs();
     return tt.find(s).dump();

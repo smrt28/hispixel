@@ -20,18 +20,11 @@ public:
     }
 
     int get_id() const { return id; }
-    bool has_name() const {
-        if (name) return true;
-        return false;
-    }
-
     std::string get_name() const {
-        return *name;
+            return "x";
     }
 
-    void set_name(const std::string &s);
 private:
-    boost::optional<std::string> name;
     int id;
 };
 
@@ -82,7 +75,6 @@ public:
     Tab next() const;
     Tab prev() const;
 
-    void set_name(const std::string &s);
     int set_order(int n);
 
     void focus();
