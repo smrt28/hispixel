@@ -39,6 +39,8 @@ public:
      */
     void read_config(const char *cfg_file = nullptr);
 
+    void set_worksapce(int n);
+
     struct TabConfig {
         TabConfig() {}
         TabConfig(const std::string &name) : name(name) {}

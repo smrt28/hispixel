@@ -177,12 +177,26 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
             return TRUE;
         case Action_t::ACTION_NONE:
             return FALSE;
+
+        case Action_t::ACTION_SET_WORKSPACE:
+
+            set_worksapce(ac.data);
+            break;
         default:
             break;
     }
     return FALSE;
 }
 
+
+void HisPixelApp::set_worksapce(int n) {
+        std::cerr << "HisPixelApp::set_worksapce: " << n << std::endl;
+        tabs = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs2), n);
+        gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs2), n);
+        Tabs tt(tabs);
+        update_tabbar();
+        tt.current().focus();
+}
 
 void HisPixelApp::on_error(const std::exception *e) {
     if (e) {
@@ -323,13 +337,7 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     } else {
         vte_terminal_set_audible_bell(VTE_TERMINAL(terminal), FALSE);
     }
-/*
-    if (config.get<bool>("allow_bold")) {
-        vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), TRUE);
-    } else {
-        vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), FALSE);
-    }
-*/
+    
     GdkRGBA color_palette[16];
     GdkRGBA color_fg, color_bg;
 
@@ -486,6 +494,8 @@ void HisPixelApp::activate(GtkApplication* theApp) {
     tabs = gtk_notebook_new();
     if (!tabs) RAISE(FATAL) << "gtk_notebook_new(1) failed";
 
+
+
     // register page-removed event
     evts.reg_page_removed(tabs);
 
@@ -503,11 +513,11 @@ void HisPixelApp::activate(GtkApplication* theApp) {
 
     // put tabbar to top/bottom
     if (config.get<bool>("tabbar_on_bottom")) {
-        gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
+        gtk_box_pack_start(GTK_BOX(box), tabs2, 1, 1, 0);
         gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
     } else {
         gtk_box_pack_start(GTK_BOX(box), label, 0, 0, 0);
-        gtk_box_pack_start(GTK_BOX(box), tabs, 1, 1, 0);
+        gtk_box_pack_start(GTK_BOX(box), tabs2, 1, 1, 0);
     }
 
     // open the very first tab
@@ -526,6 +536,11 @@ void HisPixelApp::activate(GtkApplication* theApp) {
     gtk_container_add(GTK_CONTAINER (window), box);
 
     int sel = gtk_notebook_append_page(GTK_NOTEBOOK(tabs2), tabs, 0);
+    for (int i = 0; i < 9; ++i) {
+            gtk_notebook_append_page(GTK_NOTEBOOK(tabs2), gtk_notebook_new(), 0);
+    }
+
+
     if (sel == -1) {
         RAISE(FATAL) << "gtk_notebook_append_page";
         return;
