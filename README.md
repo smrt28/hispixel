@@ -21,7 +21,7 @@ sudo apt install qdbus
 
 ### On Both Ubuntu's
 ```
-$ sudo apt install autogen autoconf libtool pkgconf libvte-2.91-dev libgtk-3-dev libboost-all-dev
+$ sudo apt install autogen autoconf libtool pkgconf libvte-2.91-dev libgtk-3-dev libboost-all-dev g++ make
 $ autoreconf -if
 $ mkdir build
 $ cd build
