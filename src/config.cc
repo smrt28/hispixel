@@ -290,6 +290,10 @@ struct ConfigDumpator_t {
                 }
                 std::cout << "# " << s << std::endl;
         }
+
+        void raw(const std::string &s) {
+            std::cout << s << std::endl;
+        }
 };
 
 template<typename Map>
@@ -355,8 +359,32 @@ void setup_config_defualuts(Map &config_map) {
 } // namespace
 
 void dump_default_config() {
-        ConfigDumpator_t cd;
-        setup_config_defualuts(cd);
+    ConfigDumpator_t cd;
+    setup_config_defualuts(cd);
+
+    cd.raw("");
+    cd.comment("Key bindings");
+    cd.raw("bindsym alt+1 focus 1");
+    cd.raw("bindsym alt+2 focus 2");
+    cd.raw("bindsym alt+3 focus 3");
+    cd.raw("bindsym alt+4 focus 4");
+    cd.raw("bindsym alt+5 focus 5");
+    cd.raw("bindsym alt+6 focus 6");
+    cd.raw("bindsym alt+7 focus 7");
+    cd.raw("bindsym alt+8 focus 8");
+    cd.raw("bindsym alt+9 focus 9");
+    cd.raw("bindsym alt+ctrl+z opentab");
+    cd.raw("bindsym ctrl+alt+1 swap_1");
+    cd.raw("bindsym ctrl+alt+2 swap_2");
+    cd.raw("bindsym ctrl+alt+3 swap_3");
+    cd.raw("bindsym ctrl+alt+4 swap_4");
+    cd.raw("bindsym ctrl+alt+5 swap_5");
+    cd.raw("bindsym ctrl+alt+6 swap_6");
+    cd.raw("bindsym ctrl+alt+7 swap_7");
+    cd.raw("bindsym ctrl+alt+8 swap_8");
+    cd.raw("bindsym ctrl+alt+9 swap_9");
+    cd.raw("bindsym ctrl+alt+t togle_tabbar");
+    cd.raw("bindsym ctrl+d close_last");
 }
 
 void Config_t::init_defaults() {
