@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Encoding=UTF-8
+Name=Application Name
+Comment=Application description
+Icon=utilities-terminal
+Exec=/opt/bin/hispixel
+Terminal=false
+Categories=Tags;Describing;Application

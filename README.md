@@ -61,4 +61,7 @@ $ . scripts/env.sh
 $ his-dump [term. name]
 ```
 
-
+## Gnome
+```
+cp scripts/hispixel.desktop  ~/.local/share/applications/hispixel.desktop
+```
