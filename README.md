@@ -62,3 +62,12 @@ It looks like Ubuntu 20.04 now has more than one package for Terminus.
 
 * `xfonts-terminus` - Installs the "Terminus" font. Only some applications seem to support it. (eg: Shows up in Konsole, but not Terminator.)
 * `fonts-terminus` - Installs the "Terminus (TTF)" font. This seems to work everywhere.
+
+# Ubuntu 22.04.01 LTS
+
+Recommended options:
+
+* `term_font = "Ubuntu Mono"`
+* `gama = "40"`
+* `auto_open_tabs = "true"`
+
