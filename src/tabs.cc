@@ -14,14 +14,48 @@ namespace s28 {
 
 static const char * CONTEXT28_ID = "context28";
 
+void Tabs::sync()
+{
+        ztabs = get_all_tabs(z_axe);
+}
+
+Tabs::Tabs(GtkWidget *tabs, int z_axe) : tabs(tabs), z_axe(z_axe) {
+        sync();
+}
+
+void Tabs::set_z_axe(int z) {
+        z_axe = z;
+        sync();
+}
+
+
 int Tabs::size() const {
-    return gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));
+        return int(ztabs.size());
 }
 
 Tab Tabs::at(int i) {
-    GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), i);
-    return Tab(this, terminal, i);
+        if (i<0 || size_t(i) >= ztabs.size()) return Tab();
+        return ztabs[i];
 }
+
+std::vector<Tab> Tabs::get_all_tabs(int z) {
+        std::vector<Tab> rv;
+        for (int j = 0;;++j) {
+                GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), j);
+                if (!terminal) {
+                    total_tabs = j;
+                    break;
+                }
+                Tab t = Tab(this, terminal);
+                t.order = int(rv.size());
+                t.notebook_order = j;
+                if (z==-1 || t.get_z_axe() == z) {
+                        rv.push_back(t);
+                }
+        }
+        return rv;
+}
+
 
 TerminalContext * Tab::get_context() {
     if (!terminal) return nullptr;
@@ -31,7 +65,12 @@ TerminalContext * Tab::get_context() {
 }
 
 int Tabs::current_index() const {
-    return gtk_notebook_get_current_page(GTK_NOTEBOOK(tabs));
+    Tab t;
+    t = const_cast<Tabs *>(this)->get_focus();
+    if (t.is_valid()) {
+        return t.order;
+    }
+    return -1;
 }
 
 Tab Tab::next() const {
@@ -42,22 +81,19 @@ Tab Tab::prev() const {
     return tabs->at(order - 1);
 }
 
-std::string Tab::get_name(bool *has_name) const {
-    const TerminalContext * tc = get_context();
-    if (!tc->has_name()) {
-        if (has_name) *has_name = false;
-        if (tc) {
-            return std::to_string(tc->get_id());
-        }
+std::string Tab::get_name() const {
+    return std::to_string(order);
+}
 
-        return "?";
-    }
-    if (has_name) *has_name = true;
-    return tc->get_name();
+void Tab::swap(Tab t) {
+    if (!*this || !t) return;
+    set_order(t.notebook_order);
 }
 
 int Tab::get_id() const {
-    return get_context()->get_id();
+    auto context = get_context();
+    if (!context) return -1;
+    return context->get_id();
 }
 
 namespace {
@@ -79,7 +115,7 @@ public:
 } // namespace
 
 
-std::string Tab::dump() {
+std::string Tab::dump() const {
     if (!is_valid()) RAISE(NOT_FOUND) << "invalid tab";
 
     GOutputStream * gss = g_memory_output_stream_new (NULL, 0, realloc, free);
@@ -101,18 +137,22 @@ std::string Tab::dump() {
     return std::string(data, size);
 }
 
-void Tabs::remove(int i) {
-    gtk_notebook_remove_page(GTK_NOTEBOOK(tabs), i);
-}
 
 int Tabs::index_of(GtkWidget *w) const {
-    return gtk_notebook_page_num(GTK_NOTEBOOK(tabs), GTK_WIDGET(w));
+    for (auto t: ztabs) {
+        if (t.is(w)) {
+            return t.order;
+        }
+    }
+    return -1;
 }
 
-void Tabs::remove(GtkWidget *w) {
-    int i = index_of(w);
-    if (i < 0) return;
-    remove(i);
+int Tabs::remove(GtkWidget *w) {
+    int i = gtk_notebook_page_num(GTK_NOTEBOOK(tabs), GTK_WIDGET(w));
+    if (i < 0) return -1;
+    gtk_notebook_remove_page(GTK_NOTEBOOK(tabs), i);
+    sync();
+    return i;
 }
 
 int Tab::set_order(int n) {
@@ -123,58 +163,26 @@ int Tab::set_order(int n) {
 
 void Tab::focus() {
     if (!is_valid()) return;
-    gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs->raw()), order);
-}
-
-void Tab::set_name(const std::string &s) {
-    if (tabs->find(s)) {
-        RAISE(EXISTS) << "the tab [" << s << "] already exists";
-    }
-
-    get_context()->set_name(s);
-}
-
-void Tab::feed(const std::string &s) {
-    if (!is_valid()) return;
-    vte_terminal_feed_child(VTE_TERMINAL(terminal), s.c_str(), s.size());
-    vte_terminal_feed_child(VTE_TERMINAL(terminal), "\n", 1);
+    tabs->reset_focus();
+    get_context()->focus = true;
+    gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs->raw()), notebook_order);
 }
 
 Tab Tabs::find(const std::string &name) const {
-    try {
-        if (name.empty()) return Tab(const_cast<Tabs *>(this), nullptr, -1);
-        if (name == "{}") return current();
+    int n = stoi(name);
 
-        parser::Parslet_t p(name);
-
-        if (p.first() == '{' && p.last() == '}') {
-            p.next(); p.shift();
-            int id = boost::lexical_cast<int>(p.str());
-            for (auto t: *this) {
-                if (t.get_id() == id)
-                    return t;
-            }
-        } else {
-            for (auto t: *this) {
-                if (t.get_name() == name)
-                    return t;
-            }
-        }
-    } catch(const std::exception &e) {
-        // ...
+    if (n < 0 or n >= int(ztabs.size())) {
+        return Tab();
     }
 
-    return Tab(const_cast<Tabs *>(this), nullptr, -1);
+    return ztabs[n];
 }
 
-void TerminalContext::set_name(const std::string &s) {
-    if (s.empty()) RAISE(COMMAND_ARG) << "empty";
-    if (s.size() > 20) RAISE(COMMAND_ARG) << "too long";
-    for (char c: s) {
-        if (isspace(c)) RAISE(COMMAND_ARG) << "space character";
-        if (!isgraph(c)) RAISE(COMMAND_ARG) << "not printable";
-    }
-    name = s;
+int Tab::remove() {
+    if (!*this) return -1;
+    int rv = tabs->remove(terminal);
+    *this = Tab();
+    return rv;
 }
 
 }

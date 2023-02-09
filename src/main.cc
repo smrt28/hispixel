@@ -57,10 +57,6 @@ void activate(GtkApplication* app, gpointer _udata)
 
     // register his-* callbacks
     callback::reg(interface, "handle-vte-dump", &DbusHandler::dump, dbhandler);
-    callback::reg(interface, "handle-focus", &DbusHandler::focus, dbhandler);
-    callback::reg(interface, "handle-feed", &DbusHandler::feed, dbhandler);
-    callback::reg(interface, "handle-open-tab", &DbusHandler::opentab, dbhandler);
-    callback::reg(interface, "handle-set-name", &DbusHandler::rename, dbhandler);
 
     g_dbus_interface_skeleton_export (G_DBUS_INTERFACE_SKELETON (interface), connection, "/com/hispixel", &error);
 

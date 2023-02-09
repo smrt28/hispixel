@@ -16,7 +16,8 @@
 #include "envfactory.h"
 #include "parslet.h"
 #include "tabs.h"
-
+#include "colormanager.h"
+#include "utils.h"
 //#define DEBUG_LOG_KEY_EVENTS
 
 namespace s28 {
@@ -76,8 +77,9 @@ std::vector<std::string> get_config_files() {
     std::string h = homedir();
 
     std::vector<std::string> rv;
-    rv.push_back(h + "/.hispixel/config");
+    rv.push_back(h + "/.config/hispixel.1"); // ~/.config directory
     rv.push_back(h + "/.config/hispixel"); // ~/.config directory
+    rv.push_back(h + "/.hispixel/config");
     return rv;
 }
 
@@ -110,35 +112,78 @@ bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
 
 } // namespace
 
-gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
-{
-    typedef s28::Config_t::Action_t Action_t;
-    Action_t ac;
 
+HisPixelApp::Action_t HisPixelApp::find_action(GdkEvent *event)
+{
+    Action_t ac;
     const s28::Config_t::KeyBindings_t &keybindings = config.get_keybindings();
 
     // search key bindings
     for (auto binding: keybindings) {
         if (match_gtk_ks_event(event, binding.keysym)) {
-            ac = binding.action;
-            break;
+            return binding.action;
         }
     }
 
-#ifdef DEBUG_LOG_KEY_EVENTS
-    std::cout << event->key.keyval << " " << gtkkey_mask(event->key.state)  <<std::endl;
-#endif
 
-    Tabs tt(tabs);
+    return Action_t();
+}
+
+
+gboolean HisPixelApp::key_release_event(GtkWidget *, GdkEvent *event)
+{
+    Tabs tt(tabs, z_axe);
+    Action_t ac = find_action(event);
+    switch (ac.type) {
+        case Action_t::ACTION_CLOSE_LAST:
+            if (tt.empty_all_axes()) {
+                close_last_fuse_enabled = false;
+            }
+            break;
+        default:
+            break;
+    }
+    return FALSE;
+}
+
+gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
+{
+    Action_t ac = find_action(event);
+    Tabs tt(tabs, z_axe);
 
     switch (ac.type) {
         case Action_t::ACTION_BE_FIRST:
-            tt.current().set_order(ac.data);
+            {
+            Tab tc = tt.current();
+            Tab tn = tt.at(ac.data);
+            if (!tc || !tn) return TRUE;
+            tc.swap(tn);
             update_tabbar();
             return TRUE;
+            }
         case Action_t::ACTION_OPENTAB:
             open_tab();
             return TRUE;
+        case Action_t::ACTION_FOCUS_Z:
+            {
+                if (ac.data > 50) { // max 50 tabs
+                    break;
+                }
+
+                z_axe = ac.data - 1;
+                tt.set_z_axe(z_axe);
+                if (tt.size() == 0) {
+                    open_tab();
+                    tt.sync();
+                }
+
+                Tab t = tt.get_focus();
+                if (t.is_valid()) {
+                        t.focus();
+                }
+                update_tabbar();
+                return TRUE;
+            }
         case Action_t::ACTION_FOCUS:
             {
                 if (ac.data > 50) { // max 50 tabs
@@ -166,10 +211,13 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
             update_tabbar();
             return TRUE;
         case Action_t::ACTION_CLOSE_LAST:
-            if (tt.empty()) {
+            if (tt.empty_all_axes() && !close_last_fuse_enabled) {
                 g_application_quit(G_APPLICATION(app));
                 return TRUE;
             }
+            tt.sync();
+
+            update_tabbar();
             return FALSE;
         case Action_t::ACTION_TOGLE_TABBAR:
             tabbar_visible = !tabbar_visible;
@@ -201,8 +249,42 @@ void HisPixelApp::page_removed(GtkNotebook * /*notebook*/,
 }
 
 void HisPixelApp::child_exited(VteTerminal *t, gint /*status*/) {
-    Tabs tt(tabs);
+    Tabs tt(tabs, z_axe);
+    int i = tt.index_of(GTK_WIDGET(t));
     tt.remove(GTK_WIDGET(t));
+
+    if (tt.empty() && tt.get_total_tabs() > 0) {
+        auto all = tt.get_all_tabs(-1);
+        int z = -1;
+        for (auto t: all) {
+            int zz = t.get_z_axe();
+            if (zz < z_axe) {
+                z = zz;
+            }
+
+            if (zz > z_axe) {
+                z = zz;
+                break;
+            }
+        }
+
+        if (z != -1) {
+            z_axe = z;
+        }
+        tt.set_z_axe(z_axe);
+        tt.get_focus().focus();
+
+        update_tabbar();
+        return;
+    }
+
+    tt.sync();
+    if (i >= tt.size()) {
+        i--;
+    }
+
+    tt.at(i).focus();
+    update_tabbar();
 
     // exit the app if there is no tab reminding
     if (!config.has_close_last && tt.empty()) {
@@ -212,37 +294,44 @@ void HisPixelApp::child_exited(VteTerminal *t, gint /*status*/) {
 
 
 std::string HisPixelApp::tabbar_text() {
-    Tabs t(tabs);
+    Tabs t(tabs, z_axe);
     // get number of tabs
     gint n = t.size();
     if (n <= 0) return std::string();
 
     std::ostringstream oss;
-    Tab current = t.current();
-    for (auto tt: t) {
-        bool hasname;
-        std::string name = tt.get_name(&hasname);
-        std::string color1, color2;
-        if (hasname) {
-            color2 = "555555";
-            color1 = "ffffff";
+  
+    auto span = [this]() -> std::string {
+        std::ostringstream oss;
+        oss << "<span font_desc=\"" << config.get<std::string>("label_font") << "\"";
+        return oss.str();
+    };
 
-        } else {
-            color2 = "772277";
-            color1 = "ff44ff";
-        }
-        if (tt.index() == current.index()) {
-            oss << "<span foreground=\"#" << color1 << "\"";
+    oss <<  span() << " foreground=\"#" <<
+        config.get<std::string>("z_name_color") << "\"";
+    oss << " font_weight=\"bold\">"; // the selected tab is bold
+    oss << z_manager.z_to_name(z_axe) << " - "; // tab number
+    oss << "</span>";
+    for (auto tt: t) {
+        std::string name = tt.get_name();
+        std::string color1, color2;
+
+        color1 = z_manager.get_z_color_light(z_axe);
+        color2 = z_manager.get_z_color_dark(z_axe);
+
+        if (tt.has_focus()) {
+            oss << span() << " foreground=\"#" << color1 << "\"";
             oss << " font_weight=\"bold\">"; // the selected tab is bold
             oss << "[" << name << "]"; // tab number
             oss << "</span>";
         } else {
-            oss << "<span foreground=\"#" << color2 << "\"";
+            oss << span() << " foreground=\"#" << color2 << "\"";
             oss << " font_weight=\"bold\">"; // the selected tab is bold
             oss << "[" << name << "]"; // tab number
             oss << "</span>";
         }
     }
+
     return oss.str();
 }
 
@@ -275,33 +364,10 @@ void HisPixelApp::selection_changed(VteTerminal *) {
 }
 
 
-namespace {
-void apply_gama(gdouble &color, int gama) {
-        if (gama == 0) return;
-
-        gdouble diff = (color * gama) / 100.0;
-        color += diff;
-
-        if (color > 1) color = 1;
-        if (color < 0) color = 0;
-}
-}
-
 void HisPixelApp::open_tab(TabConfig tabconfig) {
-    Tabs tt(tabs);
-    std::unique_ptr<TerminalContext> tc(new TerminalContext());
-    if (tabconfig.name) {
-        if (!tt.find(*tabconfig.name).is_valid()) {
-            tc->set_name(*tabconfig.name);
-        } else {
-            RAISE(EXISTS) << "tab of this name already exists";
-        }
-    } else {
-        // ensure unique tab name/id
-        while (tt.find(std::to_string(tc->get_id()))) {
-            tc.reset(new TerminalContext());
-        }
-    }
+    close_last_fuse_enabled = true;
+    Tabs tt(tabs, z_axe);
+    std::unique_ptr<TerminalContext> tc(new TerminalContext(z_axe));
 
     GtkWidget * terminal = vte_terminal_new();
 
@@ -355,11 +421,7 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     int gama = config.get<int>("gama");
     for (int i = 0; i < 16; i++) {
         GdkRGBA c = config.get<GdkRGBA>(colors[i]);
-        if (gama != 0) {
-                apply_gama(c.red, gama);
-                apply_gama(c.green, gama);
-                apply_gama(c.blue, gama);
-        }
+        utils::apply_gama(c, gama);
         color_palette[i] = c;
     }
 
@@ -402,18 +464,21 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     int sel = gtk_notebook_append_page(GTK_NOTEBOOK(tabs), terminal, 0);
     if (sel == -1) {
         gtk_widget_destroy(terminal);
-        std::cout << "gtk_notebook_append_page failed";
         return;
     }
 
     tc.release();
 
-    Tab current = Tabs(tabs).current();
-
     gtk_widget_show(terminal);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);
     gtk_notebook_next_page (GTK_NOTEBOOK(tabs));
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
+
+    gtk_widget_show(tabs);
+    tt.sync();
+    Tab current = tt.last();
+    current.focus();
+
 
     if (tabconfig.focus)
         gtk_widget_grab_focus(terminal);
@@ -448,6 +513,7 @@ void HisPixelApp::activate(GtkApplication* theApp) {
 
     // register window key_press signal callbacks
     evts.reg_key_press_event(window);
+    evts.reg_key_release_event(window);
 
     // GTK3 uses CSS styling. Create the CSS for the app.
     // create CSS provider, assign the CSS to the screen
@@ -559,8 +625,6 @@ void HisPixelApp::read_config(const char *cfg_file) {
                 RAISE(NOT_FOUND) << "err: config file not found at ~/.hispixel/config or ~/.config/hispixel";
             }
     }
-
-    tabbar_visible = config.get<bool>("show_tabbar");
 
     // get and cache pango font dectiptin used by VTE
     std::string font_name = config.get<std::string>("term_font");

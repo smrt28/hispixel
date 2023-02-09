@@ -28,14 +28,15 @@ public:
     public:
         // the actions, usually invoked by a key press
         enum ActionType_t {
-            ACTION_NONE,
-            ACTION_FOCUS,
-            ACTION_OPENTAB,
-            ACTION_FOCUS_NEXT,
-            ACTION_FOCUS_PREV,
-            ACTION_CLOSE_LAST,
-            ACTION_BE_FIRST,
-            ACTION_TOGLE_TABBAR
+            ACTION_NONE = 0,
+            ACTION_FOCUS = 1,
+            ACTION_FOCUS_Z = 2,
+            ACTION_OPENTAB = 3,
+            ACTION_FOCUS_NEXT = 4,
+            ACTION_FOCUS_PREV = 5,
+            ACTION_CLOSE_LAST = 6,
+            ACTION_BE_FIRST = 7,
+            ACTION_TOGLE_TABBAR = 8
         };
 
         Action_t() :
