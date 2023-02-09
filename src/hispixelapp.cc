@@ -129,7 +129,7 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
     std::cout << event->key.keyval << " " << gtkkey_mask(event->key.state)  <<std::endl;
 #endif
 
-    Tabs tt(tabs);
+    Tabs tt(tabs, z_axe);
 
     switch (ac.type) {
         case Action_t::ACTION_BE_FIRST:
@@ -201,7 +201,7 @@ void HisPixelApp::page_removed(GtkNotebook * /*notebook*/,
 }
 
 void HisPixelApp::child_exited(VteTerminal *t, gint /*status*/) {
-    Tabs tt(tabs);
+    Tabs tt(tabs, z_axe);
     tt.remove(GTK_WIDGET(t));
 
     // exit the app if there is no tab reminding
@@ -212,16 +212,24 @@ void HisPixelApp::child_exited(VteTerminal *t, gint /*status*/) {
 
 
 std::string HisPixelApp::tabbar_text() {
-    Tabs t(tabs);
+    Tabs t(tabs, z_axe);
     // get number of tabs
     gint n = t.size();
     if (n <= 0) return std::string();
 
     std::ostringstream oss;
+    /*
+            oss << "<span foreground=\"#" << "ff44ff" << "\"";
+            oss << " font_weight=\"bold\">"; // the selected tab is bold
+            oss << "[" << 'X' << "] "; // tab number
+            oss << "</span>";
+
+            */
     Tab current = t.current();
     for (auto tt: t) {
         bool hasname;
         std::string name = tt.get_name(&hasname);
+
         std::string color1, color2;
         if (hasname) {
             color2 = "555555";
@@ -231,6 +239,8 @@ std::string HisPixelApp::tabbar_text() {
             color2 = "772277";
             color1 = "ff44ff";
         }
+
+
         if (tt.index() == current.index()) {
             oss << "<span foreground=\"#" << color1 << "\"";
             oss << " font_weight=\"bold\">"; // the selected tab is bold
@@ -288,8 +298,8 @@ void apply_gama(gdouble &color, int gama) {
 }
 
 void HisPixelApp::open_tab(TabConfig tabconfig) {
-    Tabs tt(tabs);
-    std::unique_ptr<TerminalContext> tc(new TerminalContext());
+    Tabs tt(tabs, z_axe);
+    std::unique_ptr<TerminalContext> tc(new TerminalContext(z_axe));
     if (tabconfig.name) {
         if (!tt.find(*tabconfig.name).is_valid()) {
             tc->set_name(*tabconfig.name);
@@ -299,7 +309,7 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     } else {
         // ensure unique tab name/id
         while (tt.find(std::to_string(tc->get_id()))) {
-            tc.reset(new TerminalContext());
+            tc.reset(new TerminalContext(z_axe));
         }
     }
 
@@ -408,7 +418,7 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
 
     tc.release();
 
-    Tab current = Tabs(tabs).current();
+    Tab current = Tabs(tabs, z_axe).current();
 
     gtk_widget_show(terminal);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);

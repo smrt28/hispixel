@@ -19,8 +19,18 @@ int Tabs::size() const {
 }
 
 Tab Tabs::at(int i) {
-    GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), i);
-    return Tab(this, terminal, i);
+    int k = 0;
+    for (int j = 0;;++j) {
+            GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), j);
+
+            Tab rv = Tab(this, terminal, i);
+            if (!terminal) return rv;
+            if (rv.get_z_axe() != z_axe) {
+                    continue;
+            }
+            if (k == i) return rv;
+            k++;
+    }
 }
 
 TerminalContext * Tab::get_context() {

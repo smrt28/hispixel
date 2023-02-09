@@ -27,7 +27,7 @@ public:
     gboolean key_press_event(GtkWidget *widget, GdkEvent *event);
     void page_removed(GtkNotebook *notebook, GtkWidget *child, guint page_num);
     void selection_changed(VteTerminal *t);
-    Tabs get_tabs() { return Tabs(tabs); }
+    Tabs get_tabs() { return Tabs(tabs, z_axe); }
 
     /**
      * Handle exception thrown in the GTK signal handler
@@ -77,6 +77,7 @@ private:
 
     // Config map
     s28::Config_t config;
+    int z_axe = 0;
 };
 
 } // namespace s28

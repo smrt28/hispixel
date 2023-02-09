@@ -13,7 +13,7 @@ namespace s28 {
 class TerminalContext {
     static int id_counter;
 public:
-    TerminalContext() {
+    TerminalContext(int z_axe) : z_axe(z_axe) {
         id_counter ++;
         // TODO: handle overflow
         id = id_counter;
@@ -30,6 +30,7 @@ public:
     }
 
     void set_name(const std::string &s);
+    int z_axe;
 private:
     boost::optional<std::string> name;
     int id;
@@ -75,6 +76,8 @@ public:
 
     TerminalContext * get_context();
     const TerminalContext * get_context() const { return const_cast<Tab *>(this)->get_context(); }
+
+    int get_z_axe(void) { return get_context()->z_axe; }
     std::string get_name(bool *has_name = nullptr) const;
 
     int get_id() const;
@@ -103,7 +106,7 @@ private:
  */
 class Tabs {
 public:
-    Tabs(GtkWidget *tabs) : tabs(tabs) {}
+    Tabs(GtkWidget *tabs, int z_axe) : tabs(tabs), z_axe(z_axe) {}
 
     Tab at(int i);
     int index_of(GtkWidget *) const;
@@ -148,6 +151,7 @@ public:
     std::string suggest_tab_name() const;
 private:
     GtkWidget *tabs;
+    int z_axe;
 };
 } // namespace s28
 #endif
