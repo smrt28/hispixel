@@ -151,39 +151,38 @@ Config_t::Action_t string_to_action(parser::Parslet_t &p) {
     std::string s = word(p).str();
 
     // handle actions for keybindings
-    if (s == "focus") { // focus tab
+    if (s == "focus_z") { // focus tab
+        Action_t rv(Action_t::ACTION_FOCUS_Z);
+        // stor tab nuber in data
+        rv.data = boost::lexical_cast<int>(word(p).str());
+        return rv;
+    } else  if (s == "focus") { // focus tab
         Action_t rv(Action_t::ACTION_FOCUS);
         // stor tab nuber in data
         rv.data = boost::lexical_cast<int>(word(p).str());
         return rv;
-    }
-    if (s == "focus_next") { // focus next tab
+    } else if (s == "focus_next") { // focus next tab
         return Action_t(Action_t::ACTION_FOCUS_NEXT);
-    }
-    if (s == "focus_prev") { // focus prev tab
+    } else  if (s == "focus_prev") { // focus prev tab
         return Action_t(Action_t::ACTION_FOCUS_PREV);
-    }
-    if (s == "opentab") { // open new tab
+    } else if (s == "opentab") { // open new tab
         return Action_t(Action_t::ACTION_OPENTAB);
-    }
-    if (s == "close_last") { // exits the app when there is no tab open
+    } else if (s == "close_last") { // exits the app when there is no tab open
         return Action_t(Action_t::ACTION_CLOSE_LAST);
-    }
-    if (s == "togle_tabbar") {
+    } else if (s == "togle_tabbar") {
         return Action_t(Action_t::ACTION_TOGLE_TABBAR);
-    }
-    if (s == "swap_1") { return Action_t(Action_t::ACTION_BE_FIRST, 0); }
-    if (s == "swap_2") { return Action_t(Action_t::ACTION_BE_FIRST, 1); }
-    if (s == "swap_3") { return Action_t(Action_t::ACTION_BE_FIRST, 2); }
-    if (s == "swap_4") { return Action_t(Action_t::ACTION_BE_FIRST, 3); }
-    if (s == "swap_5") { return Action_t(Action_t::ACTION_BE_FIRST, 4); }
-    if (s == "swap_6") { return Action_t(Action_t::ACTION_BE_FIRST, 5); }
-    if (s == "swap_7") { return Action_t(Action_t::ACTION_BE_FIRST, 6); }
-    if (s == "swap_8") { return Action_t(Action_t::ACTION_BE_FIRST, 7); }
-    if (s == "swap_9") { return Action_t(Action_t::ACTION_BE_FIRST, 8); }
-    if (s == "swap_10") { return Action_t(Action_t::ACTION_BE_FIRST, 9); }
-    if (s == "swap_11") { return Action_t(Action_t::ACTION_BE_FIRST, 10); }
-    if (s == "swap_12") { return Action_t(Action_t::ACTION_BE_FIRST, 11); }
+    } else if (s == "swap_1") { return Action_t(Action_t::ACTION_BE_FIRST, 0); }
+    else if (s == "swap_2") { return Action_t(Action_t::ACTION_BE_FIRST, 1); }
+    else if (s == "swap_3") { return Action_t(Action_t::ACTION_BE_FIRST, 2); }
+    else if (s == "swap_4") { return Action_t(Action_t::ACTION_BE_FIRST, 3); }
+    else if (s == "swap_5") { return Action_t(Action_t::ACTION_BE_FIRST, 4); }
+    else if (s == "swap_6") { return Action_t(Action_t::ACTION_BE_FIRST, 5); }
+    else if (s == "swap_7") { return Action_t(Action_t::ACTION_BE_FIRST, 6); }
+    else if (s == "swap_8") { return Action_t(Action_t::ACTION_BE_FIRST, 7); }
+    else if (s == "swap_9") { return Action_t(Action_t::ACTION_BE_FIRST, 8); }
+    else if (s == "swap_10") { return Action_t(Action_t::ACTION_BE_FIRST, 9); }
+    else if (s == "swap_11") { return Action_t(Action_t::ACTION_BE_FIRST, 10); }
+    else if (s == "swap_12") { return Action_t(Action_t::ACTION_BE_FIRST, 11); }
 
     RAISE(UNKNOWN_ACTION) << "unknown config key: " << s;
     return Config_t::Action_t(); // not reachable (avoids compiler warning)

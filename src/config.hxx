@@ -30,6 +30,7 @@ public:
         enum ActionType_t {
             ACTION_NONE,
             ACTION_FOCUS,
+            ACTION_FOCUS_Z,
             ACTION_OPENTAB,
             ACTION_FOCUS_NEXT,
             ACTION_FOCUS_PREV,

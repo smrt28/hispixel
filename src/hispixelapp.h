@@ -77,6 +77,7 @@ private:
 
     // Config map
     s28::Config_t config;
+    TerminalCtl tctl;
     int z_axe = 0;
 };
 

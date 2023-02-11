@@ -76,8 +76,9 @@ std::vector<std::string> get_config_files() {
     std::string h = homedir();
 
     std::vector<std::string> rv;
-    rv.push_back(h + "/.hispixel/config");
+    rv.push_back(h + "/.config/hispixel.1"); // ~/.config directory
     rv.push_back(h + "/.config/hispixel"); // ~/.config directory
+    rv.push_back(h + "/.hispixel/config");
     return rv;
 }
 
@@ -114,7 +115,6 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
 {
     typedef s28::Config_t::Action_t Action_t;
     Action_t ac;
-
     const s28::Config_t::KeyBindings_t &keybindings = config.get_keybindings();
 
     // search key bindings
@@ -139,6 +139,27 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
         case Action_t::ACTION_OPENTAB:
             open_tab();
             return TRUE;
+        case Action_t::ACTION_FOCUS_Z:
+            {
+                if (ac.data > 50) { // max 50 tabs
+                    break;
+                }
+
+                z_axe = ac.data - 1;
+                std::cout << "z << " << z_axe << std::endl;
+                tt.set_z_axe(z_axe);
+                if (tt.size() == 0) {
+                        open_tab();
+                        tt.sync();
+                }
+
+                Tab t = tt.get_focus();
+                if (t.is_valid()) {
+                        t.focus();
+                }
+                update_tabbar();
+                return TRUE;
+            }
         case Action_t::ACTION_FOCUS:
             {
                 if (ac.data > 50) { // max 50 tabs
@@ -218,14 +239,13 @@ std::string HisPixelApp::tabbar_text() {
     if (n <= 0) return std::string();
 
     std::ostringstream oss;
-    /*
-            oss << "<span foreground=\"#" << "ff44ff" << "\"";
-            oss << " font_weight=\"bold\">"; // the selected tab is bold
-            oss << "[" << 'X' << "] "; // tab number
-            oss << "</span>";
 
-            */
-    Tab current = t.current();
+    /*
+    oss << "<span foreground=\"#" << "ff4488" << "\"";
+    oss << " font_weight=\"bold\">"; // the selected tab is bold
+    oss << "[" << z_axe << "] - "; // tab number
+    oss << "</span>";
+*/
     for (auto tt: t) {
         bool hasname;
         std::string name = tt.get_name(&hasname);
@@ -241,7 +261,7 @@ std::string HisPixelApp::tabbar_text() {
         }
 
 
-        if (tt.index() == current.index()) {
+        if (tt.has_focus()) {
             oss << "<span foreground=\"#" << color1 << "\"";
             oss << " font_weight=\"bold\">"; // the selected tab is bold
             oss << "[" << name << "]"; // tab number
@@ -299,7 +319,8 @@ void apply_gama(gdouble &color, int gama) {
 
 void HisPixelApp::open_tab(TabConfig tabconfig) {
     Tabs tt(tabs, z_axe);
-    std::unique_ptr<TerminalContext> tc(new TerminalContext(z_axe));
+    std::unique_ptr<TerminalContext> tc(new TerminalContext(&tctl, z_axe));
+
     if (tabconfig.name) {
         if (!tt.find(*tabconfig.name).is_valid()) {
             tc->set_name(*tabconfig.name);
@@ -309,7 +330,7 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     } else {
         // ensure unique tab name/id
         while (tt.find(std::to_string(tc->get_id()))) {
-            tc.reset(new TerminalContext(z_axe));
+            tc.reset(new TerminalContext(&tctl, z_axe));
         }
     }
 
@@ -418,12 +439,15 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
 
     tc.release();
 
-    Tab current = Tabs(tabs, z_axe).current();
-
     gtk_widget_show(terminal);
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs), sel);
     gtk_notebook_next_page (GTK_NOTEBOOK(tabs));
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
+
+    tt.sync();
+    Tab current = tt.last();
+    current.focus();
+
 
     if (tabconfig.focus)
         gtk_widget_grab_focus(terminal);

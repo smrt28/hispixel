@@ -5,15 +5,20 @@
 #include <string>
 #include <boost/optional.hpp>
 #include <iterator>
+#include <vector>
 
 namespace s28 {
+
+struct TerminalCtl {
+};
+
 /**
  * Metadata hold by every terminal widget
  */
 class TerminalContext {
     static int id_counter;
 public:
-    TerminalContext(int z_axe) : z_axe(z_axe) {
+    TerminalContext(TerminalCtl *tctl, int z_axe) : tctl(tctl), z_axe(z_axe) {
         id_counter ++;
         // TODO: handle overflow
         id = id_counter;
@@ -30,10 +35,12 @@ public:
     }
 
     void set_name(const std::string &s);
+
+    TerminalCtl * tctl;
     int z_axe;
-private:
     boost::optional<std::string> name;
     int id;
+    bool focus = false;
 };
 
 class Tabs;
@@ -44,15 +51,10 @@ class Tabs;
 class Tab {
 public:
     Tab() : tabs(nullptr), terminal(nullptr), order(-1) {}
-    Tab(Tabs * tabs, GtkWidget *terminal, int order_arg) :
+    Tab(Tabs * tabs, GtkWidget *terminal) :
         tabs(tabs),
         terminal(terminal)
     {
-        if (!terminal) {
-            order = -1;
-        } else {
-            order = order_arg;
-        }
     }
 
     operator bool() const {
@@ -89,15 +91,17 @@ public:
     int set_order(int n);
 
     void focus();
+
+    bool has_focus() { return get_context()->focus; }
     void feed(const std::string &s);
     std::string dump();
 
     GtkWidget *raw() const { return terminal; }
 
-private:
-    Tabs *tabs;
-    GtkWidget *terminal;
-    int order;
+    int notebook_order = -1;
+    Tabs *tabs = nullptr;
+    GtkWidget *terminal = nullptr;
+    int order = -1;
 };
 
 
@@ -106,7 +110,7 @@ private:
  */
 class Tabs {
 public:
-    Tabs(GtkWidget *tabs, int z_axe) : tabs(tabs), z_axe(z_axe) {}
+    Tabs(GtkWidget *tabs, int z_axe);
 
     Tab at(int i);
     int index_of(GtkWidget *) const;
@@ -141,7 +145,7 @@ public:
     }
 
     const_iterator end() const {
-        return const_iterator(Tab(const_cast<Tabs *>(this), nullptr, -1));
+        return const_iterator(Tab(const_cast<Tabs *>(this), nullptr));
     }
 
     GtkWidget * raw() const { return tabs; }
@@ -149,7 +153,39 @@ public:
     Tab find(const std::string &name) const;
 
     std::string suggest_tab_name() const;
+
+    std::vector<Tab> get_all_tabs(int z=-1);
+
+    void reset_focus() {
+            for (Tab t: ztabs)
+            {
+                    t.get_context()->focus = false;
+            }
+    }
+
+    Tab get_focus()
+    {
+            for (Tab t: ztabs)
+            {
+                    if (t.get_context()->focus) {
+                            return t;
+                    }
+            }
+            if (!ztabs.empty()) return ztabs[0];
+            return Tab(this, nullptr);
+    }
+
+    void sync();
+
+    Tab last() {
+            if (ztabs.empty()) return Tab(this, nullptr);
+            return ztabs.back();
+
+    }
+
+    void set_z_axe(int z);
 private:
+    std::vector<Tab> ztabs;
     GtkWidget *tabs;
     int z_axe;
 };
