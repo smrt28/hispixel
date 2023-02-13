@@ -318,11 +318,9 @@ void setup_config_defualuts(Map &config_map) {
         config_map.comment("");
         config_map.comment("Z-Axes colors");
 
-        config_map.template set<GdkRGBA>("z_color_0","#772277 #772277 #772277 #772277 #772277");
-        config_map.template set<GdkRGBA>("z_color_1","#ff44ff #ff44ff #ff44ff #ff44ff #ff44ff");
+        config_map.template set<std::string>("z_color_0","#772277 #772277 #772277 #772277 #772277 #772277");
+        config_map.template set<std::string>("z_color_1","#ff44ff #ff44ff #ff44ff #ff44ff #ff44ff #ff44ff");
         config_map.template set<std::string>("z_names", "Q W E R T Y");
-
-
 
         config_map.comment("");
         config_map.comment("Terminal font colors");
@@ -394,6 +392,14 @@ void dump_default_config() {
     cd.raw("bindsym ctrl+alt+9 swap_9");
     cd.raw("bindsym ctrl+alt+t togle_tabbar");
     cd.raw("bindsym ctrl+d close_last");
+
+    cd.raw("bindsym alt+q focus_z 1");
+    cd.raw("bindsym alt+w focus_z 2");
+    cd.raw("bindsym alt+e focus_z 3");
+    cd.raw("bindsym alt+r focus_z 4");
+    cd.raw("bindsym alt+t focus_z 5");
+    cd.raw("bindsym alt+y focus_z 6");
+
 }
 
 void Config_t::init_defaults() {
