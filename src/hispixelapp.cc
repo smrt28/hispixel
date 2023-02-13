@@ -147,9 +147,8 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
                 std::cout << "z << " << z_axe << std::endl;
                 tt.set_z_axe(z_axe);
                 if (tt.size() == 0) {
-                    gtk_widget_hide(tabs);
-                } else {
-                    gtk_widget_show(tabs);
+                    open_tab();
+                    tt.sync();
                 }
 
                 Tab t = tt.get_focus();
@@ -232,13 +231,28 @@ void HisPixelApp::child_exited(VteTerminal *t, gint /*status*/) {
 
     if (tt.empty() && tt.get_total_tabs() > 0) {
         auto all = tt.get_all_tabs(-1);
+        int z = -1;
         for (auto t: all) {
+            int zz = t.get_z_axe();
+            std::cout << "zz=" <<zz << " z_axe=" << z_axe << std::endl;
+            if (zz < z_axe) {
+                z = zz;
+            }
 
-            //smrt
-
+            if (zz > z_axe) {
+                z = zz;
+                break;
+            }
         }
 
-        gtk_widget_hide(tabs);
+        std::cout << "new z=" << z << std::endl;
+        if (z != -1) {
+            z_axe = z;
+        }
+        tt.set_z_axe(z_axe);
+        tt.get_focus().focus();
+
+        update_tabbar();
         return;
     }
 
@@ -259,6 +273,7 @@ void HisPixelApp::child_exited(VteTerminal *t, gint /*status*/) {
 
 std::string HisPixelApp::tabbar_text() {
     Tabs t(tabs, z_axe);
+    std::cout << "HisPixelApp::tabbar_text " << z_axe << std::endl;
     // get number of tabs
     gint n = t.size();
     if (n <= 0) return std::string();
@@ -270,15 +285,18 @@ std::string HisPixelApp::tabbar_text() {
     oss << "[" << z_axe << "] - "; // tab number
     oss << "</span>";
     for (auto tt: t) {
-        bool hasname;
-        std::string name = tt.get_name(&hasname);
+ //       bool hasname;
+        std::string name = tt.get_name();
 
         std::string color1, color2;
+        /*
         if (hasname) {
             color2 = "555555";
             color1 = "ffffff";
 
-        } else {
+        } else
+*/
+        {
             color2 = "772277";
             color1 = "ff44ff";
         }
@@ -343,19 +361,6 @@ void apply_gama(gdouble &color, int gama) {
 void HisPixelApp::open_tab(TabConfig tabconfig) {
     Tabs tt(tabs, z_axe);
     std::unique_ptr<TerminalContext> tc(new TerminalContext(&tctl, z_axe));
-
-    if (tabconfig.name) {
-        if (!tt.find(*tabconfig.name).is_valid()) {
-            tc->set_name(*tabconfig.name);
-        } else {
-            RAISE(EXISTS) << "tab of this name already exists";
-        }
-    } else {
-        // ensure unique tab name/id
-        while (tt.find(std::to_string(tc->get_id()))) {
-            tc.reset(new TerminalContext(&tctl, z_axe));
-        }
-    }
 
     GtkWidget * terminal = vte_terminal_new();
 

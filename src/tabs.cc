@@ -82,19 +82,8 @@ Tab Tab::prev() const {
     return tabs->at(order - 1);
 }
 
-std::string Tab::get_name(bool *has_name) const {
-    const TerminalContext * tc = get_context();
-    if (!tc) return "N/A";
-    if (!tc->has_name()) {
-        if (has_name) *has_name = false;
-        if (tc) {
-            return std::to_string(tc->get_id());
-        }
-
-        return "?";
-    }
-    if (has_name) *has_name = true;
-    return tc->get_name();
+std::string Tab::get_name() const {
+    return std::to_string(order);
 }
 
 int Tab::get_id() const {
@@ -179,55 +168,10 @@ void Tab::focus() {
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs->raw()), notebook_order);
 }
 
-void Tab::set_name(const std::string &s) {
-    if (tabs->find(s)) {
-        RAISE(EXISTS) << "the tab [" << s << "] already exists";
-    }
-
-    get_context()->set_name(s);
-}
-
 void Tab::feed(const std::string &s) {
     if (!is_valid()) return;
     vte_terminal_feed_child(VTE_TERMINAL(terminal), s.c_str(), s.size());
     vte_terminal_feed_child(VTE_TERMINAL(terminal), "\n", 1);
-}
-
-Tab Tabs::find(const std::string &name) const {
-    try {
-        if (name.empty()) return Tab(const_cast<Tabs *>(this), nullptr);
-        if (name == "{}") return current();
-
-        parser::Parslet_t p(name);
-
-        if (p.first() == '{' && p.last() == '}') {
-            p.next(); p.shift();
-            int id = boost::lexical_cast<int>(p.str());
-            for (auto t: *this) {
-                if (t.get_id() == id)
-                    return t;
-            }
-        } else {
-            for (auto t: *this) {
-                if (t.get_name() == name)
-                    return t;
-            }
-        }
-    } catch(const std::exception &e) {
-        // ...
-    }
-
-    return Tab(const_cast<Tabs *>(this), nullptr);
-}
-
-void TerminalContext::set_name(const std::string &s) {
-    if (s.empty()) RAISE(COMMAND_ARG) << "empty";
-    if (s.size() > 20) RAISE(COMMAND_ARG) << "too long";
-    for (char c: s) {
-        if (isspace(c)) RAISE(COMMAND_ARG) << "space character";
-        if (!isgraph(c)) RAISE(COMMAND_ARG) << "not printable";
-    }
-    name = s;
 }
 
 }

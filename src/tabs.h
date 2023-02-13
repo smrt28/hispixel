@@ -25,20 +25,9 @@ public:
     }
 
     int get_id() const { return id; }
-    bool has_name() const {
-        if (name) return true;
-        return false;
-    }
-
-    std::string get_name() const {
-        return *name;
-    }
-
-    void set_name(const std::string &s);
 
     TerminalCtl * tctl;
     int z_axe;
-    boost::optional<std::string> name;
     int id;
     bool focus = false;
 };
@@ -84,7 +73,7 @@ public:
     const TerminalContext * get_context() const { return const_cast<Tab *>(this)->get_context(); }
 
     int get_z_axe(void) { return get_context()->z_axe; }
-    std::string get_name(bool *has_name = nullptr) const;
+    std::string get_name() const;
 
     int get_id() const;
 

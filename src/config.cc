@@ -314,6 +314,16 @@ void setup_config_defualuts(Map &config_map) {
         config_map.template set<uint32_t>("window_width", "400");
         config_map.template set<uint32_t>("window_height", "300");
 
+
+        config_map.comment("");
+        config_map.comment("Z-Axes colors");
+
+        config_map.template set<GdkRGBA>("z_color_0","#772277 #772277 #772277 #772277 #772277");
+        config_map.template set<GdkRGBA>("z_color_1","#ff44ff #ff44ff #ff44ff #ff44ff #ff44ff");
+        config_map.template set<std::string>("z_names", "Q W E R T Y");
+
+
+
         config_map.comment("");
         config_map.comment("Terminal font colors");
 
