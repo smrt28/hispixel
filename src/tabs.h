@@ -74,6 +74,10 @@ public:
         return false;
     }
 
+    bool is(GtkWidget *t) {
+        return t == terminal;
+    }
+
     int index() const { return order; }
 
     TerminalContext * get_context();
@@ -114,8 +118,8 @@ public:
 
     Tab at(int i);
     int index_of(GtkWidget *) const;
-    void remove(int i);
-    void remove(GtkWidget *);
+    int remove(int i);
+    int remove(GtkWidget *);
     const Tab at(int i) const { return const_cast<Tabs *>(this)->at(i); }
     int current_index() const;
     Tab current() { return at(current_index()); }
@@ -184,7 +188,13 @@ public:
     }
 
     void set_z_axe(int z);
+
+    bool empty_all_axes() { return total_tabs == 0; }
+
+    int get_total_tabs() { return total_tabs; }
+
 private:
+    int total_tabs = 0;
     std::vector<Tab> ztabs;
     GtkWidget *tabs;
     int z_axe;

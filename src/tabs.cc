@@ -35,7 +35,7 @@ int Tabs::size() const {
 }
 
 Tab Tabs::at(int i) {
-        if (size_t(i) >= ztabs.size()) return Tab(this, nullptr);
+        if (i<0 || size_t(i) >= ztabs.size()) return Tab(this, nullptr);
         return ztabs[i];
 }
 
@@ -43,12 +43,16 @@ std::vector<Tab> Tabs::get_all_tabs(int z) {
         std::vector<Tab> rv;
         for (int j = 0;;++j) {
                 GtkWidget * terminal = gtk_notebook_get_nth_page(GTK_NOTEBOOK(tabs), j);
-                if (!terminal) break;
+                if (!terminal) {
+                    total_tabs = j;
+                    break;
+                }
                 Tab t = Tab(this, terminal);
                 t.order = int(rv.size());
                 t.notebook_order = j;
-                if (t.get_z_axe() == z) 
+                if (z==-1 || t.get_z_axe() == z) {
                         rv.push_back(t);
+                }
         }
         return rv;
 }
@@ -80,6 +84,7 @@ Tab Tab::prev() const {
 
 std::string Tab::get_name(bool *has_name) const {
     const TerminalContext * tc = get_context();
+    if (!tc) return "N/A";
     if (!tc->has_name()) {
         if (has_name) *has_name = false;
         if (tc) {
@@ -93,7 +98,9 @@ std::string Tab::get_name(bool *has_name) const {
 }
 
 int Tab::get_id() const {
-    return get_context()->get_id();
+    auto context = get_context();
+    if (!context) return -1;
+    return context->get_id();
 }
 
 namespace {
@@ -137,18 +144,26 @@ std::string Tab::dump() {
     return std::string(data, size);
 }
 
-void Tabs::remove(int i) {
+int Tabs::remove(int i) {
     gtk_notebook_remove_page(GTK_NOTEBOOK(tabs), i);
+    return i;
 }
 
 int Tabs::index_of(GtkWidget *w) const {
-    return gtk_notebook_page_num(GTK_NOTEBOOK(tabs), GTK_WIDGET(w));
+    for (auto t: ztabs) {
+        if (t.is(w)) {
+            return t.order;
+        }
+    }
+    return -1;
 }
 
-void Tabs::remove(GtkWidget *w) {
-    int i = index_of(w);
-    if (i < 0) return;
-    remove(i);
+int Tabs::remove(GtkWidget *w) {
+    int i = gtk_notebook_page_num(GTK_NOTEBOOK(tabs), GTK_WIDGET(w));
+    if (i < 0) return -1;
+    int rv = remove(i);
+    sync();
+    return rv;
 }
 
 int Tab::set_order(int n) {

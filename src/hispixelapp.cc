@@ -125,11 +125,9 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
         }
     }
 
-#ifdef DEBUG_LOG_KEY_EVENTS
-    std::cout << event->key.keyval << " " << gtkkey_mask(event->key.state)  <<std::endl;
-#endif
-
     Tabs tt(tabs, z_axe);
+
+    printf("key: %d\n", ac.type);
 
     switch (ac.type) {
         case Action_t::ACTION_BE_FIRST:
@@ -149,8 +147,9 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
                 std::cout << "z << " << z_axe << std::endl;
                 tt.set_z_axe(z_axe);
                 if (tt.size() == 0) {
-                        open_tab();
-                        tt.sync();
+                    gtk_widget_hide(tabs);
+                } else {
+                    gtk_widget_show(tabs);
                 }
 
                 Tab t = tt.get_focus();
@@ -187,10 +186,15 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
             update_tabbar();
             return TRUE;
         case Action_t::ACTION_CLOSE_LAST:
-            if (tt.empty()) {
+            if (tt.empty_all_axes()) {
                 g_application_quit(G_APPLICATION(app));
                 return TRUE;
             }
+            tt.sync();
+
+            printf("new focus: %s\n", tt.get_focus().get_name().c_str());
+            
+            update_tabbar();
             return FALSE;
         case Action_t::ACTION_TOGLE_TABBAR:
             tabbar_visible = !tabbar_visible;
@@ -223,7 +227,28 @@ void HisPixelApp::page_removed(GtkNotebook * /*notebook*/,
 
 void HisPixelApp::child_exited(VteTerminal *t, gint /*status*/) {
     Tabs tt(tabs, z_axe);
+    int i = tt.index_of(GTK_WIDGET(t));
     tt.remove(GTK_WIDGET(t));
+
+    if (tt.empty() && tt.get_total_tabs() > 0) {
+        auto all = tt.get_all_tabs(-1);
+        for (auto t: all) {
+
+            //smrt
+
+        }
+
+        gtk_widget_hide(tabs);
+        return;
+    }
+
+    tt.sync();
+    if (i >= tt.size()) {
+        i--;
+    }
+
+    tt.at(i).focus();
+    update_tabbar();
 
     // exit the app if there is no tab reminding
     if (!config.has_close_last && tt.empty()) {
@@ -240,12 +265,10 @@ std::string HisPixelApp::tabbar_text() {
 
     std::ostringstream oss;
 
-    /*
     oss << "<span foreground=\"#" << "ff4488" << "\"";
     oss << " font_weight=\"bold\">"; // the selected tab is bold
     oss << "[" << z_axe << "] - "; // tab number
     oss << "</span>";
-*/
     for (auto tt: t) {
         bool hasname;
         std::string name = tt.get_name(&hasname);
@@ -444,6 +467,7 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     gtk_notebook_next_page (GTK_NOTEBOOK(tabs));
     gtk_notebook_set_show_tabs(GTK_NOTEBOOK(tabs), 0);
 
+    gtk_widget_show(tabs);
     tt.sync();
     Tab current = tt.last();
     current.focus();
