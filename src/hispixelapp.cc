@@ -128,15 +128,13 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
 
     Tabs tt(tabs, z_axe);
 
-    printf("key: %d\n", ac.type);
-
     switch (ac.type) {
         case Action_t::ACTION_BE_FIRST:
             {
             Tab tc = tt.current();
             Tab tn = tt.at(ac.data);
             if (!tc || !tn) return TRUE;
-            tc.set_order(tn.notebook_order);
+            tc.swap(tn);
             update_tabbar();
             return TRUE;
             }
@@ -150,7 +148,6 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
                 }
 
                 z_axe = ac.data - 1;
-                std::cout << "z << " << z_axe << std::endl;
                 tt.set_z_axe(z_axe);
                 if (tt.size() == 0) {
                     open_tab();
@@ -197,8 +194,6 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
             }
             tt.sync();
 
-            printf("new focus: %s\n", tt.get_focus().get_name().c_str());
-            
             update_tabbar();
             return FALSE;
         case Action_t::ACTION_TOGLE_TABBAR:
@@ -240,7 +235,6 @@ void HisPixelApp::child_exited(VteTerminal *t, gint /*status*/) {
         int z = -1;
         for (auto t: all) {
             int zz = t.get_z_axe();
-            std::cout << "zz=" <<zz << " z_axe=" << z_axe << std::endl;
             if (zz < z_axe) {
                 z = zz;
             }
@@ -251,7 +245,6 @@ void HisPixelApp::child_exited(VteTerminal *t, gint /*status*/) {
             }
         }
 
-        std::cout << "new z=" << z << std::endl;
         if (z != -1) {
             z_axe = z;
         }
@@ -279,7 +272,6 @@ void HisPixelApp::child_exited(VteTerminal *t, gint /*status*/) {
 
 std::string HisPixelApp::tabbar_text() {
     Tabs t(tabs, z_axe);
-    std::cout << "HisPixelApp::tabbar_text " << z_axe << std::endl;
     // get number of tabs
     gint n = t.size();
     if (n <= 0) return std::string();
@@ -298,15 +290,11 @@ std::string HisPixelApp::tabbar_text() {
     oss << z_manager.z_to_name(z_axe) << " - "; // tab number
     oss << "</span>";
     for (auto tt: t) {
- //       bool hasname;
         std::string name = tt.get_name();
-
         std::string color1, color2;
 
         color1 = z_manager.get_z_color_light(z_axe);
         color2 = z_manager.get_z_color_dark(z_axe);
-
-        std::cout << color1 << " " << color2 << std::endl;
 
         if (tt.has_focus()) {
             oss << span() << " foreground=\"#" << color1 << "\"";
@@ -355,7 +343,7 @@ void HisPixelApp::selection_changed(VteTerminal *) {
 
 void HisPixelApp::open_tab(TabConfig tabconfig) {
     Tabs tt(tabs, z_axe);
-    std::unique_ptr<TerminalContext> tc(new TerminalContext(&tctl, z_axe));
+    std::unique_ptr<TerminalContext> tc(new TerminalContext(z_axe));
 
     GtkWidget * terminal = vte_terminal_new();
 
@@ -452,7 +440,6 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     int sel = gtk_notebook_append_page(GTK_NOTEBOOK(tabs), terminal, 0);
     if (sel == -1) {
         gtk_widget_destroy(terminal);
-        std::cout << "gtk_notebook_append_page failed";
         return;
     }
 

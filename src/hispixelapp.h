@@ -27,7 +27,10 @@ public:
     gboolean key_press_event(GtkWidget *widget, GdkEvent *event);
     void page_removed(GtkNotebook *notebook, GtkWidget *child, guint page_num);
     void selection_changed(VteTerminal *t);
-    Tabs get_tabs() { return Tabs(tabs, z_axe); }
+    Tabs get_tabs(int z=-1) {
+		if (z == -1) return Tabs(tabs, z_axe);
+		return Tabs(tabs, z);
+	}
 
     /**
      * Handle exception thrown in the GTK signal handler
@@ -50,6 +53,8 @@ public:
     void open_tab(TabConfig tabconfig = TabConfig());
     // togle = true if tabbar visibility changed
     void update_tabbar(bool togle = false);
+
+	ColorManger * get_z_manager() { return &z_manager; }
 
 private:
     typedef RegEvents_t<HisPixelApp> SignalRegister_t;
@@ -78,8 +83,6 @@ private:
     // Config map
     s28::Config_t config;
 	ColorManger z_manager; // fixme: rename class!!
-
-    TerminalCtl tctl;
     int z_axe = 0;
 };
 

@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <string>
+#include <boost/algorithm/string.hpp>
 
 #include "colormanager.h"
 #include "config.hxx"
@@ -67,7 +68,8 @@ std::string ColorManger::z_to_name(int z) {
 int ColorManger::name_to_z(std::string s) {
     std::vector<std::string> zs = config.get<std::vector<std::string>>("z_names");
     for (size_t i = 0; i < zs.size(); ++i) {
-        if (zs[i] == s) return int(i);
+        if (boost::algorithm::to_lower_copy(zs[i]) == boost::algorithm::to_lower_copy(s))
+            return int(i);
     }
     return -1;
 }

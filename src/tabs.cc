@@ -31,11 +31,10 @@ void Tabs::set_z_axe(int z) {
 
 int Tabs::size() const {
         return int(ztabs.size());
-    //return gtk_notebook_get_n_pages(GTK_NOTEBOOK(tabs));
 }
 
 Tab Tabs::at(int i) {
-        if (i<0 || size_t(i) >= ztabs.size()) return Tab(this, nullptr);
+        if (i<0 || size_t(i) >= ztabs.size()) return Tab();
         return ztabs[i];
 }
 
@@ -66,12 +65,12 @@ TerminalContext * Tab::get_context() {
 }
 
 int Tabs::current_index() const {
-        Tab t;
-        t = const_cast<Tabs *>(this)->get_focus();
-        if (t.is_valid()) {
-                return t.order;
-        }
-        return -1;
+    Tab t;
+    t = const_cast<Tabs *>(this)->get_focus();
+    if (t.is_valid()) {
+        return t.order;
+    }
+    return -1;
 }
 
 Tab Tab::next() const {
@@ -84,6 +83,11 @@ Tab Tab::prev() const {
 
 std::string Tab::get_name() const {
     return std::to_string(order);
+}
+
+void Tab::swap(Tab t) {
+    if (!*this || !t) return;
+    set_order(t.notebook_order);
 }
 
 int Tab::get_id() const {
@@ -111,7 +115,7 @@ public:
 } // namespace
 
 
-std::string Tab::dump() {
+std::string Tab::dump() const {
     if (!is_valid()) RAISE(NOT_FOUND) << "invalid tab";
 
     GOutputStream * gss = g_memory_output_stream_new (NULL, 0, realloc, free);
@@ -133,10 +137,6 @@ std::string Tab::dump() {
     return std::string(data, size);
 }
 
-int Tabs::remove(int i) {
-    gtk_notebook_remove_page(GTK_NOTEBOOK(tabs), i);
-    return i;
-}
 
 int Tabs::index_of(GtkWidget *w) const {
     for (auto t: ztabs) {
@@ -150,9 +150,9 @@ int Tabs::index_of(GtkWidget *w) const {
 int Tabs::remove(GtkWidget *w) {
     int i = gtk_notebook_page_num(GTK_NOTEBOOK(tabs), GTK_WIDGET(w));
     if (i < 0) return -1;
-    int rv = remove(i);
+    gtk_notebook_remove_page(GTK_NOTEBOOK(tabs), i);
     sync();
-    return rv;
+    return i;
 }
 
 int Tab::set_order(int n) {
@@ -168,10 +168,21 @@ void Tab::focus() {
     gtk_notebook_set_current_page(GTK_NOTEBOOK(tabs->raw()), notebook_order);
 }
 
-void Tab::feed(const std::string &s) {
-    if (!is_valid()) return;
-    vte_terminal_feed_child(VTE_TERMINAL(terminal), s.c_str(), s.size());
-    vte_terminal_feed_child(VTE_TERMINAL(terminal), "\n", 1);
+Tab Tabs::find(const std::string &name) const {
+    int n = stoi(name);
+
+    if (n < 0 or n >= int(ztabs.size())) {
+        return Tab();
+    }
+
+    return ztabs[n];
+}
+
+int Tab::remove() {
+    if (!*this) return -1;
+    int rv = tabs->remove(terminal);
+    *this = Tab();
+    return rv;
 }
 
 }
