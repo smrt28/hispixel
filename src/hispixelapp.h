@@ -1,12 +1,11 @@
-#ifndef HISPIXELAPP_H
-#define HISPIXELAPP_H
-
+#pragma once
 #include <gtk/gtk.h>
 #include <vte/vte.h>
 
 #include "config.hxx"
 #include "tabs.h"
 #include "regevent.h"
+#include "colormanager.h"
 namespace s28 {
 
 class HisPixelApp {
@@ -14,7 +13,8 @@ public:
     HisPixelApp(int argc, char **argv, char** envp) :
         argc(argc),
         argv(argv),
-        envp(envp)
+        envp(envp),
+		z_manager(config)
     {}
 
     ~HisPixelApp();
@@ -77,10 +77,10 @@ private:
 
     // Config map
     s28::Config_t config;
+	ColorManger z_manager; // fixme: rename class!!
+
     TerminalCtl tctl;
     int z_axe = 0;
 };
 
 } // namespace s28
-
-#endif

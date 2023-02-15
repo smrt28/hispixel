@@ -16,7 +16,8 @@
 #include "envfactory.h"
 #include "parslet.h"
 #include "tabs.h"
-
+#include "colormanager.h"
+#include "utils.h"
 //#define DEBUG_LOG_KEY_EVENTS
 
 namespace s28 {
@@ -131,9 +132,14 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
 
     switch (ac.type) {
         case Action_t::ACTION_BE_FIRST:
-            tt.current().set_order(ac.data);
+            {
+            Tab tc = tt.current();
+            Tab tn = tt.at(ac.data);
+            if (!tc || !tn) return TRUE;
+            tc.set_order(tn.notebook_order);
             update_tabbar();
             return TRUE;
+            }
         case Action_t::ACTION_OPENTAB:
             open_tab();
             return TRUE;
@@ -279,41 +285,42 @@ std::string HisPixelApp::tabbar_text() {
     if (n <= 0) return std::string();
 
     std::ostringstream oss;
+  
+    auto span = [this]() -> std::string {
+        std::ostringstream oss;
+        oss << "<span font_desc=\"" << config.get<std::string>("label_font") << "\"";
+        return oss.str();
+    };
 
-    oss << "<span foreground=\"#" << "ff4488" << "\"";
+    oss <<  span() << " foreground=\"#" <<
+        config.get<std::string>("z_name_color") << "\"";
     oss << " font_weight=\"bold\">"; // the selected tab is bold
-    oss << "[" << z_axe << "] - "; // tab number
+    oss << z_manager.z_to_name(z_axe) << " - "; // tab number
     oss << "</span>";
     for (auto tt: t) {
  //       bool hasname;
         std::string name = tt.get_name();
 
         std::string color1, color2;
-        /*
-        if (hasname) {
-            color2 = "555555";
-            color1 = "ffffff";
 
-        } else
-*/
-        {
-            color2 = "772277";
-            color1 = "ff44ff";
-        }
+        color1 = z_manager.get_z_color_light(z_axe);
+        color2 = z_manager.get_z_color_dark(z_axe);
 
+        std::cout << color1 << " " << color2 << std::endl;
 
         if (tt.has_focus()) {
-            oss << "<span foreground=\"#" << color1 << "\"";
+            oss << span() << " foreground=\"#" << color1 << "\"";
             oss << " font_weight=\"bold\">"; // the selected tab is bold
             oss << "[" << name << "]"; // tab number
             oss << "</span>";
         } else {
-            oss << "<span foreground=\"#" << color2 << "\"";
+            oss << span() << " foreground=\"#" << color2 << "\"";
             oss << " font_weight=\"bold\">"; // the selected tab is bold
             oss << "[" << name << "]"; // tab number
             oss << "</span>";
         }
     }
+
     return oss.str();
 }
 
@@ -345,18 +352,6 @@ void HisPixelApp::selection_changed(VteTerminal *) {
     */
 }
 
-
-namespace {
-void apply_gama(gdouble &color, int gama) {
-        if (gama == 0) return;
-
-        gdouble diff = (color * gama) / 100.0;
-        color += diff;
-
-        if (color > 1) color = 1;
-        if (color < 0) color = 0;
-}
-}
 
 void HisPixelApp::open_tab(TabConfig tabconfig) {
     Tabs tt(tabs, z_axe);
@@ -414,11 +409,7 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     int gama = config.get<int>("gama");
     for (int i = 0; i < 16; i++) {
         GdkRGBA c = config.get<GdkRGBA>(colors[i]);
-        if (gama != 0) {
-                apply_gama(c.red, gama);
-                apply_gama(c.green, gama);
-                apply_gama(c.blue, gama);
-        }
+        utils::apply_gama(c, gama);
         color_palette[i] = c;
     }
 
@@ -622,8 +613,6 @@ void HisPixelApp::read_config(const char *cfg_file) {
                 RAISE(NOT_FOUND) << "err: config file not found at ~/.hispixel/config or ~/.config/hispixel";
             }
     }
-
-    tabbar_visible = config.get<bool>("show_tabbar");
 
     // get and cache pango font dectiptin used by VTE
     std::string font_name = config.get<std::string>("term_font");

@@ -25,8 +25,8 @@ function __his_latest_link() {
 }
 
 function his-dump() {
-    __his_dump_init $1
-    qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.VteDump "$1" > $FILENAME
+    __his_dump_init $1 $2
+    qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.VteDump "$1 $2" > $FILENAME
     __his_latest_link
     cat $FILENAME | tail -n +2
 }

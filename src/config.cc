@@ -301,6 +301,10 @@ void setup_config_defualuts(Map &config_map) {
         //
         // On UBUNTU, the Mono font could be even better....
         config_map.template set<std::string>("term_font", "Terminus");
+        config_map.template set<std::string>("label_font", "Terminus");
+        
+        config_map.template set<std::string>("z_name_color", "ffffff");
+
         config_map.template set<int>("term_font_size", "12");
         config_map.template set<bool>("allow_bold", "true");
         config_map.template set<bool>("show_tabbar", "true");
@@ -318,9 +322,11 @@ void setup_config_defualuts(Map &config_map) {
         config_map.comment("");
         config_map.comment("Z-Axes colors");
 
-        config_map.template set<std::string>("z_color_0","#772277 #772277 #772277 #772277 #772277 #772277");
-        config_map.template set<std::string>("z_color_1","#ff44ff #ff44ff #ff44ff #ff44ff #ff44ff #ff44ff");
-        config_map.template set<std::string>("z_names", "Q W E R T Y");
+
+        config_map.template set< std::vector<std::string> >("z_color_0",""); //fix: rename
+        config_map.template set< std::vector<std::string> >("z_color_1","ff44ff aaaaff 44ffff ffff44 ff4444 44ff44"); // fix: rename
+        config_map.template set<int>("z_gama", "-50");
+        config_map.template set< std::vector<std::string> >("z_names", "Q W E R T Y");
 
         config_map.comment("");
         config_map.comment("Terminal font colors");

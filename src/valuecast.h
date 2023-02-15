@@ -5,6 +5,8 @@
 #include <ctype.h>
 #include <boost/lexical_cast.hpp>
 #include <string>
+#include <vector>
+#include "parslet.h"
 
 #include "error.h"
 namespace s28 {
@@ -62,6 +64,42 @@ struct ValueCast_t<GdkRGBA> {
         return rv;
     }
 };
+
+
+template<>
+struct ValueCast_t< std::vector<std::string> > {
+    static std::vector<std::string> cast(const std::string &s) {
+        std::vector<std::string> rv;
+        parser::Parslet_t p(s);
+
+        while(p) {
+            rv.push_back(parser::word(p).str());
+        }
+
+        return rv;
+    }
+};
+
+template<>
+struct ValueCast_t< std::vector<GdkRGBA> > {
+    static std::vector<GdkRGBA> cast(const std::string &s) {
+        std::vector<GdkRGBA> rv;
+        parser::Parslet_t p(s);
+
+        while(p) {
+            std::string colorstr = parser::word(p).str();
+            GdkRGBA color;
+            if (!gdk_rgba_parse(&color, colorstr.c_str())) {
+                RAISE(VALUE_CAST);
+            }
+            rv.push_back(color);
+        }
+
+        return rv;
+    }
+};
+
+
 } // namespace aux
 
 template<typename Type_t>

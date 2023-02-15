@@ -9,7 +9,7 @@ AM_LDFLAGS = @HISPIXEL_LIBS@
 bin_PROGRAMS = hispixel testpixel
 
 hispixel_SOURCES = main.cc config.cc hispixelapp.cc hisbus.c \
-                  tabs.cc dbushandler.cc
+                  tabs.cc dbushandler.cc colormanager.cc utils.cc
 
 testpixel_CPPFLAGS = -I$(top_srcdir)/src/gtest/include @HISPIXEL_CFLAGS@
 testpixel_LDADD = gtest/libgtest_main.a gtest/libgtest.a -lpthread -lcrypt

@@ -2,12 +2,16 @@
 #include "hispixelapp.h"
 #include "parslet.h"
 
+#include <iostream>
+
 namespace s28 {
 
 DbusHandler::DbusHandler(HisPixelApp &hispixel) :
     hispixel(hispixel)
 {}
 
+
+#if 0
 std::string DbusHandler::focus(std::string s) {
     /*
     Tabs tt = hispixel.get_tabs();
@@ -61,13 +65,18 @@ std::string DbusHandler::rename(std::string s) {
     */
     return "0";
 }
-
+#endif
 std::string DbusHandler::dump(std::string s) {
+    parser::Parslet_t p(s);
+    std::string z = parser::word(p).str();
+    std::string x = parser::word(p).str();
+
+    std::cout << "z=" << z << " x=" << x << std::endl;
     /*
     Tabs tt = hispixel.get_tabs();
     return tt.find(s).dump();
     */
-    return "";
+    return "xx";
 }
 
 } // namespace s28
