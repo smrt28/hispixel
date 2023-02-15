@@ -44,9 +44,6 @@ public:
 
     struct TabConfig {
         TabConfig() {}
-        TabConfig(const std::string &name) : name(name) {}
-
-        boost::optional<std::string> name;
         bool focus = true;
     };
 
@@ -76,7 +73,6 @@ private:
     GtkWidget *box = nullptr;
     PangoFontDescription *font_description = nullptr;
     GtkCssProvider *provider = nullptr;
-
     bool tabbar_visible = true;
     bool tabbar_need_update = true;
 
