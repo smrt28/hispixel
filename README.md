@@ -5,6 +5,36 @@ Terminal application
 - minimalistic design
 - highly configurable
 
+# Version 2.0.0
+
+By default alt-q, alt-w, alt-e, alt-r shitch between the terminal workspaces. 
+Until today, I have always kept maximized terminals open in several workspaces.
+Since 2.0.0 hispixel has got the workspaces.
+
+![This is an image](https://smrt28.cz/q-axe.png)
+![This is an image](https://smrt28.cz/r-axe.png)
+
+By default alt-q, alt-w, alt-e, alt-r switch between the workspaces.
+
+You can configure the shortcuts:
+
+```
+bindsym alt+q focus_z 1
+bindsym alt+w focus_z 2
+bindsym alt+e focus_z 3
+bindsym alt+r focus_z 4
+bindsym alt+t focus_z 5
+bindsym alt+y focus_z 6
+```
+
+And you can also configure the tab colors.
+```
+z_color_0 = ""
+z_color_1 = "ff44ff aaaaff 44ffff ffff44 ff4444 44ff44"
+z_gama = "-50"
+z_names = "Q W E R T Y"
+```
+
 # Build
 
 ## Ubuntu 18.4/20.4
