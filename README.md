@@ -4,6 +4,7 @@ Terminal application
 
 - minimalistic design
 - highly configurable
+- **workspaces**
 
 # Version 2.0.0
 
@@ -62,7 +63,7 @@ $ make
 
 ## Config file
 
-To create the default one:
+To create the default config:
 ```
 $ mkdir -P ~/.hispixel/
 $ hispixel -D > ~/.hispixel/config
@@ -78,6 +79,7 @@ The config file is read from:
 ## Using his-commands
 source scripts/env.sh
 ```
+$ sudo apt install gdbus
 $ . scripts/env.sh
 $ his-dump [term. name]
 ```
