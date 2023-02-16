@@ -25,6 +25,8 @@ public:
     void activate(GtkApplication* app);
     void child_exited(VteTerminal *t, gint status);
     gboolean key_press_event(GtkWidget *widget, GdkEvent *event);
+    gboolean key_release_event(GtkWidget *widget, GdkEvent *event);
+
     void page_removed(GtkNotebook *notebook, GtkWidget *child, guint page_num);
     void selection_changed(VteTerminal *t);
     Tabs get_tabs(int z=-1) {
@@ -53,7 +55,11 @@ public:
 
 	ColorManger * get_z_manager() { return &z_manager; }
 
+
+    typedef s28::Config_t::Action_t Action_t;
 private:
+    Action_t find_action(GdkEvent *event);
+
     typedef RegEvents_t<HisPixelApp> SignalRegister_t;
 
     std::string gtk_css();
@@ -80,6 +86,10 @@ private:
     s28::Config_t config;
 	ColorManger z_manager; // fixme: rename class!!
     int z_axe = 0;
+
+
+    // ctrl-d must be released before it can close the app
+    bool close_last_fuse_enabled = false;
 };
 
 } // namespace s28

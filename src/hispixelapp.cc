@@ -112,20 +112,43 @@ bool match_gtk_ks_event(GdkEvent *event, const KeySym_t &ks) {
 
 } // namespace
 
-gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
+
+HisPixelApp::Action_t HisPixelApp::find_action(GdkEvent *event)
 {
-    typedef s28::Config_t::Action_t Action_t;
     Action_t ac;
     const s28::Config_t::KeyBindings_t &keybindings = config.get_keybindings();
 
     // search key bindings
     for (auto binding: keybindings) {
         if (match_gtk_ks_event(event, binding.keysym)) {
-            ac = binding.action;
-            break;
+            return binding.action;
         }
     }
 
+
+    return Action_t();
+}
+
+
+gboolean HisPixelApp::key_release_event(GtkWidget *, GdkEvent *event)
+{
+    Tabs tt(tabs, z_axe);
+    Action_t ac = find_action(event);
+    switch (ac.type) {
+        case Action_t::ACTION_CLOSE_LAST:
+            if (tt.empty_all_axes()) {
+                close_last_fuse_enabled = false;
+            }
+            break;
+        default:
+            break;
+    }
+    return FALSE;
+}
+
+gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
+{
+    Action_t ac = find_action(event);
     Tabs tt(tabs, z_axe);
 
     switch (ac.type) {
@@ -188,7 +211,7 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
             update_tabbar();
             return TRUE;
         case Action_t::ACTION_CLOSE_LAST:
-            if (tt.empty_all_axes()) {
+            if (tt.empty_all_axes() && !close_last_fuse_enabled) {
                 g_application_quit(G_APPLICATION(app));
                 return TRUE;
             }
@@ -342,6 +365,7 @@ void HisPixelApp::selection_changed(VteTerminal *) {
 
 
 void HisPixelApp::open_tab(TabConfig tabconfig) {
+    close_last_fuse_enabled = true;
     Tabs tt(tabs, z_axe);
     std::unique_ptr<TerminalContext> tc(new TerminalContext(z_axe));
 
@@ -489,6 +513,7 @@ void HisPixelApp::activate(GtkApplication* theApp) {
 
     // register window key_press signal callbacks
     evts.reg_key_press_event(window);
+    evts.reg_key_release_event(window);
 
     // GTK3 uses CSS styling. Create the CSS for the app.
     // create CSS provider, assign the CSS to the screen

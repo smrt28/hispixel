@@ -19,30 +19,22 @@ class RegEvents_t {
 public:
     RegEvents_t(App_t *app) : app(app) {}
 
-    // reg_* methods connect GTK signal and the given method
-
-    /**
-     * Register GTK signal
-     * @param w the widget
-     */
     void reg_child_exited(GtkWidget * w) {
         g_signal_connect(w, "child-exited",
                 G_CALLBACK(child_exited), app);
     }
 
-    /**
-     * Register GTK signal
-     * @param w the widget
-     */
     void reg_key_press_event(GtkWidget * w) {
         g_signal_connect(w, "key-press-event",
                 G_CALLBACK(key_press_event), app);
     }
 
-    /**
-     * Register GTK signal
-     * @param w the widget
-     */
+    void reg_key_release_event(GtkWidget * w) {
+        g_signal_connect(w, "key-release-event",
+                G_CALLBACK(key_release_event), app);
+    }
+
+
     void reg_page_removed(GtkWidget * w) {
         g_signal_connect(w, "page-removed",
                 G_CALLBACK(page_removed), app);
@@ -84,6 +76,22 @@ private:
 
         return FALSE;
     }
+
+
+    static gboolean key_release_event(GtkWidget *widget, GdkEvent *event,
+            gpointer _udata)
+    {
+        try {
+            return ((App_t *)_udata)->key_release_event(widget, event);
+        } catch(const std::exception &e) {
+            ((App_t *)_udata)->on_error(&e);
+        } catch(...) {
+            ((App_t *)_udata)->on_error(nullptr);
+        }
+
+        return FALSE;
+    }
+
 
     /**
      * page_removed GTK signal callback wrap
