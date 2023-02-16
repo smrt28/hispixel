@@ -35,61 +35,32 @@ public:
      */
     Parslet_t() : it(nullptr), eit(nullptr) {}
 
-    /**
-     * Constructor
-     * @param it the string beginning (iterator)
-     * @param eit the string end (end iterator)
-     */
     Parslet_t(const char *it, const char *eit) :
         it(it), eit(eit)
     {}
 
-    /**
-     * Constructor
-     * @param s the string
-     */
     Parslet_t(const std::string &s) :
         it(s.c_str()), eit(s.c_str() + s.size())
     {}
 
-    /**
-     * Construcor
-     * @param s string
-     */
     void reset(const std::string &s) {
         it = s.c_str();
         eit = it + s.size();
     }
 
-    /**
-     * Make parslet empty
-     */
     void reset() {
         eit = it = nullptr;
     }
 
-    /**
-     * @return content of parslet as a string
-     */
     std::string str() const {
         if (it == nullptr || it >= eit) return std::string();
         return std::string(it, eit);
     }
 
-    /**
-     * @return parslet begin
-     */
     const char * begin() const { return it; }
 
-    /**
-     * @return parslet end
-     */
     const char * end() const { return eit; }
 
-    /**
-     * @param i index within the parslet
-     * @return character at index i. If the index is out of the parslet range, return eof
-     */
     int operator[](ssize_t i) const {
         const char *c;
         if (i >= 0) {
@@ -101,10 +72,6 @@ public:
         return (unsigned char)*c;
     }
 
-    /**
-     * @param i index within the parslet
-     * @return same as operator[], just throws in case of index out of the parslet range
-     */
     char at(size_t i) const {
         int rv = (*this)[i];
         if (rv == eof)
@@ -112,10 +79,6 @@ public:
         return (char)rv;
     }
 
-    /**
-     * Shifts the parslet beggining by 1 character
-     * @return first character of the parslet before the shift
-     */
     int next() {
         if (it >= eit) return eof;
         int rv = *it;
@@ -123,28 +86,15 @@ public:
         return (unsigned char)rv;
     }
 
-    /**
-     * Shifts the parslet beggining by 1 character
-     * @return first character of the parslet after the shift
-     */
     int operator++() {
         next();
         return (*this)[0];
     }
 
-    /**
-     * Shifts the parslet beggining by 1 character
-     * @return first character of the parslet
-     */
     int operator++(int) {
         return next();
     }
 
-
-    /**
-     * Shifts the parslet beggining by 1 character.
-     * @return first character of the parslet before the shift
-     */
     int operator+=(size_t i) {
         if (it + i > eit) {
             it = eit;
@@ -155,32 +105,19 @@ public:
         return rv;
     }
 
-    /**
-     * @return false if the parslet is empty
-     */
     operator bool() const {
         return it < eit;
     }
 
-    /**
-     * @return current character. Throws if the parslet is empty.
-     */
     int operator*() const {
         return at(0);
     }
 
-    /**
-     * throws if the parslet is not empty
-     */
     void expect_eof() {
         if (!empty())
             throw Error_t<EXPECT>();
     }
 
-    /**
-     * Throws if the character c is not at the beginning of the parslet. Calls next().
-     * @param c expected character
-     */
     void expect_char(char c) {
         int k = (*this)[0];
         if (k == -1)
@@ -191,35 +128,22 @@ public:
         next();
     }
 
-    /**
-     * Throws if the parslet is empty. Calls next().
-     */
     void skip() {
         if (it >= eit)
             throw Error_t<OVERFLOW>();
         ++it;
     }
 
-    /**
-     * @return the last parslet character
-     */
     int last() const {
         if (it >= eit) return eof;
         return eit[-1];
     }
 
-    /**
-     * @return the first parslet character
-     */
     int first() const {
         if (eit > it) return *it;
         return eof;
     }
 
-    /**
-     * Shifts the last parslet character
-     * @return false if the parslet is empty
-     */
     bool shift() {
         if (it < eit) {
             --eit;
@@ -228,18 +152,12 @@ public:
         return false;
     }
 
-    /**
-     * @return parslet size
-     */
     size_t size() const {
         if (it > eit)
             throw Error_t<OVERFLOW>();
         return eit - it;
     }
 
-    /**
-     * @return ture if parslet is empty
-     */
     bool empty() const { return it == eit; }
 
 private:
@@ -249,41 +167,23 @@ private:
 
 };
 
-
-/**
- * Trim parslet spacess from left
- * @param p parslet
- */
 inline void ltrim(Parslet_t &p) {
     while(p && isspace(*p)) {
         p++;
     }
 }
 
-/**
- * Trim parslet spacess from right
- * @param p parslet
- */
 inline void rtrim(Parslet_t &p) {
     while(isspace(p.last())) {
         p.shift();
     }
 }
 
-/**
- * Trim parslet spacess from left and right
- * @param p parslet
- */
 inline void trim(Parslet_t &p) {
     ltrim(p);
     rtrim(p);
 }
 
-/**
- * Parse a quoted string. The quote within the string could be escaped by '\' character.
- * @param p the string enclosed in quotes
- * @return the string
- */
 inline std::string qu(Parslet_t &p) {
     p.expect_char('"');
     std::string rv;
@@ -303,12 +203,6 @@ inline std::string qu(Parslet_t &p) {
     }
 }
 
-/**
- * Splits the string by the firs occurence of c character.
- * @param p input parslet. It would contain the tail part after the split.
- * @param c the character
- * @return the first part
- */
 inline Parslet_t split(Parslet_t &p, char c) {
     Parslet_t orig = p;
     const char *it = p.begin();
@@ -325,11 +219,6 @@ inline Parslet_t split(Parslet_t &p, char c) {
 }
 
 
-/**
- * Parse "key=value" equation style string format.
- * @param p parslet
- * @return key/value pair of strings
- */
 inline std::pair<std::string, std::string> eq(Parslet_t &p) {
     std::pair<std::string, std::string> rv;
     ltrim(p);
@@ -353,12 +242,6 @@ inline std::pair<std::string, std::string> eq(Parslet_t &p) {
     return rv;
 }
 
-/**
- * Read first word from the parslet. Shift the parslet beginning after the
- * end of the next word. Throws, if there is no remaining word in the parslet.
- * @param p the parslet
- * @return the word
- */
 inline Parslet_t word(Parslet_t &p) {
     ltrim(p);
     if (!isgraph(*p)) {

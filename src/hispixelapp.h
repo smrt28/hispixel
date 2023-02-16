@@ -87,7 +87,6 @@ private:
 	ColorManger z_manager; // fixme: rename class!!
     int z_axe = 0;
 
-
     // ctrl-d must be released before it can close the app
     bool close_last_fuse_enabled = false;
 };
