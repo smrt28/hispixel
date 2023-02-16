@@ -35,10 +35,19 @@ AC_PROG_CXX
 # replace autotools original defaults
 CXXFLAGS="-W -Wall -Wextra -Wconversion"
 
-
 AC_SUBST(MALLOC_LIB)
 
 PKG_PROG_PKG_CONFIG
+
+
+AC_ARG_ENABLE([debug],
+[  --enable-debug    Turn on debugging],
+[case "${enableval}" in
+  yes) debug=true ;;
+  no)  debug=false ;;
+  *) AC_MSG_ERROR([bad value ${enableval} for --enable-debug]) ;;
+esac],[debug=false])
+AM_CONDITIONAL([DEBUG], [test x$debug = xtrue])
 
 
 HISPIXEL_DEPS="gtk+-3.0 >= 3.0.0, vte-2.91, gio-2.0"
