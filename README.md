@@ -9,7 +9,6 @@ Terminal application
 # Version 2.0.0
 
 Since 2.0.0 hispixel has got the workspaces.
-By default alt-q, alt-w, alt-e, alt-r switch between the terminal workspaces. 
 
 ![This is an image](https://smrt28.cz/q-axe.png)
 ![This is an image](https://smrt28.cz/r-axe.png)
@@ -27,7 +26,7 @@ bindsym alt+t focus_z 5
 bindsym alt+y focus_z 6
 ```
 
-And you can also configure the tab colors.
+You can also configure the tab colors and names.
 ```
 z_color_0 = ""
 z_color_1 = "ff44ff aaaaff 44ffff ffff44 ff4444 44ff44"
@@ -66,10 +65,9 @@ $ mkdir -P ~/.hispixel/
 $ hispixel -D > ~/.hispixel/config
 ```
 
-The config file is read from:
+Place the confing file to:
 
 ```
-~/.hispixel/config
 ~/.config/hispixel
 ```
 
@@ -78,7 +76,12 @@ source scripts/env.sh
 ```
 $ sudo apt install gdbus
 $ . scripts/env.sh
-$ his-dump [term. name]
+$ his-dump [workspace] [tab-number]
+```
+
+For instance, dumps content of the 3rd terminal on the workspace named Q:
+```
+$ his-dump q 3
 ```
 
 ## Gnome icon
