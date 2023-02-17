@@ -392,13 +392,7 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     } else {
         vte_terminal_set_audible_bell(VTE_TERMINAL(terminal), FALSE);
     }
-/*
-    if (config.get<bool>("allow_bold")) {
-        vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), TRUE);
-    } else {
-        vte_terminal_set_allow_bold(VTE_TERMINAL(terminal), FALSE);
-    }
-*/
+
     GdkRGBA color_palette[16];
     GdkRGBA color_fg, color_bg;
 
