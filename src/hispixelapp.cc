@@ -211,9 +211,12 @@ gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
             update_tabbar();
             return TRUE;
         case Action_t::ACTION_CLOSE_LAST:
-            if (tt.empty_all_axes() && !close_last_fuse_enabled) {
-                g_application_quit(G_APPLICATION(app));
-                return TRUE;
+            if (tt.empty_all_axes()) {
+                if (!close_last_fuse_enabled) {
+                    g_application_quit(G_APPLICATION(app));
+                    return TRUE;
+                }
+                z_axe = 0;
             }
             tt.sync();
 
