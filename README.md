@@ -61,8 +61,7 @@ $ make
 
 To create the default config:
 ```
-$ mkdir -P ~/.hispixel/
-$ hispixel -D > ~/.hispixel/config
+$ hispixel -D > ~/.config/hispixel
 ```
 
 Place the confing file to:
