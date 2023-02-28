@@ -95,7 +95,7 @@ public:
 
     // true if close_last keybinding set
     bool has_close_last = false;
-
+    bool verbose = false;
 private:
     void init_defaults();
     bool init_internal(const std::string &config_file);

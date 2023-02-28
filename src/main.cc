@@ -65,11 +65,11 @@ void activate(GtkApplication* app, gpointer _udata)
 }
 
 
-int run(int argc, char **argv, char** envp, const char *cfg_file)
+int run(int argc, char **argv, char** envp, const char *cfg_file, HisPixelApp::Args args)
 {
     int status = 0;
     try {
-        HisPixelApp hispixel(argc, argv, envp);
+        HisPixelApp hispixel(argc, argv, envp, args);
         DbusHandler dbushelper(hispixel);
 
         hispixel.read_config(cfg_file);
@@ -143,12 +143,14 @@ int main(int argc, char **argv, char** envp)
     desc.add_options()
         ("help,h", "Help screen")
         ("daemonize,d", "Run in background")
+        ("verbose,v", "Run in background")
         ("dump-default-config,D", "Dump default config")
         ("config-file", value<std::string>(&cfg_file), "path to the config file")
         ;
 
     s28::app_name();
 
+    s28::HisPixelApp::Args args;
     try {
         variables_map vm;
         store(parse_command_line(argc, argv, desc), vm);
@@ -171,6 +173,10 @@ int main(int argc, char **argv, char** envp)
                 return 0;
         }
 
+        if (vm.count("verbose")) {
+            args.verbose = true;
+        }
+
         if (vm.count("daemonize")) {
             if (pipe(s28::PLOCK) == -1) {
                 RAISE(FATAL) << "pipe call failed";
@@ -187,10 +193,10 @@ int main(int argc, char **argv, char** envp)
             } else {
                 ::close(s28::PLOCK[0]);
                 s28::PLOCK[0] = -1;
-                return s28::run(1, argv, envp, c);
+                return s28::run(1, argv, envp, c, args);
             }
         } else {
-            return s28::run(1, argv, envp, c);
+            return s28::run(1, argv, envp, c, args);
         }
     } catch (...) {
         std::cout << "fatal error" << std::endl;

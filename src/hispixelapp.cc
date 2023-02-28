@@ -75,11 +75,11 @@ std::string homedir() {
 // returns list of possible hispixel.conf file placements
 std::vector<std::string> get_config_files() {
     std::string h = homedir();
-
     std::vector<std::string> rv;
     rv.push_back(h + "/.config/hispixel.1"); // ~/.config directory
     rv.push_back(h + "/.config/hispixel"); // ~/.config directory
     rv.push_back(h + "/.hispixel/config");
+    rv.push_back("/etc/hispixel"); // /etc/hispixel
     return rv;
 }
 
@@ -611,6 +611,9 @@ HisPixelApp::~HisPixelApp() {
 }
 
 void HisPixelApp::read_config(const char *cfg_file) {
+    if (args.verbose) {
+        config.verbose = true;
+    }
     if (cfg_file) {
             if (!config.init(cfg_file)) {
                     RAISE(NOT_FOUND) << "err: config file not found at " << cfg_file;

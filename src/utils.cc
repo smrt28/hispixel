@@ -16,10 +16,10 @@ void apply_gama(gdouble &color, int gama) {
 
 
 void apply_gama(GdkRGBA &color, int gama) {
-	if (gama == 0) return;
-	apply_gama(color.red, gama);
-	apply_gama(color.green, gama);
-	apply_gama(color.blue, gama);
+    if (gama == 0) return;
+    apply_gama(color.red, gama);
+    apply_gama(color.green, gama);
+    apply_gama(color.blue, gama);
 }
 
 }

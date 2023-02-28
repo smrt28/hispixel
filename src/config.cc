@@ -264,7 +264,12 @@ bool Config_t::init(const std::vector<std::string> &files) {
 
     // iterate all the file names and use the first which opens for reading
     for (std::string cfile: files) {
-        if (init_internal(cfile)) return true;
+        if (init_internal(cfile)) {
+            if (verbose) std::cout << "reading config: " << cfile << " [ok]" << std::endl;
+            return true;
+        }
+        if (verbose) std::cout << "reading config: " << cfile << " [not found]" << std::endl;
+
     }
     return false;
 }

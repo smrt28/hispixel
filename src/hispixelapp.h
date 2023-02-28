@@ -10,11 +10,15 @@ namespace s28 {
 
 class HisPixelApp {
 public:
-    HisPixelApp(int argc, char **argv, char** envp) :
+    struct Args {
+        bool verbose = false;
+    };
+    HisPixelApp(int argc, char **argv, char** envp, Args args) :
         argc(argc),
         argv(argv),
         envp(envp),
-		z_manager(config)
+		z_manager(config),
+        args(args)
     {}
 
     ~HisPixelApp();
@@ -89,6 +93,8 @@ private:
 
     // ctrl-d must be released before it can close the app
     bool close_last_fuse_enabled = false;
+
+    Args args;
 };
 
 } // namespace s28
