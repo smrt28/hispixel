@@ -164,7 +164,7 @@ int main(int argc, char **argv, char** envp)
         }
 
         if (vm.count("help")) {
-            std::cout << desc << '\n';
+            std::cout << desc << std::endl;
             return 1;
         }
 
@@ -198,7 +198,15 @@ int main(int argc, char **argv, char** envp)
         } else {
             return s28::run(1, argv, envp, c, args);
         }
-    } catch (...) {
+    }
+    catch (const boost::program_options::error &e) {
+        std::cout << "error: " << e.what() << std::endl;
+        std::cout << desc << std::endl;
+    }
+    catch (const std::exception &e) {
+        std::cout << "fatal error: " << e.what() << std::endl;
+    }
+    catch (...) {
         std::cout << "fatal error" << std::endl;
     }
 
