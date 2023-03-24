@@ -20,7 +20,7 @@ AC_CONFIG_SRCDIR([src/main.cc])
 AC_CONFIG_HEADERS([config.h])
 
 dnl This forces debian autoconf to use version 2.53
-AC_PREREQ([2.71])
+AC_PREREQ([2.69])
 
 # disable so
 AC_DISABLE_SHARED

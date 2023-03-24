@@ -319,7 +319,7 @@ void setup_config_defualuts(Map &config_map) {
         config_map.template set<std::string>("command", "/bin/bash");
         config_map.template set<bool>("audible_bell", "false");
         config_map.template set<uint32_t>("startup_tabs", "1");
-        config_map.template set<bool>("auto_open_tabs", "false");
+        config_map.template set<bool>("auto_open_tabs", "true");
         config_map.template set<uint32_t>("window_width", "400");
         config_map.template set<uint32_t>("window_height", "300");
 
