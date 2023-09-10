@@ -1,0 +1,5 @@
+- move hispixel.png and hispixel binary somewhere you like it
+- fix the png/binary paths in hispixel.desktop
+- copy hispixel.desktop icon to ~/Desktop
+- right click and Allow Launching
+- co ~/Desptop/hispixel.desktop ~/.local/share/applications
