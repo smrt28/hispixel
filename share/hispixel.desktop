@@ -1,0 +1,13 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=hispixel
+
+Icon=[path to hispixel.png]
+
+Exec=[path to hispixel binary]
+
+Comment=Develop with pleasure!
+Categories=Development;Terminal;
+Terminal=false
+StartupWMClass=smrt28
