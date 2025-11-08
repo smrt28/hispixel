@@ -59,10 +59,8 @@ AX_BOOST_IOSTREAMS
 
 #check boost system
 AC_LANG([C++])
-AC_CHECK_HEADER([boost/system/error_code.hpp], [], AC_MSG_ERROR([boost system headers is missing], 1))                                     
-AC_CHECK_LIB(boost_system-mt, main, , [
-    AC_CHECK_LIB(boost_system, main, , [                                                                                                   
-        AC_MSG_ERROR([boost system library is missing], 1)])])
+AC_CHECK_HEADER([boost/system/error_code.hpp], [], AC_MSG_ERROR([boost system headers is missing], 1))
+
 
 # check for boost threads
 AC_LANG([C++])
