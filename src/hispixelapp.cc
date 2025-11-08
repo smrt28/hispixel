@@ -537,10 +537,20 @@ void HisPixelApp::activate(GtkApplication* theApp) {
     // the window title is allways "HisPixel"
     gtk_window_set_title (GTK_WINDOW (window), "HisPixel");
 
+    // Hide titlebar/decorations if configured
+    if (!config.get<bool>("show_titlebar")) {
+        gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
+    }
+
     // Don't care in i3 WM
     gtk_window_set_default_size (GTK_WINDOW (window),
                     config.get<uint32_t>("window_width"),
                     config.get<uint32_t>("window_height"));
+
+    // Set fullscreen mode if configured
+    if (config.get<bool>("fullscreen")) {
+        gtk_window_fullscreen(GTK_WINDOW(window));
+    }
 
     // create notebook widget - the "tabbed window".
     tabs = gtk_notebook_new();

@@ -322,6 +322,8 @@ void setup_config_defualuts(Map &config_map) {
         config_map.template set<bool>("auto_open_tabs", "true");
         config_map.template set<uint32_t>("window_width", "400");
         config_map.template set<uint32_t>("window_height", "300");
+        config_map.template set<bool>("fullscreen", "false");
+        config_map.template set<bool>("show_titlebar", "true");
 
 
         config_map.comment("");
