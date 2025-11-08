@@ -12,6 +12,7 @@ class HisPixelApp {
 public:
     struct Args {
         bool verbose = false;
+        bool no_titlebar = false;
     };
     HisPixelApp(int argc, char **argv, char** envp, Args args) :
         argc(argc),

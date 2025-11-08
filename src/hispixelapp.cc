@@ -537,8 +537,8 @@ void HisPixelApp::activate(GtkApplication* theApp) {
     // the window title is allways "HisPixel"
     gtk_window_set_title (GTK_WINDOW (window), "HisPixel");
 
-    // Hide titlebar/decorations if configured
-    if (!config.get<bool>("show_titlebar")) {
+    // Hide titlebar/decorations if configured or -X flag is used
+    if (args.no_titlebar || !config.get<bool>("show_titlebar")) {
         gtk_window_set_decorated(GTK_WINDOW(window), FALSE);
     }
 

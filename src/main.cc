@@ -146,6 +146,7 @@ int main(int argc, char **argv, char** envp)
         ("verbose,v", "Run in background")
         ("dump-default-config,D", "Dump default config")
         ("config-file", value<std::string>(&cfg_file), "path to the config file")
+        ("no-titlebar,X", "Hide window titlebar")
         ;
 
     s28::app_name();
@@ -175,6 +176,10 @@ int main(int argc, char **argv, char** envp)
 
         if (vm.count("verbose")) {
             args.verbose = true;
+        }
+
+        if (vm.count("no-titlebar")) {
+            args.no_titlebar = true;
         }
 
         if (vm.count("daemonize")) {
