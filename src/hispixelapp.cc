@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include <iostream>
+#include <sstream>
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
@@ -366,7 +367,6 @@ void HisPixelApp::selection_changed(VteTerminal *) {
     */
 }
 
-
 void HisPixelApp::open_tab(TabConfig tabconfig) {
     close_last_fuse_enabled = true;
     Tabs tt(tabs, z_axe);
@@ -377,10 +377,6 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     if (!terminal) {
         RAISE(FAILED) << "vte_terminal_new failed";
     }
-
-    SignalRegister_t sr(this);
-    sr.reg_selection_changed(terminal);
-
 
     // set scrollback-limit property (50000 default)
     vte_terminal_set_scrollback_lines(VTE_TERMINAL(terminal),
@@ -428,6 +424,10 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     vte_terminal_set_colors(VTE_TERMINAL(terminal), &color_fg, &color_bg, color_palette, 16);
     vte_terminal_set_font (VTE_TERMINAL(terminal), font_description);
 
+    // Set line spacing
+    double line_spacing = config.get<double>("line_spacing");
+    vte_terminal_set_cell_height_scale(VTE_TERMINAL(terminal), line_spacing );
+
     RegEvents_t<HisPixelApp> evts(this);
 
     // when the terminal exits it has to be removed from tab-bar, so
@@ -452,8 +452,12 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
         NULL, /* GDestroyNotify child_setup_data_destroy */
         -1, /* int timeout */
         NULL, /* GCancellable *cancellable, */
-        NULL, /* GPid *child_pid */
-        NULL  /* GError **error */
+        [](VteTerminal* /*terminal*/, GPid /*pid*/, GError* /*error*/,
+           gpointer /* user_data */) {
+//            std::cout << "child created: " << pid << std::endl;
+//            TerminalContext* tc = static_cast<TerminalContext*>(user_data);
+        },
+        tc.get()  /* callback user data */
         );
 
     g_object_set_data(G_OBJECT(terminal), CONTEXT28_ID, tc.get());
@@ -641,6 +645,7 @@ void HisPixelApp::read_config(const char *cfg_file) {
     font_description = pango_font_description_from_string(font_name.c_str());
     if (!font_description) RAISE(FATAL) << "pango_font_description_from_string failed:" << font_name;
     pango_font_description_set_size(font_description, config.get<int>("term_font_size") * PANGO_SCALE);
+//    pango_layout_set_line_spacing(font_description, 1);
 }
 
 } // namespace s28

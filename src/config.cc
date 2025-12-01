@@ -307,10 +307,11 @@ void setup_config_defualuts(Map &config_map) {
         // On UBUNTU, the Mono font could be even better....
         config_map.template set<std::string>("term_font", "Terminus");
         config_map.template set<std::string>("label_font", "Terminus");
-        
+
         config_map.template set<std::string>("z_name_color", "ffffff");
 
         config_map.template set<int>("term_font_size", "12");
+        config_map.template set<double>("line_spacing", "1.0");
         config_map.template set<bool>("allow_bold", "true");
         config_map.template set<bool>("show_tabbar", "true");
         config_map.template set<GdkRGBA>("tabbar_bg_color","#303030");
