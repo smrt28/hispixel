@@ -147,6 +147,20 @@ gboolean HisPixelApp::key_release_event(GtkWidget *, GdkEvent *event)
     return FALSE;
 }
 
+gboolean HisPixelApp::scroll_event(GtkWidget *, GdkEvent *event)
+{
+    if (!shift_blocks_wheel_)
+      return FALSE;
+
+    // Check if Shift key is pressed
+    if (event->scroll.state & GDK_SHIFT_MASK) {
+        // Block the scroll event when Shift is held
+        return TRUE;
+    }
+    // Allow normal scroll behavior
+    return FALSE;
+}
+
 gboolean HisPixelApp::key_press_event(GtkWidget *, GdkEvent *event)
 {
     Action_t ac = find_action(event);
@@ -434,6 +448,9 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
     // we need to register for the child-exited signal
     evts.reg_child_exited(terminal);
 
+    // Register scroll event to handle Shift+scroll blocking
+    evts.reg_scroll_event(terminal);
+
     ArgsFactory argv;
     argv.add(config.get<std::string>("command"));
 
@@ -639,6 +656,10 @@ void HisPixelApp::read_config(const char *cfg_file) {
                 RAISE(NOT_FOUND) << "err: config file not found at ~/.hispixel/config or ~/.config/hispixel";
             }
     }
+
+    shift_blocks_wheel_ = config.get<bool>("shift_blocks_wheel");
+    
+    std::cout << shift_blocks_wheel_ << std::endl;
 
     // get and cache pango font dectiptin used by VTE
     std::string font_name = config.get<std::string>("term_font");

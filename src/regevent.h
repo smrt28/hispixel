@@ -45,6 +45,11 @@ public:
                 G_CALLBACK(selection_changed), app);
     }
 
+    void reg_scroll_event(GtkWidget * w) {
+        g_signal_connect(w, "scroll-event",
+                G_CALLBACK(scroll_event), app);
+    }
+
 private:
 
     /**
@@ -116,6 +121,20 @@ private:
         } catch(...) {
             ((App_t *)_udata)->on_error(nullptr);
         }
+    }
+
+    static gboolean scroll_event(GtkWidget *widget, GdkEvent *event,
+            gpointer _udata)
+    {
+        try {
+            return ((App_t *)_udata)->scroll_event(widget, event);
+        } catch(const std::exception &e) {
+            ((App_t *)_udata)->on_error(&e);
+        } catch(...) {
+            ((App_t *)_udata)->on_error(nullptr);
+        }
+
+        return FALSE;
     }
 
     // the application class

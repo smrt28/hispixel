@@ -31,6 +31,7 @@ public:
     void child_exited(VteTerminal *t, gint status);
     gboolean key_press_event(GtkWidget *widget, GdkEvent *event);
     gboolean key_release_event(GtkWidget *widget, GdkEvent *event);
+    gboolean scroll_event(GtkWidget *widget, GdkEvent *event);
 
     void page_removed(GtkNotebook *notebook, GtkWidget *child, guint page_num);
     void selection_changed(VteTerminal *t);
@@ -86,6 +87,8 @@ private:
     GtkCssProvider *provider = nullptr;
     bool tabbar_visible = true;
     bool tabbar_need_update = true;
+
+    bool shift_blocks_wheel_ = false;
 
     // Config map
     s28::Config_t config;
