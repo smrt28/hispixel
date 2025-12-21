@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Before use on Arch: pacman -S qt5-tools
+
 if [ "x$HISPIXEL_APP_ID" = "x" ]; then
     return
 fi
@@ -33,7 +35,7 @@ function his-dump() {
 
 function his-less() {
     __his_dump_init $1
-    qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.VteDump "$1 $2" > $CACHE_DIR/$FILENAME
+    qdbus $HISPIXEL_APP_ID /com/hispixel com.hispixel.GDBUS.VteDump "$1 $2" > $FILENAME
     __his_latest_link
     cat $FILENAME | tail -n +2 | less
 }
