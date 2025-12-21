@@ -1,0 +1,109 @@
+# fc-list
+
+#term_font = "Roboto Mono"
+#term_font = "Hack"
+#term_font = "Terminus"
+#term_font = "Terminess Nerd Font Mono"
+#term_font = "FantasqueSansM Nerd Font"
+#term_font = "JetBrainsMono Nerd Font Mono"
+#
+term_font = "Fantasque Sans Mono"
+term_font="JetBrainsMonoNL Nerd Font Mono"
+term_font = "JetBrainsMono NF"
+
+label_font = "Terminus"
+z_name_color = "ffffff"
+term_font_size = "11"
+# a="1"
+line_spacing="0.85"
+
+allow_bold = "true"
+show_tabbar = "true"
+tabbar_bg_color = "#303030"
+tabbar_on_bottom = "false"
+scrollback_lines = "50000"
+command = "/bin/bash"
+audible_bell = "false"
+startup_tabs = "1"
+auto_open_tabs = "true"
+window_width = "1400"
+window_height = "900"
+shift_blocks_wheel = "true"
+
+
+#fullscreen="true"
+#show_titlebar="false"
+
+transparency = "0.7"
+
+# Z-Axes colors
+z_color_0 = ""
+z_color_1 = "ff44ff aaaaff 44ffff ffff44 ff4444 44ff44"
+z_gama = "-50"
+z_names = "Q W E R T Y"
+
+# Terminal font colors
+gama = "40"
+color_bg = "#181926" # "#000000"
+color_fg = "#e5e5e5"
+
+# Black
+color_black = "#000000" # color_0
+color_black_light = "#4d4d4d" # color_8
+
+# Red
+color_red = "#B22222" # color_1
+color_red_light = "#ED2939" # color_9
+
+# Green
+color_green = "#00a000" # color_2
+color_green_light = "#32cd32" # color_10
+
+# Yellow
+color_yellow = "#cdcd00" # color_3
+color_yellow_light = "#ffff00" # color_11
+
+# Blue
+color_blue = "#1e66f5" #"#2346DF" # color_4
+color_blue_light = "#7287fd" # "#2b65ec" # color_12
+
+# Magenta
+color_magenta = "#AA00AA" # color_5
+color_magenta_light = "#C154C1" # color_13
+
+# Cyan
+color_cyan = "#58C6ED" # color_6
+color_cyan_light = "#00DFFF" # color_14
+
+# White
+color_white = "#e5e5e5" # color_7
+color_white_light = "#ffffff" # color_15
+
+# Key bindings
+bindsym alt+1 focus 1
+bindsym alt+2 focus 2
+bindsym alt+3 focus 3
+bindsym alt+4 focus 4
+bindsym alt+5 focus 5
+bindsym alt+6 focus 6
+bindsym alt+7 focus 7
+bindsym alt+8 focus 8
+bindsym alt+9 focus 9
+bindsym alt+ctrl+z opentab
+bindsym ctrl+alt+1 swap_1
+bindsym ctrl+alt+2 swap_2
+bindsym ctrl+alt+3 swap_3
+bindsym ctrl+alt+4 swap_4
+bindsym ctrl+alt+5 swap_5
+bindsym ctrl+alt+6 swap_6
+bindsym ctrl+alt+7 swap_7
+bindsym ctrl+alt+8 swap_8
+bindsym ctrl+alt+9 swap_9
+bindsym ctrl+alt+t togle_tabbar
+bindsym ctrl+d close_last
+bindsym alt+q focus_z 1
+bindsym alt+w focus_z 2
+bindsym alt+e focus_z 3
+bindsym alt+r focus_z 4
+bindsym alt+t focus_z 5
+bindsym alt+y focus_z 6

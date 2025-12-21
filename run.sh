@@ -2,6 +2,9 @@
 
 # Patching VTE
 # ------------
+#
+# Short note, how to patch VTE to be able to set line-spacing <1.
+#
 # git clone https://gitlab.gnome.org/GNOME/vte.git
 # meson setup _build --prefix=$HOME/opt/vte-patched
 # diff --git a/src/vtedefines.hh b/src/vtedefines.hh
@@ -11,8 +14,6 @@
 #
 # ninja -C _build -j 10
 #
-
-
 
 # to run hispixel witch curtom vte build
 
