@@ -434,6 +434,7 @@ void HisPixelApp::open_tab(TabConfig tabconfig) {
 
     color_fg = config.get<GdkRGBA>("color_fg");
     color_bg = config.get<GdkRGBA>("color_bg");
+    color_bg.alpha = config.get<double>("transparency");
 
     vte_terminal_set_colors(VTE_TERMINAL(terminal), &color_fg, &color_bg, color_palette, 16);
     vte_terminal_set_font (VTE_TERMINAL(terminal), font_description);
@@ -510,6 +511,7 @@ std::string HisPixelApp::gtk_css() {
     // create the CSS style according to the hispixel.conf
     std::ostringstream oss;
     GdkRGBA clor = config.get<GdkRGBA>("tabbar_bg_color");
+    clor.alpha = config.get<double>("transparency");
     oss << "* { "
         <<       "background-color: " << gdk_rgba_to_string (&clor)   << ";"
         <<       "border-color: black;"
@@ -526,6 +528,14 @@ void HisPixelApp::activate(GtkApplication* theApp) {
     window = gtk_application_window_new (app);
     if (!window) RAISE(FATAL) << "gtk_application_window_new failed";
 
+    GdkScreen *screen = gtk_widget_get_screen(window);
+    if (!screen) RAISE(FATAL) << "gdk_display_get_default_screen failed";
+
+    GdkVisual *visual = gdk_screen_get_rgba_visual(screen);
+    if (visual) {
+        gtk_widget_set_visual(window, visual);
+    }
+
     // event weapper
     RegEvents_t<HisPixelApp> evts(this);
 
@@ -537,9 +547,6 @@ void HisPixelApp::activate(GtkApplication* theApp) {
     // create CSS provider, assign the CSS to the screen
     GdkDisplay *display = gdk_display_get_default();
     if (!display) RAISE(FATAL) << "gdk_display_get_default failed";
-
-    GdkScreen *screen = gdk_display_get_default_screen(display);
-    if (!screen) RAISE(FATAL) << "gdk_display_get_default_screen failed";
 
     std::string css = gtk_css();
 

@@ -159,6 +159,7 @@ allow_bold = "true"
 color_bg = "#000000"
 color_fg = "#e5e5e5"
 gama = "0"  # Gamma adjustment (-100 to 100)
+transparency = "1.0" # 0.0 - 1.0
 
 # Behavior
 scrollback_lines = "50000"

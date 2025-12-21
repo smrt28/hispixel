@@ -327,6 +327,7 @@ void setup_config_defualuts(Map &config_map) {
         config_map.template set<bool>("show_titlebar", "true");
 
         config_map.template set<bool>("shift_blocks_wheel", "false");
+        config_map.template set<double>("transparency", "1.0");
 
 
         config_map.comment("");
